@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestione spese by Ezio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .error-border {
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+        }
+        .success-border {
+            border-color: #10b981 !important;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+    </style>
+</head>
+<body class="p-4">
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <div class="flex items-center justify-center mb-4">
+                <i class="fas fa-calculator text-white text-4xl mr-3"></i>
+                <h1 class="text-4xl font-bold text-white">Gestione spese by Ezio</h1>
+            </div>
+            <p class="text-white text-lg opacity-90">Gestore Spese Condivise</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <!-- Sezione Partecipanti -->
+            <div class="glass-card rounded-xl p-6 shadow-xl">
+                <div class="flex items-center mb-4">
+                    <i class="fas fa-users text-blue-600 text-xl mr-3"></i>
+                    <h2 class="text-xl font-bold text-gray-800">Partecipanti</h2>
+                </div>
+                
+                <div class="flex gap-2 mb-4">
+                    <input 
+                        type="text" 
+                        id="participantName" 
+                        placeholder="Nome partecipante"
+                        class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                    <button 
+                        onclick="addParticipant()" 
+                        class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+                
+                <div id="participantsList" class="space-y-2">
+                    <!-- Lista partecipanti verrà inserita qui -->
+                </div>
+            </div>
+
+            <!-- Sezione Aggiungi Spesa -->
+            <div class="glass-card rounded-xl p-6 shadow-xl">
+                <div class="flex items-center mb-4">
+                    <i class="fas fa-plus-circle text-green-600 text-xl mr-3"></i>
+                    <h2 class="text-xl font-bold text-gray-800">Aggiungi Spesa</h2>
+                </div>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Data</label>
+                        <input 
+                            type="date" 
+                            id="expenseDate" 
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        >
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Importo (€)</label>
+                        <input 
+                            type="number" 
+                            id="expenseAmount" 
+                            placeholder="0.00" 
+                            step="0.01" 
+                            min="0"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        >
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Descrizione</label>
+                        <input 
+                            type="text" 
+                            id="expenseDescription" 
+                            placeholder="Descrizione della spesa"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        >
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Chi ha pagato</label>
+                        <select 
+                            id="expensePayer" 
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        >
+                            <option value="">Seleziona chi ha pagato</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Dividi tra</label>
+                        <div id="expenseParticipants" class="space-y-2">
+                            <p class="text-gray-500 text-sm">Aggiungi prima dei partecipanti</p>
+                        </div>
+                    </div>
+                    
+                    <button 
+                        onclick="addExpense()" 
+                        class="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors font-medium"
+                    >
+                        <i class="fas fa-plus mr-2"></i>Aggiungi Spesa
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <!-- Sezione Spese Registrate -->
+            <div class="glass-card rounded-xl p-6 shadow-xl">
+                <div class="flex items-center mb-4">
+                    <i class="fas fa-list text-purple-600 text-xl mr-3"></i>
+                    <h2 class="text-xl font-bold text-gray-800">Spese Registrate</h2>
+                </div>
+                
+                <div id="expensesList">
+                    <p class="text-gray-500 text-center py-8">Nessuna spesa registrata</p>
+                </div>
+            </div>
+
+            <!-- Sezione Rimborsi -->
+            <div class="glass-card rounded-xl p-6 shadow-xl">
+                <div class="flex items-center mb-4">
+                    <i class="fas fa-exchange-alt text-orange-600 text-xl mr-3"></i>
+                    <h2 class="text-xl font-bold text-gray-800">Rimborsi</h2>
+                </div>
+                
+                <div id="reimbursements">
+                    <p class="text-gray-500 text-center py-8">Nessun rimborso necessario</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sezione Bilanci -->
+        <div class="glass-card rounded-xl p-6 shadow-xl mb-6">
+            <div class="flex items-center mb-4">
+                <i class="fas fa-chart-line text-yellow-600 text-xl mr-3"></i>
+                <h2 class="text-xl font-bold text-gray-800">Bilanci</h2>
+            </div>
+            
+            <div id="balances">
+                <p class="text-gray-500 text-center py-8">Aggiungi partecipanti e spese per vedere i bilanci</p>
+            </div>
+        </div>
+
+        <!-- Pulsanti di controllo -->
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <button 
+                onclick="exportData()" 
+                class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+            >
+                <i class="fas fa-download mr-2"></i>Esporta Dati
+            </button>
+            <button 
+                onclick="resetAll()" 
+                class="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors font-medium"
+            >
+                <i class="fas fa-trash mr-2"></i>Reset Tutto
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Variabili globali
+        let participants = [];
+        let expenses = [];
+
+        // Carica dati dal localStorage
+        function loadData() {
+            const savedParticipants = localStorage.getItem('gestione_spese_ezio_participants');
+            const savedExpenses = localStorage.getItem('gestione_spese_ezio_expenses');
+            
+            if (savedParticipants) {
+                participants = JSON.parse(savedParticipants);
+            }
+            
+            if (savedExpenses) {
+                expenses = JSON.parse(savedExpenses);
+            }
+            
+            updateParticipantsDisplay();
+            updateExpensesDisplay();
+            setTodayDate();
+        }
+
+        // Salva dati nel localStorage
+        function saveData() {
+            localStorage.setItem('gestione_spese_ezio_participants', JSON.stringify(participants));
+            localStorage.setItem('gestione_spese_ezio_expenses', JSON.stringify(expenses));
+        }
+
+        // Imposta la data di oggi
+        function setTodayDate() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('expenseDate').value = today;
+        }
+
+        // Aggiungi partecipante
+        function addParticipant() {
+            const nameInput = document.getElementById('participantName');
+            const name = nameInput.value.trim();
+            
+            clearErrors();
+            
+            if (!name) {
+                showError(nameInput, 'Il nome del partecipante è obbligatorio');
+                return;
+            }
+            
+            if (participants.includes(name)) {
+                showError(nameInput, 'Questo partecipante è già presente');
+                return;
+            }
+            
+            participants.push(name);
+            nameInput.value = '';
+            showSuccess(nameInput);
+            
+            updateParticipantsDisplay();
+            updateExpenseParticipants();
+            saveData();
+        }
+
+        // Rimuovi partecipante
+        function removeParticipant(name) {
+            if (confirm(`Sei sicuro di voler rimuovere ${name}? Verranno eliminate anche tutte le sue spese.`)) {
+                participants = participants.filter(p => p !== name);
+                expenses = expenses.filter(e => e.payer !== name && !e.participants.includes(name));
+                
+                updateParticipantsDisplay();
+                updateExpenseParticipants();
+                updateExpensesDisplay();
+                saveData();
+            }
+        }
+
+        // Aggiorna visualizzazione partecipanti
+        function updateParticipantsDisplay() {
+            const participantsList = document.getElementById('participantsList');
+            
+            if (participants.length === 0) {
+                participantsList.innerHTML = '<p class="text-gray-500 text-center py-4">Nessun partecipante aggiunto</p>';
+                return;
+            }
+            
+            participantsList.innerHTML = participants.map(participant => `
+                <div class="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+                    <div class="flex items-center">
+                        <i class="fas fa-user text-blue-600 mr-3"></i>
+                        <span class="font-medium">${participant}</span>
+                    </div>
+                    <button 
+                        onclick="removeParticipant('${participant}')" 
+                        class="text-red-600 hover:text-red-800 transition-colors"
+                    >
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `).join('');
+            
+            // Aggiorna select del pagatore
+            const payerSelect = document.getElementById('expensePayer');
+            payerSelect.innerHTML = '<option value="">Seleziona chi ha pagato</option>' +
+                participants.map(p => `<option value="${p}">${p}</option>`).join('');
+        }
+
+        // Aggiorna checkbox partecipanti per le spese
+        function updateExpenseParticipants() {
+            const expenseParticipants = document.getElementById('expenseParticipants');
+            
+            if (participants.length === 0) {
+                expenseParticipants.innerHTML = '<p class="text-gray-500 text-sm">Aggiungi prima dei partecipanti</p>';
+                return;
+            }
+            
+            expenseParticipants.innerHTML = participants.map(participant => `
+                <label class="flex items-center">
+                    <input 
+                        type="checkbox" 
+                        value="${participant}" 
+                        class="mr-2 rounded"
+                        checked
+                    >
+                    <span>${participant}</span>
+                </label>
+            `).join('');
+        }
+
+        // Aggiungi spesa
+        function addExpense() {
+            const date = document.getElementById('expenseDate').value;
+            const amount = parseFloat(document.getElementById('expenseAmount').value);
+            const description = document.getElementById('expenseDescription').value.trim();
+            const payer = document.getElementById('expensePayer').value;
+            const participantCheckboxes = document.querySelectorAll('#expenseParticipants input[type="checkbox"]:checked');
+            const selectedParticipants = Array.from(participantCheckboxes).map(cb => cb.value);
+            
+            clearErrors();
+            
+            // Validazioni
+            if (!date) {
+                showError(document.getElementById('expenseDate'), 'La data è obbligatoria');
+                return;
+            }
+            
+            if (!amount || amount <= 0) {
+                showError(document.getElementById('expenseAmount'), 'L\'importo deve essere maggiore di 0');
+                return;
+            }
+            
+            if (!description) {
+                showError(document.getElementById('expenseDescription'), 'La descrizione è obbligatoria');
+                return;
+            }
+            
+            if (!payer) {
+                showError(document.getElementById('expensePayer'), 'Seleziona chi ha pagato');
+                return;
+            }
+            
+            if (selectedParticipants.length === 0) {
+                alert('Seleziona almeno un partecipante per dividere la spesa');
+                return;
+            }
+            
+            // Aggiungi spesa
+            const expense = {
+                id: Date.now(),
+                date: date,
+                amount: amount,
+                description: description,
+                payer: payer,
+                participants: selectedParticipants
+            };
+            
+            expenses.push(expense);
+            
+            // Reset form
+            document.getElementById('expenseAmount').value = '';
+            document.getElementById('expenseDescription').value = '';
+            document.getElementById('expensePayer').value = '';
+            setTodayDate();
+            updateExpenseParticipants();
+            
+            updateExpensesDisplay();
+            saveData();
+            
+            // Mostra successo
+            showSuccess(document.getElementById('expenseDescription'));
+        }
+
+        // Rimuovi spesa
+        function removeExpense(id) {
+            if (confirm('Sei sicuro di voler eliminare questa spesa?')) {
+                expenses = expenses.filter(e => e.id !== id);
+                updateExpensesDisplay();
+                saveData();
+            }
+        }
+
+        // Aggiorna visualizzazione spese
+        function updateExpensesDisplay() {
+            const expensesList = document.getElementById('expensesList');
+            
+            if (expenses.length === 0) {
+                expensesList.innerHTML = '<p class="text-gray-500 text-center py-8">Nessuna spesa registrata</p>';
+                updateBalancesDisplay();
+                return;
+            }
+            
+            expensesList.innerHTML = expenses.map(expense => `
+                <div class="bg-gray-50 p-4 rounded-lg mb-3">
+                    <div class="flex justify-between items-start mb-2">
+                        <div class="flex-1">
+                            <h4 class="font-medium text-gray-800">${expense.description}</h4>
+                            <p class="text-sm text-gray-600">${new Date(expense.date).toLocaleDateString('it-IT')}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-lg font-bold text-green-600">€${expense.amount.toFixed(2)}</p>
+                            <button 
+                                onclick="removeExpense(${expense.id})" 
+                                class="text-red-600 hover:text-red-800 text-sm"
+                            >
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="text-sm text-gray-600">
+                        <p><strong>Pagato da:</strong> ${expense.payer}</p>
+                        <p><strong>Diviso tra:</strong> ${expense.participants.join(', ')}</p>
+                        <p><strong>Quota per persona:</strong> €${(expense.amount / expense.participants.length).toFixed(2)}</p>
+                    </div>
+                </div>
+            `).join('');
+            
+            updateBalancesDisplay();
+        }
+
+        // Aggiorna visualizzazione bilanci
+        function updateBalancesDisplay() {
+            const balancesDiv = document.getElementById('balances');
+            
+            if (participants.length === 0 || expenses.length === 0) {
+                balancesDiv.innerHTML = '<p class="text-gray-500 text-center py-8">Aggiungi partecipanti e spese per vedere i bilanci</p>';
+                updateReimbursementsDisplay([]);
+                return;
+            }
+            
+            // Calcola bilanci
+            const balances = {};
+            participants.forEach(p => balances[p] = 0);
+            
+            expenses.forEach(expense => {
+                const sharePerPerson = expense.amount / expense.participants.length;
+                
+                // Il pagatore riceve credito per l'importo totale
+                balances[expense.payer] += expense.amount;
+                
+                // Ogni partecipante deve la sua quota
+                expense.participants.forEach(participant => {
+                    balances[participant] -= sharePerPerson;
+                });
+            });
+            
+            // Visualizza bilanci
+            balancesDiv.innerHTML = participants.map(participant => {
+                const balance = balances[participant];
+                const isPositive = balance > 0.01;
+                const isNegative = balance < -0.01;
+                const colorClass = isPositive ? 'text-green-600' : isNegative ? 'text-red-600' : 'text-gray-600';
+                const icon = isPositive ? 'fa-arrow-up' : isNegative ? 'fa-arrow-down' : 'fa-minus';
+                
+                return `
+                    <div class="flex items-center justify-between bg-gray-50 p-4 rounded-lg mb-2">
+                        <div class="flex items-center">
+                            <i class="fas fa-user text-blue-600 mr-3"></i>
+                            <span class="font-medium">${participant}</span>
+                        </div>
+                        <div class="flex items-center ${colorClass}">
+                            <i class="fas ${icon} mr-2"></i>
+                            <span class="font-bold">€${Math.abs(balance).toFixed(2)}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Calcola rimborsi
+            calculateReimbursements(balances);
+        }
+
+        // Calcola rimborsi ottimali
+        function calculateReimbursements(balances) {
+            const creditors = [];
+            const debtors = [];
+            
+            Object.entries(balances).forEach(([person, balance]) => {
+                if (balance > 0.01) {
+                    creditors.push({person, amount: balance});
+                } else if (balance < -0.01) {
+                    debtors.push({person, amount: -balance});
+                }
+            });
+            
+            creditors.sort((a, b) => b.amount - a.amount);
+            debtors.sort((a, b) => b.amount - a.amount);
+            
+            const reimbursements = [];
+            let i = 0, j = 0;
+            
+            while (i < creditors.length && j < debtors.length) {
+                const creditor = creditors[i];
+                const debtor = debtors[j];
+                const amount = Math.min(creditor.amount, debtor.amount);
+                
+                if (amount > 0.01) {
+                    reimbursements.push({
+                        from: debtor.person,
+                        to: creditor.person,
+                        amount: amount
+                    });
+                }
+                
+                creditor.amount -= amount;
+                debtor.amount -= amount;
+                
+                if (creditor.amount < 0.01) i++;
+                if (debtor.amount < 0.01) j++;
+            }
+            
+            updateReimbursementsDisplay(reimbursements);
+        }
+
+        // Aggiorna visualizzazione rimborsi
+        function updateReimbursementsDisplay(reimbursements) {
+            const reimbursementsDiv = document.getElementById('reimbursements');
+            
+            if (reimbursements.length === 0) {
+                reimbursementsDiv.innerHTML = '<p class="text-gray-500 text-center py-8">Nessun rimborso necessario</p>';
+                return;
+            }
+            
+            reimbursementsDiv.innerHTML = reimbursements.map(reimb => `
+                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-lg mb-3">
+                    <div class="flex items-center">
+                        <i class="fas fa-arrow-right text-yellow-600 mr-3"></i>
+                        <div>
+                            <p class="font-medium text-gray-800">
+                                <span class="text-red-600">${reimb.from}</span>
+                                deve pagare
+                                <span class="text-green-600">${reimb.to}</span>
+                            </p>
+                            <p class="text-lg font-bold text-yellow-600">€${reimb.amount.toFixed(2)}</p>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Esporta dati
+        function exportData() {
+            const data = {
+                participants: participants,
+                expenses: expenses,
+                exportDate: new Date().toISOString(),
+                appName: "Gestione spese by Ezio"
+            };
+            
+            const dataStr = JSON.stringify(data, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'gestione_spese_ezio_' + new Date().toISOString().split('T')[0] + '.json';
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Reset tutto
+        function resetAll() {
+            if (confirm('Sei sicuro di voler eliminare tutti i dati? Questa azione non può essere annullata.')) {
+                participants = [];
+                expenses = [];
+                localStorage.removeItem('gestione_spese_ezio_participants');
+                localStorage.removeItem('gestione_spese_ezio_expenses');
+                updateParticipantsDisplay();
+                updateExpensesDisplay();
+                clearErrors();
+            }
+        }
+
+        // Gestione errori e successi
+        function showError(element, message) {
+            element.classList.add('error-border');
+            element.title = message;
+            setTimeout(() => {
+                element.classList.remove('error-border');
+                element.title = '';
+            }, 3000);
+        }
+
+        function showSuccess(element) {
+            element.classList.add('success-border');
+            setTimeout(() => {
+                element.classList.remove('success-border');
+            }, 1000);
+        }
+
+        function clearErrors() {
+            document.querySelectorAll('.error-border').forEach(el => {
+                el.classList.remove('error-border');
+                el.title = '';
+            });
+        }
+
+        // Event listener per Enter sui campi input
+        document.getElementById('participantName').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addParticipant();
+            }
+        });
+
+        // Inizializza app
+        loadData();
+    </script>
+</body>
+</html>
+
