@@ -1,553 +1,3 @@
-# 📋 Changelog
-
-Tutte le modifiche importanti a questo progetto saranno documentate in questo file.
-
-Il formato è basato su [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
-## [2.0.0] - 2025-08-11
-
-### 🎉 Aggiunto
-- **Modalità Condivisa** - Sincronizzazione in tempo reale tra dispositivi
-- **Backend Flask** completo con API REST
-- **Database SQLite** per persistenza dati condivisi
-- **Sistema di gruppi** con codici di accesso univoci
-- **Gestione partecipanti dinamica** - Aggiungi/rimuovi membri
-- **Interfaccia di selezione modalità** - Scegli tra locale e condivisa
-- **Calcolo bilanci avanzato** con rimborsi ottimizzati
-- **Notifiche eleganti** per feedback utente
-- **Design responsive** migliorato per mobile
-- **Documentazione API** completa
-
-### 🔄 Modificato
-- **Architettura ibrida** - Supporto per due modalità di utilizzo
-- **Interfaccia utente** completamente ridisegnata
-- **Sistema di notifiche** più elegante e informativo
-- **Gestione errori** migliorata con messaggi chiari
-- **Performance** ottimizzate per entrambe le modalità
-
-### 🛠️ Tecnico
-- **Flask + Flask-CORS** per backend API
-- **SQLite** per database locale
-- **JavaScript ES6+** per frontend moderno
-- **CSS Grid/Flexbox** per layout responsive
-- **Fetch API** per comunicazione client-server
-
-## [1.0.0] - 2025-08-11
-
-### 🎉 Aggiunto
-- **Modalità Locale** - Gestione spese offline
-- **Gestione partecipanti** - Aggiungi/rimuovi persone
-- **Registrazione spese** con divisione personalizzata
-- **Calcolo bilanci automatico** con rimborsi ottimali
-- **Esportazione dati** in formato JSON
-- **Salvataggio automatico** nel localStorage
-- **Design moderno** con effetti glass
-- **Responsive design** per tutti i dispositivi
-
-### 🎨 Design
-- **Gradiente viola** per il brand
-- **Effetti glass** per eleganza
-- **Font Awesome** per icone
-- **Animazioni CSS** fluide
-- **Layout a card** moderno
-
-### 🔧 Funzionalità
-- **Algoritmo rimborsi** ottimizzato
-- **Validazione input** completa
-- **Gestione errori** user-friendly
-- **Backup automatico** dei dati
-- **Reset completo** opzionale
-
----
-
-## 🔮 Prossime Versioni
-
-### [2.1.0] - Pianificata
-- **App mobile** React Native
-- **Notifiche push** per nuove spese
-- **Categorie spese** per organizzazione
-- **Grafici statistiche** avanzati
-
-### [2.2.0] - Pianificata
-- **Esportazione PDF** per report
-- **Integrazione pagamenti** (PayPal, Stripe)
-- **Multi-valuta** per viaggi internazionali
-- **Ricevute fotografiche** con OCR
-
-### [3.0.0] - Visione Futura
-- **AI per divisione** intelligente spese
-- **Blockchain** per trasparenza
-- **Integrazione bancaria** per importazione automatica
-- **Social features** per condivisione
-
----
-
-## 📝 Note di Versione
-
-### Compatibilità
-- **Browser**: Chrome 80+, Firefox 75+, Safari 13+, Edge 80+
-- **Python**: 3.7+ (solo modalità condivisa)
-- **Mobile**: iOS 13+, Android 8+
-
-### Breaking Changes
-- **v2.0.0**: Nuova architettura ibrida, file di configurazione aggiornati
-- **v1.0.0**: Prima versione stabile
-
-### Migrazioni
-- **Da v1.0 a v2.0**: Dati locali preservati automaticamente
-- **Nuove installazioni**: Setup guidato per entrambe le modalità
-
----
-
-⭐ **Grazie per aver scelto Gestione spese by Ezio!**
-
-
-# 🚀 Guida al Deployment
-
-Questa guida ti aiuterà a mettere online la tua app "Gestione spese by Ezio" in diversi modi.
-
-## 📋 Indice
-
-1. [Deployment Solo Frontend (Modalità Locale)](#frontend-only)
-2. [Deployment Full-Stack (Modalità Condivisa)](#full-stack)
-3. [Deployment su GitHub Pages](#github-pages)
-4. [Deployment su Netlify](#netlify)
-5. [Deployment su Vercel](#vercel)
-6. [Deployment su Heroku](#heroku)
-7. [Deployment con Docker](#docker)
-8. [Configurazione Dominio Personalizzato](#custom-domain)
-
----
-
-## 🏠 Frontend Only (Modalità Locale) {#frontend-only}
-
-Per deployare solo la modalità locale (senza backend):
-
-### GitHub Pages (Gratuito)
-```bash
-# 1. Carica solo index.html nel tuo repository GitHub
-# 2. Vai su Settings > Pages
-# 3. Seleziona "main branch"
-# 4. La tua app sarà su: https://tuonome.github.io/repository-name
-```
-
-### Netlify (Gratuito)
-```bash
-# 1. Vai su netlify.com
-# 2. Trascina il file index.html
-# 3. La tua app sarà online in 30 secondi
-```
-
-### Vercel (Gratuito)
-```bash
-# 1. Installa Vercel CLI
-npm i -g vercel
-
-# 2. Deploy
-vercel --prod
-```
-
----
-
-## 🌐 Full-Stack (Modalità Condivisa) {#full-stack}
-
-Per deployare l'app completa con backend:
-
-### Heroku (Raccomandato)
-
-#### 1. Preparazione
-```bash
-# Crea requirements.txt
-echo "flask==2.3.3
-flask-cors==4.0.0
-gunicorn==21.2.0" > requirements.txt
-
-# Crea Procfile
-echo "web: gunicorn backend:app" > Procfile
-
-# Crea runtime.txt
-echo "python-3.11.0" > runtime.txt
-```
-
-#### 2. Deploy
-```bash
-# Installa Heroku CLI
-# https://devcenter.heroku.com/articles/heroku-cli
-
-# Login
-heroku login
-
-# Crea app
-heroku create gestione-spese-ezio
-
-# Deploy
-git add .
-git commit -m "Deploy versione 2.0"
-git push heroku main
-
-# La tua app sarà su: https://gestione-spese-ezio.herokuapp.com
-```
-
-### Railway (Alternativa Moderna)
-```bash
-# 1. Vai su railway.app
-# 2. Connetti il tuo repository GitHub
-# 3. Railway rileva automaticamente Flask
-# 4. Deploy automatico ad ogni push
-```
-
-### DigitalOcean App Platform
-```bash
-# 1. Vai su cloud.digitalocean.com
-# 2. Crea nuova App
-# 3. Connetti repository GitHub
-# 4. Configura:
-#    - Build Command: pip install -r requirements.txt
-#    - Run Command: gunicorn backend:app
-```
-
----
-
-## 📄 GitHub Pages {#github-pages}
-
-### Setup Completo
-```bash
-# 1. Crea repository su GitHub
-git init
-git add .
-git commit -m "Prima versione"
-git branch -M main
-git remote add origin https://github.com/tuonome/gestione-spese-by-ezio.git
-git push -u origin main
-
-# 2. Attiva GitHub Pages
-# Settings > Pages > Source: main branch
-
-# 3. La tua app sarà su:
-# https://tuonome.github.io/gestione-spese-by-ezio
-```
-
-### Configurazione Avanzata
-```yaml
-# .github/workflows/deploy.yml
-name: Deploy to GitHub Pages
-on:
-  push:
-    branches: [ main ]
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./
-```
-
----
-
-## 🎨 Netlify {#netlify}
-
-### Deploy Manuale
-1. Vai su [netlify.com](https://netlify.com)
-2. Trascina la cartella del progetto
-3. Personalizza URL: `gestione-spese-ezio.netlify.app`
-
-### Deploy Automatico
-```bash
-# netlify.toml
-[build]
-  publish = "."
-  command = "echo 'Static site ready'"
-
-[[redirects]]
-  from = "/api/*"
-  to = "https://tuo-backend.herokuapp.com/api/:splat"
-  status = 200
-```
-
-### Netlify CLI
-```bash
-# Installa CLI
-npm install -g netlify-cli
-
-# Login
-netlify login
-
-# Deploy
-netlify deploy --prod --dir=.
-```
-
----
-
-## ⚡ Vercel {#vercel}
-
-### Deploy Rapido
-```bash
-# Installa Vercel CLI
-npm i -g vercel
-
-# Deploy
-vercel --prod
-
-# La tua app sarà su: https://gestione-spese-ezio.vercel.app
-```
-
-### Configurazione
-```json
-// vercel.json
-{
-  "version": 2,
-  "builds": [
-    {
-      "src": "backend.py",
-      "use": "@vercel/python"
-    },
-    {
-      "src": "index.html",
-      "use": "@vercel/static"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "backend.py"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "index.html"
-    }
-  ]
-}
-```
-
----
-
-## 🐳 Docker {#docker}
-
-### Dockerfile
-```dockerfile
-FROM python:3.11-slim
-
-WORKDIR /app
-
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-
-COPY . .
-
-EXPOSE 5000
-
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "backend:app"]
-```
-
-### Docker Compose
-```yaml
-# docker-compose.yml
-version: '3.8'
-services:
-  app:
-    build: .
-    ports:
-      - "5000:5000"
-    environment:
-      - FLASK_ENV=production
-    volumes:
-      - ./data:/app/data
-```
-
-### Deploy
-```bash
-# Build
-docker build -t gestione-spese .
-
-# Run
-docker run -p 5000:5000 gestione-spese
-
-# Con Docker Compose
-docker-compose up -d
-```
-
----
-
-## 🌍 Dominio Personalizzato {#custom-domain}
-
-### GitHub Pages
-```bash
-# 1. Crea file CNAME nel repository
-echo "tuodominio.com" > CNAME
-
-# 2. Configura DNS:
-# CNAME record: www -> tuonome.github.io
-# A record: @ -> 185.199.108.153, 185.199.109.153, 185.199.110.153, 185.199.111.153
-```
-
-### Netlify
-```bash
-# 1. Vai su Site Settings > Domain management
-# 2. Add custom domain
-# 3. Configura DNS come indicato
-```
-
-### Cloudflare (Raccomandato)
-```bash
-# 1. Aggiungi il tuo sito a Cloudflare
-# 2. Configura DNS records
-# 3. Abilita HTTPS automatico
-# 4. Configura caching per performance
-```
-
----
-
-## 🔧 Configurazioni Avanzate
-
-### Variabili d'Ambiente
-```bash
-# .env (per sviluppo locale)
-FLASK_ENV=development
-DATABASE_URL=sqlite:///spese.db
-SECRET_KEY=your-secret-key
-
-# Per produzione
-FLASK_ENV=production
-DATABASE_URL=postgresql://user:pass@host:port/db
-```
-
-### Database Produzione
-```python
-# backend.py - Configurazione database
-import os
-
-if os.environ.get('DATABASE_URL'):
-    # PostgreSQL per produzione
-    DATABASE = os.environ.get('DATABASE_URL')
-else:
-    # SQLite per sviluppo
-    DATABASE = 'spese_condivise.db'
-```
-
-### HTTPS e Sicurezza
-```python
-# backend.py - Configurazioni sicurezza
-from flask_talisman import Talisman
-
-app = Flask(__name__)
-Talisman(app, force_https=True)
-
-# Headers di sicurezza
-@app.after_request
-def after_request(response):
-    response.headers['X-Content-Type-Options'] = 'nosniff'
-    response.headers['X-Frame-Options'] = 'DENY'
-    response.headers['X-XSS-Protection'] = '1; mode=block'
-    return response
-```
-
----
-
-## 📊 Monitoraggio e Analytics
-
-### Google Analytics
-```html
-<!-- Aggiungi in index.html -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'GA_MEASUREMENT_ID');
-</script>
-```
-
-### Sentry (Error Tracking)
-```python
-# backend.py
-import sentry_sdk
-from sentry_sdk.integrations.flask import FlaskIntegration
-
-sentry_sdk.init(
-    dsn="YOUR_SENTRY_DSN",
-    integrations=[FlaskIntegration()],
-    traces_sample_rate=1.0
-)
-```
-
----
-
-## 🚀 Performance Optimization
-
-### CDN per Assets
-```html
-<!-- Usa CDN per librerie -->
-<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-```
-
-### Caching
-```python
-# backend.py - Cache headers
-@app.after_request
-def after_request(response):
-    if request.endpoint == 'serve_static':
-        response.cache_control.max_age = 31536000  # 1 anno
-    return response
-```
-
-### Compressione
-```python
-# backend.py
-from flask_compress import Compress
-
-app = Flask(__name__)
-Compress(app)
-```
-
----
-
-## 🔍 Troubleshooting
-
-### Problemi Comuni
-
-#### CORS Errors
-```python
-# Assicurati che CORS sia configurato
-from flask_cors import CORS
-CORS(app, origins=['https://tuodominio.com'])
-```
-
-#### Database Permissions
-```bash
-# Assicurati che il database sia scrivibile
-chmod 664 spese_condivise.db
-chmod 775 .
-```
-
-#### Port Binding
-```python
-# Per Heroku, usa la porta dall'environment
-port = int(os.environ.get('PORT', 5000))
-app.run(host='0.0.0.0', port=port)
-```
-
----
-
-## 📞 Supporto
-
-Se hai problemi con il deployment:
-
-1. **Controlla i log** del servizio di hosting
-2. **Verifica le configurazioni** DNS e SSL
-3. **Testa localmente** prima del deploy
-4. **Apri una issue** su GitHub per supporto
-
----
-
-⭐ **Buon deployment!** La tua app sarà online in pochi minuti!
-
-
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -2678,4 +2128,554 @@ if __name__ == '__main__':
     print("🔧 API: http://localhost:5000/api/health")
     
     app.run(host='0.0.0.0', port=5000, debug=True)
+
+
+# 📋 Changelog
+
+Tutte le modifiche importanti a questo progetto saranno documentate in questo file.
+
+Il formato è basato su [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+e questo progetto aderisce al [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [2.0.0] - 2025-08-11
+
+### 🎉 Aggiunto
+- **Modalità Condivisa** - Sincronizzazione in tempo reale tra dispositivi
+- **Backend Flask** completo con API REST
+- **Database SQLite** per persistenza dati condivisi
+- **Sistema di gruppi** con codici di accesso univoci
+- **Gestione partecipanti dinamica** - Aggiungi/rimuovi membri
+- **Interfaccia di selezione modalità** - Scegli tra locale e condivisa
+- **Calcolo bilanci avanzato** con rimborsi ottimizzati
+- **Notifiche eleganti** per feedback utente
+- **Design responsive** migliorato per mobile
+- **Documentazione API** completa
+
+### 🔄 Modificato
+- **Architettura ibrida** - Supporto per due modalità di utilizzo
+- **Interfaccia utente** completamente ridisegnata
+- **Sistema di notifiche** più elegante e informativo
+- **Gestione errori** migliorata con messaggi chiari
+- **Performance** ottimizzate per entrambe le modalità
+
+### 🛠️ Tecnico
+- **Flask + Flask-CORS** per backend API
+- **SQLite** per database locale
+- **JavaScript ES6+** per frontend moderno
+- **CSS Grid/Flexbox** per layout responsive
+- **Fetch API** per comunicazione client-server
+
+## [1.0.0] - 2025-08-11
+
+### 🎉 Aggiunto
+- **Modalità Locale** - Gestione spese offline
+- **Gestione partecipanti** - Aggiungi/rimuovi persone
+- **Registrazione spese** con divisione personalizzata
+- **Calcolo bilanci automatico** con rimborsi ottimali
+- **Esportazione dati** in formato JSON
+- **Salvataggio automatico** nel localStorage
+- **Design moderno** con effetti glass
+- **Responsive design** per tutti i dispositivi
+
+### 🎨 Design
+- **Gradiente viola** per il brand
+- **Effetti glass** per eleganza
+- **Font Awesome** per icone
+- **Animazioni CSS** fluide
+- **Layout a card** moderno
+
+### 🔧 Funzionalità
+- **Algoritmo rimborsi** ottimizzato
+- **Validazione input** completa
+- **Gestione errori** user-friendly
+- **Backup automatico** dei dati
+- **Reset completo** opzionale
+
+---
+
+## 🔮 Prossime Versioni
+
+### [2.1.0] - Pianificata
+- **App mobile** React Native
+- **Notifiche push** per nuove spese
+- **Categorie spese** per organizzazione
+- **Grafici statistiche** avanzati
+
+### [2.2.0] - Pianificata
+- **Esportazione PDF** per report
+- **Integrazione pagamenti** (PayPal, Stripe)
+- **Multi-valuta** per viaggi internazionali
+- **Ricevute fotografiche** con OCR
+
+### [3.0.0] - Visione Futura
+- **AI per divisione** intelligente spese
+- **Blockchain** per trasparenza
+- **Integrazione bancaria** per importazione automatica
+- **Social features** per condivisione
+
+---
+
+## 📝 Note di Versione
+
+### Compatibilità
+- **Browser**: Chrome 80+, Firefox 75+, Safari 13+, Edge 80+
+- **Python**: 3.7+ (solo modalità condivisa)
+- **Mobile**: iOS 13+, Android 8+
+
+### Breaking Changes
+- **v2.0.0**: Nuova architettura ibrida, file di configurazione aggiornati
+- **v1.0.0**: Prima versione stabile
+
+### Migrazioni
+- **Da v1.0 a v2.0**: Dati locali preservati automaticamente
+- **Nuove installazioni**: Setup guidato per entrambe le modalità
+
+---
+
+⭐ **Grazie per aver scelto Gestione spese by Ezio!**
+
+
+# 🚀 Guida al Deployment
+
+Questa guida ti aiuterà a mettere online la tua app "Gestione spese by Ezio" in diversi modi.
+
+## 📋 Indice
+
+1. [Deployment Solo Frontend (Modalità Locale)](#frontend-only)
+2. [Deployment Full-Stack (Modalità Condivisa)](#full-stack)
+3. [Deployment su GitHub Pages](#github-pages)
+4. [Deployment su Netlify](#netlify)
+5. [Deployment su Vercel](#vercel)
+6. [Deployment su Heroku](#heroku)
+7. [Deployment con Docker](#docker)
+8. [Configurazione Dominio Personalizzato](#custom-domain)
+
+---
+
+## 🏠 Frontend Only (Modalità Locale) {#frontend-only}
+
+Per deployare solo la modalità locale (senza backend):
+
+### GitHub Pages (Gratuito)
+```bash
+# 1. Carica solo index.html nel tuo repository GitHub
+# 2. Vai su Settings > Pages
+# 3. Seleziona "main branch"
+# 4. La tua app sarà su: https://tuonome.github.io/repository-name
+```
+
+### Netlify (Gratuito)
+```bash
+# 1. Vai su netlify.com
+# 2. Trascina il file index.html
+# 3. La tua app sarà online in 30 secondi
+```
+
+### Vercel (Gratuito)
+```bash
+# 1. Installa Vercel CLI
+npm i -g vercel
+
+# 2. Deploy
+vercel --prod
+```
+
+---
+
+## 🌐 Full-Stack (Modalità Condivisa) {#full-stack}
+
+Per deployare l'app completa con backend:
+
+### Heroku (Raccomandato)
+
+#### 1. Preparazione
+```bash
+# Crea requirements.txt
+echo "flask==2.3.3
+flask-cors==4.0.0
+gunicorn==21.2.0" > requirements.txt
+
+# Crea Procfile
+echo "web: gunicorn backend:app" > Procfile
+
+# Crea runtime.txt
+echo "python-3.11.0" > runtime.txt
+```
+
+#### 2. Deploy
+```bash
+# Installa Heroku CLI
+# https://devcenter.heroku.com/articles/heroku-cli
+
+# Login
+heroku login
+
+# Crea app
+heroku create gestione-spese-ezio
+
+# Deploy
+git add .
+git commit -m "Deploy versione 2.0"
+git push heroku main
+
+# La tua app sarà su: https://gestione-spese-ezio.herokuapp.com
+```
+
+### Railway (Alternativa Moderna)
+```bash
+# 1. Vai su railway.app
+# 2. Connetti il tuo repository GitHub
+# 3. Railway rileva automaticamente Flask
+# 4. Deploy automatico ad ogni push
+```
+
+### DigitalOcean App Platform
+```bash
+# 1. Vai su cloud.digitalocean.com
+# 2. Crea nuova App
+# 3. Connetti repository GitHub
+# 4. Configura:
+#    - Build Command: pip install -r requirements.txt
+#    - Run Command: gunicorn backend:app
+```
+
+---
+
+## 📄 GitHub Pages {#github-pages}
+
+### Setup Completo
+```bash
+# 1. Crea repository su GitHub
+git init
+git add .
+git commit -m "Prima versione"
+git branch -M main
+git remote add origin https://github.com/tuonome/gestione-spese-by-ezio.git
+git push -u origin main
+
+# 2. Attiva GitHub Pages
+# Settings > Pages > Source: main branch
+
+# 3. La tua app sarà su:
+# https://tuonome.github.io/gestione-spese-by-ezio
+```
+
+### Configurazione Avanzata
+```yaml
+# .github/workflows/deploy.yml
+name: Deploy to GitHub Pages
+on:
+  push:
+    branches: [ main ]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./
+```
+
+---
+
+## 🎨 Netlify {#netlify}
+
+### Deploy Manuale
+1. Vai su [netlify.com](https://netlify.com)
+2. Trascina la cartella del progetto
+3. Personalizza URL: `gestione-spese-ezio.netlify.app`
+
+### Deploy Automatico
+```bash
+# netlify.toml
+[build]
+  publish = "."
+  command = "echo 'Static site ready'"
+
+[[redirects]]
+  from = "/api/*"
+  to = "https://tuo-backend.herokuapp.com/api/:splat"
+  status = 200
+```
+
+### Netlify CLI
+```bash
+# Installa CLI
+npm install -g netlify-cli
+
+# Login
+netlify login
+
+# Deploy
+netlify deploy --prod --dir=.
+```
+
+---
+
+## ⚡ Vercel {#vercel}
+
+### Deploy Rapido
+```bash
+# Installa Vercel CLI
+npm i -g vercel
+
+# Deploy
+vercel --prod
+
+# La tua app sarà su: https://gestione-spese-ezio.vercel.app
+```
+
+### Configurazione
+```json
+// vercel.json
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "backend.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "index.html",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "backend.py"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "index.html"
+    }
+  ]
+}
+```
+
+---
+
+## 🐳 Docker {#docker}
+
+### Dockerfile
+```dockerfile
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+
+COPY . .
+
+EXPOSE 5000
+
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "backend:app"]
+```
+
+### Docker Compose
+```yaml
+# docker-compose.yml
+version: '3.8'
+services:
+  app:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+    volumes:
+      - ./data:/app/data
+```
+
+### Deploy
+```bash
+# Build
+docker build -t gestione-spese .
+
+# Run
+docker run -p 5000:5000 gestione-spese
+
+# Con Docker Compose
+docker-compose up -d
+```
+
+---
+
+## 🌍 Dominio Personalizzato {#custom-domain}
+
+### GitHub Pages
+```bash
+# 1. Crea file CNAME nel repository
+echo "tuodominio.com" > CNAME
+
+# 2. Configura DNS:
+# CNAME record: www -> tuonome.github.io
+# A record: @ -> 185.199.108.153, 185.199.109.153, 185.199.110.153, 185.199.111.153
+```
+
+### Netlify
+```bash
+# 1. Vai su Site Settings > Domain management
+# 2. Add custom domain
+# 3. Configura DNS come indicato
+```
+
+### Cloudflare (Raccomandato)
+```bash
+# 1. Aggiungi il tuo sito a Cloudflare
+# 2. Configura DNS records
+# 3. Abilita HTTPS automatico
+# 4. Configura caching per performance
+```
+
+---
+
+## 🔧 Configurazioni Avanzate
+
+### Variabili d'Ambiente
+```bash
+# .env (per sviluppo locale)
+FLASK_ENV=development
+DATABASE_URL=sqlite:///spese.db
+SECRET_KEY=your-secret-key
+
+# Per produzione
+FLASK_ENV=production
+DATABASE_URL=postgresql://user:pass@host:port/db
+```
+
+### Database Produzione
+```python
+# backend.py - Configurazione database
+import os
+
+if os.environ.get('DATABASE_URL'):
+    # PostgreSQL per produzione
+    DATABASE = os.environ.get('DATABASE_URL')
+else:
+    # SQLite per sviluppo
+    DATABASE = 'spese_condivise.db'
+```
+
+### HTTPS e Sicurezza
+```python
+# backend.py - Configurazioni sicurezza
+from flask_talisman import Talisman
+
+app = Flask(__name__)
+Talisman(app, force_https=True)
+
+# Headers di sicurezza
+@app.after_request
+def after_request(response):
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    return response
+```
+
+---
+
+## 📊 Monitoraggio e Analytics
+
+### Google Analytics
+```html
+<!-- Aggiungi in index.html -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'GA_MEASUREMENT_ID');
+</script>
+```
+
+### Sentry (Error Tracking)
+```python
+# backend.py
+import sentry_sdk
+from sentry_sdk.integrations.flask import FlaskIntegration
+
+sentry_sdk.init(
+    dsn="YOUR_SENTRY_DSN",
+    integrations=[FlaskIntegration()],
+    traces_sample_rate=1.0
+)
+```
+
+---
+
+## 🚀 Performance Optimization
+
+### CDN per Assets
+```html
+<!-- Usa CDN per librerie -->
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+```
+
+### Caching
+```python
+# backend.py - Cache headers
+@app.after_request
+def after_request(response):
+    if request.endpoint == 'serve_static':
+        response.cache_control.max_age = 31536000  # 1 anno
+    return response
+```
+
+### Compressione
+```python
+# backend.py
+from flask_compress import Compress
+
+app = Flask(__name__)
+Compress(app)
+```
+
+---
+
+## 🔍 Troubleshooting
+
+### Problemi Comuni
+
+#### CORS Errors
+```python
+# Assicurati che CORS sia configurato
+from flask_cors import CORS
+CORS(app, origins=['https://tuodominio.com'])
+```
+
+#### Database Permissions
+```bash
+# Assicurati che il database sia scrivibile
+chmod 664 spese_condivise.db
+chmod 775 .
+```
+
+#### Port Binding
+```python
+# Per Heroku, usa la porta dall'environment
+port = int(os.environ.get('PORT', 5000))
+app.run(host='0.0.0.0', port=port)
+```
+
+---
+
+## 📞 Supporto
+
+Se hai problemi con il deployment:
+
+1. **Controlla i log** del servizio di hosting
+2. **Verifica le configurazioni** DNS e SSL
+3. **Testa localmente** prima del deploy
+4. **Apri una issue** su GitHub per supporto
+
+---
+
+⭐ **Buon deployment!** La tua app sarà online in pochi minuti!
 
