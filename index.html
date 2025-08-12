@@ -30,9 +30,326 @@
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        .help-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        .help-button:hover {
+            transform: scale(1.1);
+            background: rgba(255, 255, 255, 1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+        .help-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .help-content {
+            background: white;
+            border-radius: 15px;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        .help-section {
+            border-bottom: 1px solid #e5e7eb;
+            padding: 20px;
+        }
+        .help-section:last-child {
+            border-bottom: none;
+        }
+        .help-tab {
+            cursor: pointer;
+            padding: 10px 20px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+        .help-tab:hover {
+            background: #f3f4f6;
+        }
+        .help-tab.active {
+            background: #3b82f6;
+            color: white;
+        }
     </style>
 </head>
 <body class="p-4">
+    <!-- Pulsante Aiuto Fisso -->
+    <div class="help-button" onclick="showHelp()" title="Aiuto e istruzioni">
+        <i class="fas fa-question text-blue-600 text-xl"></i>
+    </div>
+
+    <!-- Modal Aiuto -->
+    <div id="helpModal" class="help-modal hidden">
+        <div class="help-content">
+            <div class="flex items-center justify-between p-6 border-b border-gray-200">
+                <h2 class="text-2xl font-bold text-gray-800">
+                    <i class="fas fa-question-circle text-blue-600 mr-3"></i>
+                    Aiuto - Gestione Spese by Ezio
+                </h2>
+                <button onclick="hideHelp()" class="text-gray-500 hover:text-gray-700 text-2xl">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Tabs -->
+            <div class="flex flex-wrap p-4 border-b border-gray-200">
+                <div class="help-tab active" onclick="showHelpSection('generale')">
+                    <i class="fas fa-info-circle mr-2"></i>Generale
+                </div>
+                <div class="help-tab" onclick="showHelpSection('locale')">
+                    <i class="fas fa-home mr-2"></i>Modalità Locale
+                </div>
+                <div class="help-tab" onclick="showHelpSection('condivisa')">
+                    <i class="fas fa-cloud mr-2"></i>Modalità Condivisa
+                </div>
+                <div class="help-tab" onclick="showHelpSection('faq')">
+                    <i class="fas fa-question mr-2"></i>FAQ
+                </div>
+            </div>
+
+            <!-- Contenuto Sezioni -->
+            <div id="helpContent">
+                <!-- Sezione Generale -->
+                <div id="help-generale" class="help-section">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">
+                        <i class="fas fa-info-circle text-blue-600 mr-2"></i>
+                        Cos'è Gestione Spese by Ezio?
+                    </h3>
+                    <div class="space-y-4 text-gray-700">
+                        <p>Un'app semplice e potente per gestire le spese condivise tra amici, famiglia o colleghi.</p>
+                        
+                        <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
+                            <h4 class="font-bold text-blue-800 mb-2">Due modalità disponibili:</h4>
+                            <ul class="space-y-2">
+                                <li><strong>Modalità Locale:</strong> Gestisci le spese sul tuo dispositivo, funziona offline</li>
+                                <li><strong>Modalità Condivisa:</strong> Sincronizzazione in tempo reale con altri utenti</li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-green-50 p-4 rounded-lg border-l-4 border-green-500">
+                            <h4 class="font-bold text-green-800 mb-2">Funzionalità principali:</h4>
+                            <ul class="space-y-1">
+                                <li>• Gestione partecipanti</li>
+                                <li>• Inserimento spese dettagliate</li>
+                                <li>• Calcolo automatico dei bilanci</li>
+                                <li>• Suggerimenti di rimborso</li>
+                                <li>• Esportazione dati</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sezione Modalità Locale -->
+                <div id="help-locale" class="help-section hidden">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">
+                        <i class="fas fa-home text-blue-600 mr-2"></i>
+                        Come usare la Modalità Locale
+                    </h3>
+                    <div class="space-y-4 text-gray-700">
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <h4 class="font-bold text-blue-800 mb-2">1. Aggiungere Partecipanti</h4>
+                            <p>Inserisci il nome nel campo "Nome partecipante" e clicca "Aggiungi". Puoi rimuovere partecipanti cliccando l'icona cestino.</p>
+                        </div>
+
+                        <div class="bg-green-50 p-4 rounded-lg">
+                            <h4 class="font-bold text-green-800 mb-2">2. Inserire una Spesa</h4>
+                            <ul class="space-y-1">
+                                <li>• <strong>Descrizione:</strong> Cosa hai comprato (es. "Cena al ristorante")</li>
+                                <li>• <strong>Importo:</strong> Quanto hai speso in euro</li>
+                                <li>• <strong>Data:</strong> Quando è avvenuta la spesa</li>
+                                <li>• <strong>Pagatore:</strong> Chi ha pagato</li>
+                                <li>• <strong>Partecipanti:</strong> Seleziona chi deve dividere la spesa</li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-orange-50 p-4 rounded-lg">
+                            <h4 class="font-bold text-orange-800 mb-2">3. Leggere i Bilanci</h4>
+                            <p>La sezione "Bilanci" mostra:</p>
+                            <ul class="space-y-1">
+                                <li>• <span class="text-green-600">Verde:</span> Quanto devi ricevere</li>
+                                <li>• <span class="text-red-600">Rosso:</span> Quanto devi dare</li>
+                                <li>• <span class="text-gray-600">Grigio:</span> Sei in pari</li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-purple-50 p-4 rounded-lg">
+                            <h4 class="font-bold text-purple-800 mb-2">4. Funzioni Extra</h4>
+                            <ul class="space-y-1">
+                                <li>• <strong>Esporta:</strong> Salva i dati in un file</li>
+                                <li>• <strong>Reset:</strong> Cancella tutti i dati (attenzione!)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sezione Modalità Condivisa -->
+                <div id="help-condivisa" class="help-section hidden">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">
+                        <i class="fas fa-cloud text-purple-600 mr-2"></i>
+                        Come usare la Modalità Condivisa
+                    </h3>
+                    <div class="space-y-4 text-gray-700">
+                        <div class="bg-green-50 p-4 rounded-lg">
+                            <h4 class="font-bold text-green-800 mb-2">1. Creare un Nuovo Gruppo</h4>
+                            <ul class="space-y-1">
+                                <li>• Clicca "Crea Nuovo Gruppo"</li>
+                                <li>• Inserisci nome e descrizione del gruppo</li>
+                                <li>• Riceverai un codice tipo "SPESE-ABC123"</li>
+                                <li>• Condividi questo codice con gli altri</li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <h4 class="font-bold text-blue-800 mb-2">2. Unirsi a un Gruppo</h4>
+                            <ul class="space-y-1">
+                                <li>• Clicca "Unisciti a Gruppo"</li>
+                                <li>• Inserisci il codice ricevuto</li>
+                                <li>• Inserisci il tuo nome</li>
+                                <li>• Clicca "Unisciti al Gruppo"</li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-orange-50 p-4 rounded-lg">
+                            <h4 class="font-bold text-orange-800 mb-2">3. Gestire il Gruppo</h4>
+                            <p>Una volta nel gruppo puoi:</p>
+                            <ul class="space-y-1">
+                                <li>• Aggiungere nuovi partecipanti</li>
+                                <li>• Inserire spese (come in modalità locale)</li>
+                                <li>• Vedere le spese di tutti in tempo reale</li>
+                                <li>• Calcolare i bilanci aggiornati</li>
+                                <li>• Cliccare "Aggiorna" per sincronizzare</li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-purple-50 p-4 rounded-lg">
+                            <h4 class="font-bold text-purple-800 mb-2">4. Condividere il Codice</h4>
+                            <p>Puoi condividere il codice gruppo tramite:</p>
+                            <ul class="space-y-1">
+                                <li>• WhatsApp, Telegram, SMS</li>
+                                <li>• Email o social media</li>
+                                <li>• Mostrando il codice di persona</li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-500">
+                            <h4 class="font-bold text-yellow-800 mb-2">💡 Rientrare nel Gruppo</h4>
+                            <p>Se hai già partecipato a un gruppo e vuoi rientrare:</p>
+                            <ul class="space-y-1">
+                                <li>• Usa lo stesso <strong>codice gruppo</strong></li>
+                                <li>• Inserisci lo stesso <strong>nome</strong> usato prima</li>
+                                <li>• Il sistema ti riconoscerà automaticamente</li>
+                                <li>• Non verrai aggiunto come duplicato</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sezione FAQ -->
+                <div id="help-faq" class="help-section hidden">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">
+                        <i class="fas fa-question text-orange-600 mr-2"></i>
+                        Domande Frequenti (FAQ)
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h4 class="font-bold text-gray-800 mb-2">❓ Quale modalità scegliere?</h4>
+                            <p class="text-gray-700">
+                                <strong>Locale:</strong> Per uso personale o quando sei sempre tu a inserire le spese.<br>
+                                <strong>Condivisa:</strong> Quando più persone devono inserire spese nello stesso gruppo.
+                            </p>
+                        </div>
+
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h4 class="font-bold text-gray-800 mb-2">❓ I miei dati sono sicuri?</h4>
+                            <p class="text-gray-700">
+                                <strong>Modalità Locale:</strong> I dati restano solo sul tuo dispositivo.<br>
+                                <strong>Modalità Condivisa:</strong> I dati sono salvati su server sicuro e accessibili solo con il codice gruppo.
+                            </p>
+                        </div>
+
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h4 class="font-bold text-gray-800 mb-2">❓ Non riesco a rientrare nel mio gruppo!</h4>
+                            <p class="text-gray-700">
+                                Se hai creato un gruppo e non riesci a rientrare:<br>
+                                1. Usa lo <strong>stesso nome</strong> con cui hai creato il gruppo<br>
+                                2. Inserisci il <strong>codice gruppo</strong> corretto<br>
+                                3. Il sistema ti riconoscerà automaticamente<br>
+                                4. Se il problema persiste, prova a ricaricare la pagina
+                            </p>
+                        </div>
+
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h4 class="font-bold text-gray-800 mb-2">❓ Cosa fare se non funziona la modalità condivisa?</h4>
+                            <p class="text-gray-700">
+                                1. Controlla la connessione internet<br>
+                                2. Verifica che il codice gruppo sia corretto<br>
+                                3. Prova a cliccare "Aggiorna"<br>
+                                4. Ricarica la pagina se necessario
+                            </p>
+                        </div>
+
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h4 class="font-bold text-gray-800 mb-2">❓ Posso usare l'app su mobile?</h4>
+                            <p class="text-gray-700">
+                                Sì! L'app è ottimizzata per smartphone e tablet. Funziona su qualsiasi browser moderno.
+                            </p>
+                        </div>
+
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h4 class="font-bold text-gray-800 mb-2">❓ Come interpreto i bilanci?</h4>
+                            <p class="text-gray-700">
+                                • <span class="text-green-600 font-bold">Importo positivo (verde):</span> Devi ricevere soldi<br>
+                                • <span class="text-red-600 font-bold">Importo negativo (rosso):</span> Devi dare soldi<br>
+                                • <span class="text-gray-600 font-bold">Zero (grigio):</span> Sei in pari
+                            </p>
+                        </div>
+
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h4 class="font-bold text-gray-800 mb-2">❓ Posso modificare o cancellare una spesa?</h4>
+                            <p class="text-gray-700">
+                                Attualmente non è possibile modificare le spese inserite. Assicurati di inserire i dati corretti. 
+                                In modalità locale puoi usare "Reset" per ricominciare.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 border-t border-gray-200 bg-gray-50 text-center">
+                <p class="text-gray-600">
+                    <i class="fas fa-heart text-red-500 mr-1"></i>
+                    Creato da Ezio - Gestione Spese Semplice e Veloce
+                </p>
+            </div>
+        </div>
+    </div>
+
     <div class="max-w-6xl mx-auto">
         <div class="text-center mb-8">
             <div class="flex items-center justify-center mb-4">
@@ -40,7 +357,12 @@
                 <h1 class="text-4xl font-bold text-white">Gestione spese by Ezio</h1>
             </div>
             <p class="text-white text-lg opacity-90">Gestisci le tue spese condivise in modo semplice e veloce</p>
+            <p class="text-white text-sm opacity-75 mt-2">
+                <i class="fas fa-question-circle mr-1"></i>
+                Clicca il pulsante "?" in alto a destra per le istruzioni
+            </p>
         </div>
+
 
         <div id="modeSelection" class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
             <div class="mode-card glass-card rounded-xl p-8 shadow-xl text-center" onclick="useLocalMode()">
@@ -72,9 +394,14 @@
                     <i class="fas fa-home text-blue-600 text-2xl mr-3"></i>
                     <h2 class="text-2xl font-bold text-white">Modalità Locale</h2>
                 </div>
-                <button onclick="backToSelection()" class="bg-white bg-opacity-20 text-white px-4 py-2 rounded-lg hover:bg-opacity-30 transition-colors">
-                    <i class="fas fa-arrow-left mr-2"></i>Cambia Modalità
-                </button>
+                <div class="flex gap-2">
+                    <button onclick="showHelp('locale')" class="bg-white bg-opacity-20 text-white px-4 py-2 rounded-lg hover:bg-opacity-30 transition-colors">
+                        <i class="fas fa-question mr-2"></i>Aiuto
+                    </button>
+                    <button onclick="backToSelection()" class="bg-white bg-opacity-20 text-white px-4 py-2 rounded-lg hover:bg-opacity-30 transition-colors">
+                        <i class="fas fa-arrow-left mr-2"></i>Cambia Modalità
+                    </button>
+                </div>
             </div>
 
             <div class="glass-card rounded-xl p-6 shadow-xl mb-6">
@@ -160,9 +487,14 @@
                     <i class="fas fa-cloud text-purple-600 text-2xl mr-3"></i>
                     <h2 class="text-2xl font-bold text-white">Modalità Condivisa</h2>
                 </div>
-                <button onclick="backToSelection()" class="bg-white bg-opacity-20 text-white px-4 py-2 rounded-lg hover:bg-opacity-30 transition-colors">
-                    <i class="fas fa-arrow-left mr-2"></i>Cambia Modalità
-                </button>
+                <div class="flex gap-2">
+                    <button onclick="showHelp('condivisa')" class="bg-white bg-opacity-20 text-white px-4 py-2 rounded-lg hover:bg-opacity-30 transition-colors">
+                        <i class="fas fa-question mr-2"></i>Aiuto
+                    </button>
+                    <button onclick="backToSelection()" class="bg-white bg-opacity-20 text-white px-4 py-2 rounded-lg hover:bg-opacity-30 transition-colors">
+                        <i class="fas fa-arrow-left mr-2"></i>Cambia Modalità
+                    </button>
+                </div>
             </div>
 
             <div id="sharedSelection" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -236,6 +568,42 @@
                 dateInput.value = today;
             }
             loadLocalData();
+        });
+
+        // Funzioni per il sistema di aiuto
+        function showHelp(section = 'generale') {
+            document.getElementById('helpModal').classList.remove('hidden');
+            showHelpSection(section);
+        }
+
+        function hideHelp() {
+            document.getElementById('helpModal').classList.add('hidden');
+        }
+
+        function showHelpSection(section) {
+            // Nascondi tutte le sezioni
+            const sections = ['generale', 'locale', 'condivisa', 'faq'];
+            sections.forEach(s => {
+                document.getElementById(`help-${s}`).classList.add('hidden');
+            });
+            
+            // Rimuovi classe active da tutti i tab
+            document.querySelectorAll('.help-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Mostra la sezione selezionata
+            document.getElementById(`help-${section}`).classList.remove('hidden');
+            
+            // Aggiungi classe active al tab corretto
+            event.target.classList.add('active');
+        }
+
+        // Chiudi modal cliccando fuori
+        document.getElementById('helpModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                hideHelp();
+            }
         });
 
         function useLocalMode() {
@@ -431,16 +799,6 @@
             showNotification('Spesa aggiunta');
         }
 
-        function removeExpense(id) {
-            if (confirm('Rimuovere questa spesa?')) {
-                expenses = expenses.filter(e => e.id !== id);
-                displayExpenses();
-                calculateBalances();
-                saveLocalData();
-                showNotification('Spesa rimossa');
-            }
-        }
-
         function displayExpenses() {
             const list = document.getElementById('expensesList');
             list.innerHTML = '';
@@ -456,9 +814,7 @@
                 div.innerHTML = `
                     <div class="flex items-center justify-between mb-2">
                         <h4 class="font-medium text-gray-800">${expense.description}</h4>
-                        <button onclick="removeExpense(${expense.id})" class="text-red-500 hover:text-red-700">
-                            <i class="fas fa-trash"></i>
-                        </button>
+                        <span class="text-blue-600"><i class="fas fa-home"></i></span>
                     </div>
                     <div class="text-sm text-gray-600">
                         <p><strong>€${expense.amount.toFixed(2)}</strong> • ${expense.date} • Pagato da <strong>${expense.payer}</strong></p>
@@ -542,37 +898,37 @@
 
         function calculateSettlements(balances) {
             const settlements = [];
-            const creditors = [];
             const debtors = [];
+            const creditors = [];
             
-            Object.entries(balances).forEach(([participant, balance]) => {
-                if (balance > 0.01) {
-                    creditors.push({ name: participant, amount: balance });
-                } else if (balance < -0.01) {
-                    debtors.push({ name: participant, amount: -balance });
+            Object.entries(balances).forEach(([person, balance]) => {
+                if (balance < -0.01) {
+                    debtors.push({ person, amount: Math.abs(balance) });
+                } else if (balance > 0.01) {
+                    creditors.push({ person, amount: balance });
                 }
             });
             
-            creditors.sort((a, b) => b.amount - a.amount);
             debtors.sort((a, b) => b.amount - a.amount);
+            creditors.sort((a, b) => b.amount - a.amount);
             
             let i = 0, j = 0;
-            while (i < creditors.length && j < debtors.length) {
-                const creditor = creditors[i];
-                const debtor = debtors[j];
-                const amount = Math.min(creditor.amount, debtor.amount);
+            while (i < debtors.length && j < creditors.length) {
+                const debt = debtors[i].amount;
+                const credit = creditors[j].amount;
+                const amount = Math.min(debt, credit);
                 
                 settlements.push({
-                    from: debtor.name,
-                    to: creditor.name,
+                    from: debtors[i].person,
+                    to: creditors[j].person,
                     amount: amount
                 });
                 
-                creditor.amount -= amount;
-                debtor.amount -= amount;
+                debtors[i].amount -= amount;
+                creditors[j].amount -= amount;
                 
-                if (creditor.amount < 0.01) i++;
-                if (debtor.amount < 0.01) j++;
+                if (debtors[i].amount < 0.01) i++;
+                if (creditors[j].amount < 0.01) j++;
             }
             
             return settlements;
@@ -589,7 +945,7 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `gestione-spese-${new Date().toISOString().split('T')[0]}.json`;
+            a.download = `gestione_spese_${new Date().toISOString().split('T')[0]}.json`;
             a.click();
             URL.revokeObjectURL(url);
             
@@ -597,7 +953,7 @@
         }
 
         function clearAllData() {
-            if (confirm('Eliminare tutti i dati? Questa azione non può essere annullata.')) {
+            if (confirm('Sei sicuro di voler cancellare tutti i dati? Questa azione non può essere annullata.')) {
                 participants = [];
                 expenses = [];
                 localStorage.removeItem('gestione_spese_participants');
@@ -675,6 +1031,7 @@
             }
         }
 
+        // FUNZIONE CORRETTA PER IL BUG DI ACCESSO AI GRUPPI
         async function joinGroup() {
             const code = document.getElementById('joinGroupCode').value.trim().toUpperCase();
             const participantName = document.getElementById('joinParticipantName').value.trim();
@@ -687,6 +1044,7 @@
             try {
                 showNotification('Connessione al gruppo...');
                 
+                // Prima ottieni i dati del gruppo
                 const groupResponse = await fetch(`${API_BASE}/groups/${code}`);
                 const groupData = await groupResponse.json();
                 
@@ -695,25 +1053,50 @@
                     return;
                 }
                 
-                const participantResponse = await fetch(`${API_BASE}/groups/${groupData.group.id}/participants`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ name: participantName })
-                });
+                // Controlla se il partecipante è già presente
+                const existingParticipants = groupData.group.participants || [];
+                const isAlreadyParticipant = existingParticipants.includes(participantName);
                 
-                const participantData = await participantResponse.json();
-                
-                if (participantResponse.ok && participantData.success) {
-                    showNotification(`Unito al gruppo ${groupData.group.name}!`);
+                if (isAlreadyParticipant) {
+                    // Se è già presente, entra direttamente senza aggiungere
+                    showNotification(`Bentornato nel gruppo ${groupData.group.name}!`);
                     currentGroup = groupData.group;
                     
                     setTimeout(() => {
                         loadGroupInterface(groupData.group);
                     }, 1500);
                 } else {
-                    showNotification(participantData.error || 'Errore nell\'unirsi al gruppo', 'error');
+                    // Se non è presente, prova ad aggiungerlo
+                    const participantResponse = await fetch(`${API_BASE}/groups/${groupData.group.id}/participants`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ name: participantName })
+                    });
+                    
+                    const participantData = await participantResponse.json();
+                    
+                    if (participantResponse.ok && participantData.success) {
+                        showNotification(`Unito al gruppo ${groupData.group.name}!`);
+                        currentGroup = groupData.group;
+                        
+                        setTimeout(() => {
+                            loadGroupInterface(groupData.group);
+                        }, 1500);
+                    } else {
+                        // Se fallisce l'aggiunta ma il partecipante potrebbe essere già presente
+                        if (participantData.error && participantData.error.includes('già presente')) {
+                            showNotification(`Bentornato nel gruppo ${groupData.group.name}!`);
+                            currentGroup = groupData.group;
+                            
+                            setTimeout(() => {
+                                loadGroupInterface(groupData.group);
+                            }, 1500);
+                        } else {
+                            showNotification(participantData.error || 'Errore nell\'unirsi al gruppo', 'error');
+                        }
+                    }
                 }
             } catch (error) {
                 console.error('Errore:', error);
@@ -736,9 +1119,14 @@
                             <p class="text-gray-600">${group.description || ''}</p>
                             <p class="text-sm text-gray-500">Codice: <strong>${group.code}</strong></p>
                         </div>
-                        <button onclick="refreshGroupData()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                            <i class="fas fa-sync-alt mr-2"></i>Aggiorna
-                        </button>
+                        <div class="flex gap-2">
+                            <button onclick="showHelp('condivisa')" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                                <i class="fas fa-question mr-2"></i>Aiuto
+                            </button>
+                            <button onclick="refreshGroupData()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                                <i class="fas fa-sync-alt mr-2"></i>Aggiorna
+                            </button>
+                        </div>
                     </div>
                 </div>
 
