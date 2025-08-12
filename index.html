@@ -50,96 +50,31 @@
                 <i class="fas fa-calculator text-white text-4xl mr-3"></i>
                 <h1 class="text-4xl font-bold text-white">Gestione spese by Ezio</h1>
             </div>
-            <p class="text-white text-lg opacity-90" id="subtitle">Scegli la modalità di utilizzo</p>
+            <p class="text-white text-lg opacity-90">Gestisci le tue spese condivise in modo semplice e veloce</p>
         </div>
 
         <!-- Selezione Modalità -->
-        <div id="modeSelection" class="fade-in">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-                <!-- Modalità Locale -->
-                <div class="mode-card glass-card rounded-xl p-8 shadow-xl text-center" onclick="selectMode('local')">
-                    <div class="mb-6">
-                        <i class="fas fa-laptop text-blue-600 text-6xl mb-4"></i>
-                        <h2 class="text-2xl font-bold text-gray-800 mb-2">Modalità Locale</h2>
-                        <div class="inline-block bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium mb-4">
-                            Gratuita
-                        </div>
-                    </div>
-                    
-                    <div class="text-left space-y-3 mb-6">
-                        <div class="flex items-center">
-                            <i class="fas fa-check text-green-500 mr-3"></i>
-                            <span class="text-gray-700">Gestione spese sul tuo dispositivo</span>
-                        </div>
-                        <div class="flex items-center">
-                            <i class="fas fa-check text-green-500 mr-3"></i>
-                            <span class="text-gray-700">Nessuna configurazione richiesta</span>
-                        </div>
-                        <div class="flex items-center">
-                            <i class="fas fa-check text-green-500 mr-3"></i>
-                            <span class="text-gray-700">Funziona offline</span>
-                        </div>
-                        <div class="flex items-center">
-                            <i class="fas fa-check text-green-500 mr-3"></i>
-                            <span class="text-gray-700">Dati privati e sicuri</span>
-                        </div>
-                    </div>
-                    
-                    <button class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 transition-colors">
-                        Usa Modalità Locale
-                    </button>
-                </div>
-
-                <!-- Modalità Condivisa -->
-                <div class="mode-card glass-card rounded-xl p-8 shadow-xl text-center" onclick="selectMode('shared')">
-                    <div class="mb-6">
-                        <i class="fas fa-cloud text-purple-600 text-6xl mb-4"></i>
-                        <h2 class="text-2xl font-bold text-gray-800 mb-2">Modalità Condivisa</h2>
-                        <div class="inline-block bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-medium mb-4">
-                            ⭐ Nuovo!
-                        </div>
-                    </div>
-                    
-                    <div class="text-left space-y-3 mb-6">
-                        <div class="flex items-center">
-                            <i class="fas fa-check text-green-500 mr-3"></i>
-                            <span class="text-gray-700">Sincronizzazione in tempo reale</span>
-                        </div>
-                        <div class="flex items-center">
-                            <i class="fas fa-check text-green-500 mr-3"></i>
-                            <span class="text-gray-700">Gruppi con codici di accesso</span>
-                        </div>
-                        <div class="flex items-center">
-                            <i class="fas fa-check text-green-500 mr-3"></i>
-                            <span class="text-gray-700">Ideale per spese di gruppo</span>
-                        </div>
-                        <div class="flex items-center">
-                            <i class="fas fa-check text-green-500 mr-3"></i>
-                            <span class="text-gray-700">Calcolo bilanci automatico</span>
-                        </div>
-                    </div>
-                    
-                    <button class="w-full bg-purple-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-purple-700 transition-colors">
-                        Usa Modalità Condivisa
-                    </button>
-                </div>
+        <div id="modeSelection" class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+            <div class="mode-card glass-card rounded-xl p-8 shadow-xl text-center" onclick="useLocalMode()">
+                <i class="fas fa-home text-blue-600 text-5xl mb-4"></i>
+                <h2 class="text-2xl font-bold text-gray-800 mb-3">Modalità Locale</h2>
+                <p class="text-gray-600 mb-4">Gestisci le spese sul tuo dispositivo</p>
+                <ul class="text-sm text-gray-500 text-left space-y-1">
+                    <li>• Funziona offline</li>
+                    <li>• Dati privati e sicuri</li>
+                    <li>• Nessuna configurazione richiesta</li>
+                </ul>
             </div>
-
-            <!-- Info aggiuntive -->
-            <div class="glass-card rounded-xl p-6 shadow-xl text-center">
-                <div class="flex items-center justify-center mb-4">
-                    <i class="fas fa-info-circle text-blue-600 text-xl mr-2"></i>
-                    <h3 class="text-lg font-bold text-gray-800">Informazioni</h3>
-                </div>
-                <p class="text-gray-700 mb-4">
-                    Puoi cambiare modalità in qualsiasi momento. La modalità locale funziona completamente offline, 
-                    mentre quella condivisa richiede una connessione internet per la sincronizzazione.
-                </p>
-                <div class="flex flex-wrap justify-center gap-4 text-sm text-gray-600">
-                    <span><i class="fas fa-shield-alt mr-1"></i> Dati sicuri</span>
-                    <span><i class="fas fa-mobile-alt mr-1"></i> Responsive</span>
-                    <span><i class="fas fa-code mr-1"></i> Open Source</span>
-                </div>
+            
+            <div class="mode-card glass-card rounded-xl p-8 shadow-xl text-center" onclick="useSharedMode()">
+                <i class="fas fa-cloud text-purple-600 text-5xl mb-4"></i>
+                <h2 class="text-2xl font-bold text-gray-800 mb-3">Modalità Condivisa ⭐</h2>
+                <p class="text-gray-600 mb-4">Sincronizzazione in tempo reale</p>
+                <ul class="text-sm text-gray-500 text-left space-y-1">
+                    <li>• Gruppi con codici di accesso</li>
+                    <li>• Aggiornamenti istantanei</li>
+                    <li>• Ideale per spese di gruppo</li>
+                </ul>
             </div>
         </div>
 
@@ -147,7 +82,7 @@
         <div id="localMode" class="hidden">
             <div class="flex items-center justify-between mb-6">
                 <div class="flex items-center">
-                    <i class="fas fa-laptop text-blue-600 text-2xl mr-3"></i>
+                    <i class="fas fa-home text-blue-600 text-2xl mr-3"></i>
                     <h2 class="text-2xl font-bold text-white">Modalità Locale</h2>
                 </div>
                 <button onclick="backToSelection()" class="bg-white bg-opacity-20 text-white px-4 py-2 rounded-lg hover:bg-opacity-30 transition-colors">
@@ -155,42 +90,42 @@
                 </button>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                <!-- Sezione Partecipanti -->
-                <div class="glass-card rounded-xl p-6 shadow-xl">
-                    <div class="flex items-center mb-4">
-                        <i class="fas fa-users text-blue-600 text-xl mr-3"></i>
-                        <h2 class="text-xl font-bold text-gray-800">Partecipanti</h2>
-                    </div>
-                    
-                    <div class="flex gap-2 mb-4">
-                        <input 
-                            type="text" 
-                            id="participantInput" 
-                            placeholder="Nome partecipante" 
-                            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            onkeypress="if(event.key==='Enter') addParticipant()"
-                        >
-                        <button 
-                            onclick="addParticipant()" 
-                            class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                        >
-                            <i class="fas fa-plus"></i>
-                        </button>
-                    </div>
-                    
-                    <div id="participantsList" class="space-y-2 max-h-40 overflow-y-auto">
-                        <!-- I partecipanti verranno aggiunti qui dinamicamente -->
-                    </div>
+            <!-- Gestione Partecipanti -->
+            <div class="glass-card rounded-xl p-6 shadow-xl mb-6">
+                <div class="flex items-center mb-4">
+                    <i class="fas fa-users text-blue-600 text-xl mr-3"></i>
+                    <h2 class="text-xl font-bold text-gray-800">Partecipanti</h2>
                 </div>
+                
+                <div class="flex gap-2 mb-4">
+                    <input 
+                        type="text" 
+                        id="participantName" 
+                        placeholder="Nome partecipante" 
+                        class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        onkeypress="if(event.key==='Enter') addParticipant()"
+                    >
+                    <button 
+                        onclick="addParticipant()" 
+                        class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                        <i class="fas fa-plus mr-2"></i>Aggiungi
+                    </button>
+                </div>
+                
+                <div id="participantsList" class="space-y-2">
+                    <!-- I partecipanti verranno aggiunti qui dinamicamente -->
+                </div>
+            </div>
 
-                <!-- Sezione Spese -->
-                <div class="glass-card rounded-xl p-6 shadow-xl">
-                    <div class="flex items-center mb-4">
-                        <i class="fas fa-receipt text-green-600 text-xl mr-3"></i>
-                        <h2 class="text-xl font-bold text-gray-800">Aggiungi Spesa</h2>
-                    </div>
-                    
+            <!-- Aggiunta Spese -->
+            <div class="glass-card rounded-xl p-6 shadow-xl mb-6">
+                <div class="flex items-center mb-4">
+                    <i class="fas fa-receipt text-green-600 text-xl mr-3"></i>
+                    <h2 class="text-xl font-bold text-gray-800">Aggiungi Spesa</h2>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="space-y-4">
                         <input 
                             type="text" 
@@ -221,17 +156,19 @@
                             <option value="">Chi ha pagato?</option>
                         </select>
                         
-                        <div id="participantsCheckboxes" class="space-y-2">
-                            <label class="text-sm font-medium text-gray-700">Dividi tra:</label>
-                            <!-- Le checkbox verranno aggiunte qui dinamicamente -->
-                        </div>
-                        
                         <button 
                             onclick="addExpense()" 
                             class="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors"
                         >
                             <i class="fas fa-plus mr-2"></i>Aggiungi Spesa
                         </button>
+                    </div>
+                    
+                    <div>
+                        <div id="participantsCheckboxes" class="space-y-2">
+                            <label class="text-sm font-medium text-gray-700">Dividi tra:</label>
+                            <!-- Le checkbox verranno aggiunte qui dinamicamente -->
+                        </div>
                     </div>
                 </div>
             </div>
@@ -304,56 +241,52 @@
                 </div>
             </div>
 
-            <!-- Crea Gruppo -->
-            <div id="createGroupForm" class="hidden glass-card rounded-xl p-6 shadow-xl mb-6">
-                <h3 class="text-xl font-bold text-gray-800 mb-4">
-                    <i class="fas fa-plus-circle text-green-600 mr-2"></i>Crea Nuovo Gruppo
-                </h3>
+            <!-- Form Creazione Gruppo -->
+            <div id="createGroupForm" class="glass-card rounded-xl p-6 shadow-xl mb-6 hidden">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-800">Crea Nuovo Gruppo</h3>
+                    <button onclick="hideCreateGroup()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
                 
                 <div class="space-y-4">
                     <input 
                         type="text" 
                         id="groupName" 
-                        placeholder="Nome del gruppo (es. Vacanza in Sicilia)" 
+                        placeholder="Nome del gruppo" 
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                     >
-                    <input 
-                        type="text" 
+                    <textarea 
                         id="groupDescription" 
                         placeholder="Descrizione (opzionale)" 
+                        rows="3"
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    ></textarea>
+                    <button 
+                        onclick="createGroup()" 
+                        class="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors"
                     >
-                    
-                    <div class="flex gap-2">
-                        <button 
-                            onclick="createGroup()" 
-                            class="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors"
-                        >
-                            <i class="fas fa-plus mr-2"></i>Crea Gruppo
-                        </button>
-                        <button 
-                            onclick="hideCreateGroup()" 
-                            class="bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition-colors"
-                        >
-                            Annulla
-                        </button>
-                    </div>
+                        <i class="fas fa-plus mr-2"></i>Crea Gruppo
+                    </button>
                 </div>
             </div>
 
-            <!-- Unisciti a Gruppo -->
-            <div id="joinGroupForm" class="hidden glass-card rounded-xl p-6 shadow-xl mb-6">
-                <h3 class="text-xl font-bold text-gray-800 mb-4">
-                    <i class="fas fa-sign-in-alt text-blue-600 mr-2"></i>Unisciti a Gruppo
-                </h3>
+            <!-- Form Unisciti a Gruppo -->
+            <div id="joinGroupForm" class="glass-card rounded-xl p-6 shadow-xl mb-6 hidden">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-800">Unisciti a Gruppo</h3>
+                    <button onclick="hideJoinGroup()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
                 
                 <div class="space-y-4">
                     <input 
                         type="text" 
                         id="joinGroupCode" 
-                        placeholder="Codice gruppo (es. SPESE-ABC12345)" 
+                        placeholder="Codice gruppo (es. SPESE-ABC123)" 
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        style="text-transform: uppercase;"
                     >
                     <input 
                         type="text" 
@@ -361,110 +294,120 @@
                         placeholder="Il tuo nome" 
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
-                    
-                    <div class="flex gap-2">
-                        <button 
-                            onclick="joinGroup()" 
-                            class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
-                        >
-                            <i class="fas fa-sign-in-alt mr-2"></i>Unisciti
-                        </button>
-                        <button 
-                            onclick="hideJoinGroup()" 
-                            class="bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition-colors"
-                        >
-                            Annulla
-                        </button>
-                    </div>
+                    <button 
+                        onclick="joinGroup()" 
+                        class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                        <i class="fas fa-sign-in-alt mr-2"></i>Unisciti al Gruppo
+                    </button>
                 </div>
             </div>
 
-            <!-- Gestione Gruppo -->
-            <div id="groupManagement" class="hidden">
-                <!-- Il contenuto del gruppo verrà caricato qui dinamicamente -->
-            </div>
-
-            <!-- Messaggio di stato per modalità condivisa -->
-            <div class="glass-card rounded-xl p-6 shadow-xl text-center">
-                <div class="mb-4">
-                    <i class="fas fa-info-circle text-blue-600 text-3xl mb-2"></i>
-                    <h3 class="text-lg font-bold text-gray-800">Modalità Condivisa</h3>
-                </div>
-                <p class="text-gray-700 mb-4">
-                    La modalità condivisa permette di sincronizzare le spese in tempo reale tra più dispositivi. 
-                    Perfetta per vacanze, cene di gruppo e spese condivise.
-                </p>
-                <div class="text-sm text-gray-600">
-                    <i class="fas fa-shield-alt mr-1"></i> I tuoi dati sono protetti e sincronizzati in modo sicuro
-                </div>
+            <!-- Interfaccia Gruppo Condiviso -->
+            <div id="groupInterface" class="hidden">
+                <!-- Verrà popolata dinamicamente -->
             </div>
         </div>
 
-        <!-- Messaggi di notifica -->
-        <div id="notification" class="fixed top-4 right-4 hidden">
-            <div class="bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg">
-                <span id="notificationText"></span>
-            </div>
+        <!-- Notifiche -->
+        <div id="notification" class="fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg text-white font-medium transform translate-x-full transition-transform duration-300 z-50">
         </div>
     </div>
 
     <script>
-        // Variabili globali
-        let currentMode = null;
+        // === CONFIGURAZIONE BACKEND ===
+        const API_BASE = 'https://web-production-38738.up.railway.app/api';
+        
+        // === VARIABILI GLOBALI ===
         let participants = [];
         let expenses = [];
+        let currentMode = null;
         let currentGroup = null;
 
-        // Inizializzazione
+        // === INIZIALIZZAZIONE ===
         document.addEventListener('DOMContentLoaded', function() {
             // Imposta la data di oggi come default
             const today = new Date().toISOString().split('T')[0];
-            document.getElementById('expenseDate').value = today;
+            const dateInput = document.getElementById('expenseDate');
+            if (dateInput) {
+                dateInput.value = today;
+            }
             
-            // Carica dati salvati per modalità locale
             loadLocalData();
         });
 
-        // Gestione selezione modalità
-        function selectMode(mode) {
-            currentMode = mode;
+        // === GESTIONE MODALITÀ ===
+        function useLocalMode() {
+            currentMode = 'local';
             document.getElementById('modeSelection').classList.add('hidden');
-            
-            if (mode === 'local') {
-                document.getElementById('localMode').classList.remove('hidden');
-                document.getElementById('subtitle').textContent = 'Modalità Locale - Gestione spese offline';
-                updateParticipantSelect();
-                updateParticipantCheckboxes();
-                displayExpenses();
-                calculateBalances();
-            } else if (mode === 'shared') {
-                document.getElementById('sharedMode').classList.remove('hidden');
-                document.getElementById('subtitle').textContent = 'Modalità Condivisa - Sincronizzazione in tempo reale';
-            }
+            document.getElementById('localMode').classList.remove('hidden');
+            document.getElementById('localMode').classList.add('fade-in');
+            loadLocalData();
+        }
+
+        function useSharedMode() {
+            currentMode = 'shared';
+            document.getElementById('modeSelection').classList.add('hidden');
+            document.getElementById('sharedMode').classList.remove('hidden');
+            document.getElementById('sharedMode').classList.add('fade-in');
         }
 
         function backToSelection() {
             currentMode = null;
+            currentGroup = null;
             document.getElementById('modeSelection').classList.remove('hidden');
             document.getElementById('localMode').classList.add('hidden');
             document.getElementById('sharedMode').classList.add('hidden');
-            document.getElementById('subtitle').textContent = 'Scegli la modalità di utilizzo';
+            document.getElementById('groupInterface').classList.add('hidden');
             
-            // Reset modalità condivisa
+            // Reset forms
             hideCreateGroup();
             hideJoinGroup();
-            document.getElementById('groupManagement').classList.add('hidden');
-            document.getElementById('sharedSelection').classList.remove('hidden');
+        }
+
+        // === NOTIFICHE ===
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg text-white font-medium transition-transform duration-300 z-50 ${
+                type === 'error' ? 'bg-red-500' : 'bg-green-500'
+            }`;
+            notification.style.transform = 'translateX(0)';
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateX(100%)';
+            }, 3000);
         }
 
         // === MODALITÀ LOCALE ===
-        
-        function addParticipant() {
-            const input = document.getElementById('participantInput');
-            const name = input.value.trim();
+        function saveLocalData() {
+            localStorage.setItem('gestione_spese_participants', JSON.stringify(participants));
+            localStorage.setItem('gestione_spese_expenses', JSON.stringify(expenses));
+        }
+
+        function loadLocalData() {
+            const savedParticipants = localStorage.getItem('gestione_spese_participants');
+            const savedExpenses = localStorage.getItem('gestione_spese_expenses');
             
-            if (name === '') {
-                showNotification('Inserisci un nome valido', 'error');
+            if (savedParticipants) {
+                participants = JSON.parse(savedParticipants);
+                displayParticipants();
+                updateParticipantSelect();
+                updateParticipantCheckboxes();
+            }
+            
+            if (savedExpenses) {
+                expenses = JSON.parse(savedExpenses);
+                displayExpenses();
+                calculateBalances();
+            }
+        }
+
+        function addParticipant() {
+            const name = document.getElementById('participantName').value.trim();
+            
+            if (!name) {
+                showNotification('Inserisci un nome', 'error');
                 return;
             }
             
@@ -474,8 +417,9 @@
             }
             
             participants.push(name);
-            input.value = '';
-            updateParticipantsList();
+            document.getElementById('participantName').value = '';
+            
+            displayParticipants();
             updateParticipantSelect();
             updateParticipantCheckboxes();
             saveLocalData();
@@ -483,20 +427,17 @@
         }
 
         function removeParticipant(name) {
-            if (confirm(`Rimuovere ${name}? Verranno eliminate anche le sue spese.`)) {
+            if (confirm(`Rimuovere ${name}?`)) {
                 participants = participants.filter(p => p !== name);
-                expenses = expenses.filter(e => e.payer !== name && !e.participants.includes(name));
-                updateParticipantsList();
+                displayParticipants();
                 updateParticipantSelect();
                 updateParticipantCheckboxes();
-                displayExpenses();
-                calculateBalances();
                 saveLocalData();
                 showNotification('Partecipante rimosso');
             }
         }
 
-        function updateParticipantsList() {
+        function displayParticipants() {
             const list = document.getElementById('participantsList');
             list.innerHTML = '';
             
@@ -615,17 +556,15 @@
                 const div = document.createElement('div');
                 div.className = 'bg-gray-50 p-4 rounded-lg';
                 div.innerHTML = `
-                    <div class="flex justify-between items-start mb-2">
-                        <div>
-                            <h4 class="font-medium text-gray-800">${expense.description}</h4>
-                            <p class="text-sm text-gray-600">€${expense.amount.toFixed(2)} - ${expense.date}</p>
-                            <p class="text-sm text-gray-600">Pagato da: ${expense.payer}</p>
-                            <p class="text-sm text-gray-600">Diviso tra: ${expense.participants.join(', ')}</p>
-                            <p class="text-sm text-gray-600">€${(expense.amount / expense.participants.length).toFixed(2)} a persona</p>
-                        </div>
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="font-medium text-gray-800">${expense.description}</h4>
                         <button onclick="removeExpense(${expense.id})" class="text-red-500 hover:text-red-700">
                             <i class="fas fa-trash"></i>
                         </button>
+                    </div>
+                    <div class="text-sm text-gray-600">
+                        <p><strong>€${expense.amount.toFixed(2)}</strong> • ${expense.date} • Pagato da <strong>${expense.payer}</strong></p>
+                        <p>Diviso tra: ${expense.participants.join(', ')}</p>
                     </div>
                 `;
                 list.appendChild(div);
@@ -642,14 +581,14 @@
             
             // Calcola bilanci
             expenses.forEach(expense => {
-                const sharePerPerson = expense.amount / expense.participants.length;
+                const share = expense.amount / expense.participants.length;
                 
-                // Il pagatore riceve credito
+                // Il pagatore ha speso
                 balances[expense.payer] += expense.amount;
                 
-                // Ogni partecipante deve la sua quota
+                // Tutti i partecipanti devono la loro quota
                 expense.participants.forEach(participant => {
-                    balances[participant] -= sharePerPerson;
+                    balances[participant] -= share;
                 });
             });
             
@@ -666,80 +605,78 @@
             }
             
             // Mostra bilanci individuali
-            participants.forEach(participant => {
-                const balance = balances[participant];
+            const balanceDiv = document.createElement('div');
+            balanceDiv.className = 'mb-4';
+            balanceDiv.innerHTML = '<h3 class="font-bold text-gray-800 mb-2">Bilanci individuali:</h3>';
+            
+            Object.entries(balances).forEach(([participant, balance]) => {
                 const div = document.createElement('div');
-                div.className = 'flex justify-between items-center bg-gray-50 p-3 rounded-lg';
+                div.className = `flex items-center justify-between p-3 rounded-lg ${
+                    balance > 0.01 ? 'bg-green-50 border-l-4 border-green-500' :
+                    balance < -0.01 ? 'bg-red-50 border-l-4 border-red-500' :
+                    'bg-gray-50 border-l-4 border-gray-300'
+                }`;
                 
-                let balanceClass = 'text-gray-800';
-                let balanceText = '€0.00';
-                let statusIcon = 'fas fa-equals';
-                
-                if (balance > 0.01) {
-                    balanceClass = 'text-green-600 font-medium';
-                    balanceText = `+€${balance.toFixed(2)}`;
-                    statusIcon = 'fas fa-arrow-up';
-                } else if (balance < -0.01) {
-                    balanceClass = 'text-red-600 font-medium';
-                    balanceText = `€${balance.toFixed(2)}`;
-                    statusIcon = 'fas fa-arrow-down';
-                }
+                const status = balance > 0.01 ? 'deve ricevere' : balance < -0.01 ? 'deve dare' : 'è in pari';
+                const color = balance > 0.01 ? 'text-green-700' : balance < -0.01 ? 'text-red-700' : 'text-gray-700';
                 
                 div.innerHTML = `
                     <span class="font-medium text-gray-800">${participant}</span>
-                    <div class="flex items-center">
-                        <i class="${statusIcon} ${balanceClass} mr-2"></i>
-                        <span class="${balanceClass}">${balanceText}</span>
-                    </div>
+                    <span class="${color} font-bold">€${Math.abs(balance).toFixed(2)} ${status}</span>
                 `;
-                list.appendChild(div);
+                balanceDiv.appendChild(div);
             });
             
-            // Calcola e mostra rimborsi
-            const reimbursements = calculateReimbursements(balances);
-            if (reimbursements.length > 0) {
-                const reimbursementDiv = document.createElement('div');
-                reimbursementDiv.className = 'mt-4 p-4 bg-blue-50 rounded-lg';
-                reimbursementDiv.innerHTML = '<h4 class="font-medium text-blue-800 mb-2"><i class="fas fa-exchange-alt mr-2"></i>Rimborsi suggeriti:</h4>';
+            list.appendChild(balanceDiv);
+            
+            // Calcola rimborsi ottimali
+            const settlements = calculateSettlements(balances);
+            if (settlements.length > 0) {
+                const settlementsDiv = document.createElement('div');
+                settlementsDiv.innerHTML = '<h3 class="font-bold text-gray-800 mb-2">Rimborsi suggeriti:</h3>';
                 
-                reimbursements.forEach(reimb => {
-                    const p = document.createElement('p');
-                    p.className = 'text-sm text-blue-700';
-                    p.textContent = `${reimb.from} deve dare €${reimb.amount.toFixed(2)} a ${reimb.to}`;
-                    reimbursementDiv.appendChild(p);
+                settlements.forEach(settlement => {
+                    const div = document.createElement('div');
+                    div.className = 'bg-blue-50 p-3 rounded-lg border-l-4 border-blue-500';
+                    div.innerHTML = `
+                        <span class="text-blue-800">
+                            <strong>${settlement.from}</strong> deve dare <strong>€${settlement.amount.toFixed(2)}</strong> a <strong>${settlement.to}</strong>
+                        </span>
+                    `;
+                    settlementsDiv.appendChild(div);
                 });
                 
-                list.appendChild(reimbursementDiv);
+                list.appendChild(settlementsDiv);
             }
         }
 
-        function calculateReimbursements(balances) {
+        function calculateSettlements(balances) {
+            const settlements = [];
             const creditors = [];
             const debtors = [];
             
-            Object.entries(balances).forEach(([person, balance]) => {
+            Object.entries(balances).forEach(([participant, balance]) => {
                 if (balance > 0.01) {
-                    creditors.push({ person, amount: balance });
+                    creditors.push({ name: participant, amount: balance });
                 } else if (balance < -0.01) {
-                    debtors.push({ person, amount: -balance });
+                    debtors.push({ name: participant, amount: -balance });
                 }
             });
             
-            const reimbursements = [];
-            let i = 0, j = 0;
+            creditors.sort((a, b) => b.amount - a.amount);
+            debtors.sort((a, b) => b.amount - a.amount);
             
+            let i = 0, j = 0;
             while (i < creditors.length && j < debtors.length) {
                 const creditor = creditors[i];
                 const debtor = debtors[j];
                 const amount = Math.min(creditor.amount, debtor.amount);
                 
-                if (amount > 0.01) {
-                    reimbursements.push({
-                        from: debtor.person,
-                        to: creditor.person,
-                        amount: amount
-                    });
-                }
+                settlements.push({
+                    from: debtor.name,
+                    to: creditor.name,
+                    amount: amount
+                });
                 
                 creditor.amount -= amount;
                 debtor.amount -= amount;
@@ -748,7 +685,7 @@
                 if (debtor.amount < 0.01) j++;
             }
             
-            return reimbursements;
+            return settlements;
         }
 
         function exportData() {
@@ -762,7 +699,7 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `spese_${new Date().toISOString().split('T')[0]}.json`;
+            a.download = `gestione-spese-${new Date().toISOString().split('T')[0]}.json`;
             a.click();
             URL.revokeObjectURL(url);
             
@@ -773,37 +710,20 @@
             if (confirm('Eliminare tutti i dati? Questa azione non può essere annullata.')) {
                 participants = [];
                 expenses = [];
-                updateParticipantsList();
+                localStorage.removeItem('gestione_spese_participants');
+                localStorage.removeItem('gestione_spese_expenses');
+                
+                displayParticipants();
                 updateParticipantSelect();
                 updateParticipantCheckboxes();
                 displayExpenses();
                 calculateBalances();
-                saveLocalData();
+                
                 showNotification('Tutti i dati sono stati eliminati');
             }
         }
 
-        function saveLocalData() {
-            localStorage.setItem('gestione_spese_participants', JSON.stringify(participants));
-            localStorage.setItem('gestione_spese_expenses', JSON.stringify(expenses));
-        }
-
-        function loadLocalData() {
-            const savedParticipants = localStorage.getItem('gestione_spese_participants');
-            const savedExpenses = localStorage.getItem('gestione_spese_expenses');
-            
-            if (savedParticipants) {
-                participants = JSON.parse(savedParticipants);
-            }
-            
-            if (savedExpenses) {
-                expenses = JSON.parse(savedExpenses);
-            }
-        }
-
         // === MODALITÀ CONDIVISA ===
-        
-        const API_BASE = '/api';
         
         function showCreateGroup() {
             document.getElementById('sharedSelection').classList.add('hidden');
@@ -851,12 +771,13 @@
                 
                 const data = await response.json();
                 
-                if (response.ok) {
-                    showNotification(`Gruppo creato! Codice: ${data.code}`);
+                if (response.ok && data.success) {
+                    showNotification(`Gruppo creato! Codice: ${data.group.code}`);
+                    currentGroup = data.group;
                     
                     // Carica l'interfaccia del gruppo
                     setTimeout(() => {
-                        loadGroupInterface(data);
+                        loadGroupInterface(data.group);
                     }, 1500);
                 } else {
                     showNotification(data.error || 'Errore nella creazione del gruppo', 'error');
@@ -883,13 +804,13 @@
                 const groupResponse = await fetch(`${API_BASE}/groups/${code}`);
                 const groupData = await groupResponse.json();
                 
-                if (!groupResponse.ok) {
+                if (!groupResponse.ok || !groupData.success) {
                     showNotification(groupData.error || 'Gruppo non trovato', 'error');
                     return;
                 }
                 
                 // Poi aggiungi il partecipante
-                const participantResponse = await fetch(`${API_BASE}/groups/${code}/participants`, {
+                const participantResponse = await fetch(`${API_BASE}/groups/${groupData.group.id}/participants`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -899,16 +820,14 @@
                 
                 const participantData = await participantResponse.json();
                 
-                if (participantResponse.ok) {
-                    showNotification('Unito al gruppo con successo!');
+                if (participantResponse.ok && participantData.success) {
+                    showNotification(`Unito al gruppo ${groupData.group.name}!`);
+                    currentGroup = groupData.group;
                     
-                    // Ricarica i dati del gruppo aggiornati
-                    const updatedGroupResponse = await fetch(`${API_BASE}/groups/${code}`);
-                    const updatedGroupData = await updatedGroupResponse.json();
-                    
+                    // Carica l'interfaccia del gruppo
                     setTimeout(() => {
-                        loadGroupInterface(updatedGroupData);
-                    }, 1000);
+                        loadGroupInterface(groupData.group);
+                    }, 1500);
                 } else {
                     showNotification(participantData.error || 'Errore nell\'unirsi al gruppo', 'error');
                 }
@@ -919,239 +838,199 @@
         }
 
         function loadGroupInterface(group) {
-            currentGroup = group;
-            
+            document.getElementById('sharedSelection').classList.add('hidden');
             document.getElementById('createGroupForm').classList.add('hidden');
             document.getElementById('joinGroupForm').classList.add('hidden');
-            document.getElementById('sharedSelection').classList.add('hidden');
+            document.getElementById('groupInterface').classList.remove('hidden');
             
-            const totalAmount = group.expenses.reduce((sum, expense) => sum + expense.amount, 0);
-            
-            const management = document.getElementById('groupManagement');
-            management.innerHTML = `
+            const groupInterface = document.getElementById('groupInterface');
+            groupInterface.innerHTML = `
                 <div class="glass-card rounded-xl p-6 shadow-xl mb-6">
                     <div class="flex items-center justify-between mb-4">
                         <div>
-                            <h3 class="text-xl font-bold text-gray-800">${group.name}</h3>
-                            <p class="text-gray-600">${group.description || 'Nessuna descrizione'}</p>
+                            <h2 class="text-2xl font-bold text-gray-800">${group.name}</h2>
+                            <p class="text-gray-600">${group.description || ''}</p>
+                            <p class="text-sm text-gray-500">Codice: <strong>${group.code}</strong></p>
                         </div>
-                        <div class="text-right">
-                            <div class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-medium cursor-pointer" onclick="copyGroupCode()">
-                                <i class="fas fa-copy mr-1"></i>${group.code}
-                            </div>
-                            <p class="text-xs text-gray-500 mt-1">Clicca per copiare</p>
-                        </div>
-                    </div>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center mb-4">
-                        <div class="bg-blue-50 p-3 rounded-lg">
-                            <div class="text-2xl font-bold text-blue-600">${group.participants.length}</div>
-                            <div class="text-sm text-blue-800">Partecipanti</div>
-                        </div>
-                        <div class="bg-green-50 p-3 rounded-lg">
-                            <div class="text-2xl font-bold text-green-600">${group.expenses.length}</div>
-                            <div class="text-sm text-green-800">Spese</div>
-                        </div>
-                        <div class="bg-purple-50 p-3 rounded-lg">
-                            <div class="text-2xl font-bold text-purple-600">€${totalAmount.toFixed(2)}</div>
-                            <div class="text-sm text-purple-800">Totale</div>
-                        </div>
-                    </div>
-                    
-                    <div class="flex gap-2 flex-wrap">
-                        <button onclick="showAddParticipantForm()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm">
-                            <i class="fas fa-user-plus mr-2"></i>Aggiungi Partecipante
-                        </button>
-                        <button onclick="showAddExpenseForm()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm">
-                            <i class="fas fa-plus mr-2"></i>Aggiungi Spesa
-                        </button>
-                        <button onclick="refreshGroup()" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors text-sm">
-                            <i class="fas fa-sync mr-2"></i>Aggiorna
-                        </button>
-                        <button onclick="showBalances()" class="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors text-sm">
-                            <i class="fas fa-balance-scale mr-2"></i>Bilanci
+                        <button onclick="refreshGroupData()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                            <i class="fas fa-sync-alt mr-2"></i>Aggiorna
                         </button>
                     </div>
                 </div>
                 
-                <!-- Form Aggiungi Partecipante -->
-                <div id="addParticipantForm" class="hidden glass-card rounded-xl p-6 shadow-xl mb-6">
-                    <h4 class="text-lg font-bold text-gray-800 mb-4">
-                        <i class="fas fa-user-plus text-blue-600 mr-2"></i>Aggiungi Partecipante
-                    </h4>
+                <div class="glass-card rounded-xl p-6 shadow-xl mb-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">Partecipanti</h3>
+                    <div id="sharedParticipantsList" class="space-y-2 mb-4">
+                        <!-- Partecipanti verranno caricati qui -->
+                    </div>
                     <div class="flex gap-2">
-                        <input type="text" id="newParticipantName" placeholder="Nome partecipante" 
-                               class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <button onclick="addParticipantToGroup()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                            Aggiungi
-                        </button>
-                        <button onclick="hideAddParticipantForm()" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors">
-                            Annulla
+                        <input 
+                            type="text" 
+                            id="newParticipantName" 
+                            placeholder="Nome nuovo partecipante" 
+                            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                        <button 
+                            onclick="addSharedParticipant()" 
+                            class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                        >
+                            <i class="fas fa-plus mr-2"></i>Aggiungi
                         </button>
                     </div>
                 </div>
                 
-                <!-- Form Aggiungi Spesa -->
-                <div id="addExpenseForm" class="hidden glass-card rounded-xl p-6 shadow-xl mb-6">
-                    <h4 class="text-lg font-bold text-gray-800 mb-4">
-                        <i class="fas fa-plus text-green-600 mr-2"></i>Aggiungi Spesa
-                    </h4>
+                <div class="glass-card rounded-xl p-6 shadow-xl mb-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">Aggiungi Spesa</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <input type="text" id="newExpenseDescription" placeholder="Descrizione spesa" 
-                               class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
-                        <input type="number" id="newExpenseAmount" placeholder="Importo €" step="0.01"
-                               class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
-                        <input type="date" id="newExpenseDate" 
-                               class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
-                        <select id="newExpensePayer" 
-                                class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <input 
+                            type="text" 
+                            id="sharedExpenseDescription" 
+                            placeholder="Descrizione spesa" 
+                            class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                        >
+                        <input 
+                            type="number" 
+                            id="sharedExpenseAmount" 
+                            placeholder="Importo €" 
+                            step="0.01" 
+                            class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                        >
+                        <select 
+                            id="sharedExpensePayer" 
+                            class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                        >
                             <option value="">Chi ha pagato?</option>
                         </select>
-                    </div>
-                    <div id="expenseParticipants" class="mt-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Dividi tra:</label>
-                        <div id="expenseParticipantsList" class="grid grid-cols-2 md:grid-cols-3 gap-2">
-                            <!-- Checkbox partecipanti -->
-                        </div>
-                    </div>
-                    <div class="flex gap-2 mt-4">
-                        <button onclick="addExpenseToGroup()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                        <button 
+                            onclick="addSharedExpense()" 
+                            class="bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors"
+                        >
                             <i class="fas fa-plus mr-2"></i>Aggiungi Spesa
                         </button>
-                        <button onclick="hideAddExpenseForm()" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors">
-                            Annulla
-                        </button>
+                    </div>
+                    <div id="sharedParticipantsCheckboxes" class="mt-4">
+                        <!-- Checkbox partecipanti verranno aggiunte qui -->
                     </div>
                 </div>
                 
-                <!-- Lista Partecipanti -->
                 <div class="glass-card rounded-xl p-6 shadow-xl mb-6">
-                    <h4 class="text-lg font-bold text-gray-800 mb-4">
-                        <i class="fas fa-users text-blue-600 mr-2"></i>Partecipanti (${group.participants.length})
-                    </h4>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                        ${group.participants.map(participant => `
-                            <div class="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
-                                <span class="font-medium text-gray-800">${participant.name}</span>
-                                <button onclick="removeParticipantFromGroup('${participant.name}')" class="text-red-500 hover:text-red-700">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        `).join('')}
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">Spese del Gruppo</h3>
+                    <div id="sharedExpensesList" class="space-y-3">
+                        <!-- Spese verranno caricate qui -->
                     </div>
                 </div>
                 
-                <!-- Lista Spese -->
-                <div class="glass-card rounded-xl p-6 shadow-xl mb-6">
-                    <h4 class="text-lg font-bold text-gray-800 mb-4">
-                        <i class="fas fa-receipt text-green-600 mr-2"></i>Spese (${group.expenses.length})
-                    </h4>
-                    <div class="space-y-3 max-h-60 overflow-y-auto">
-                        ${group.expenses.length === 0 ? 
-                            '<p class="text-gray-500 text-center py-4">Nessuna spesa registrata</p>' :
-                            group.expenses.map(expense => `
-                                <div class="bg-gray-50 p-4 rounded-lg">
-                                    <div class="flex justify-between items-start">
-                                        <div>
-                                            <h5 class="font-medium text-gray-800">${expense.description}</h5>
-                                            <p class="text-sm text-gray-600">€${expense.amount.toFixed(2)} - ${expense.date}</p>
-                                            <p class="text-sm text-gray-600">Pagato da: ${expense.payer}</p>
-                                            <p class="text-sm text-gray-600">Diviso tra: ${expense.participants.join(', ')}</p>
-                                            <p class="text-sm text-gray-600">€${(expense.amount / expense.participants.length).toFixed(2)} a persona</p>
-                                        </div>
-                                        <button onclick="removeExpenseFromGroup(${expense.id})" class="text-red-500 hover:text-red-700">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            `).join('')
-                        }
+                <div class="glass-card rounded-xl p-6 shadow-xl">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">Bilanci del Gruppo</h3>
+                    <div id="sharedBalancesList" class="space-y-3">
+                        <!-- Bilanci verranno calcolati qui -->
                     </div>
-                </div>
-                
-                <!-- Bilanci -->
-                <div id="groupBalances" class="hidden glass-card rounded-xl p-6 shadow-xl mb-6">
-                    <!-- I bilanci verranno caricati qui -->
-                </div>
-                
-                <div class="glass-card rounded-xl p-6 shadow-xl text-center">
-                    <button onclick="leaveGroup()" class="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors">
-                        <i class="fas fa-sign-out-alt mr-2"></i>Esci dal Gruppo
-                    </button>
                 </div>
             `;
             
-            management.classList.remove('hidden');
-            
-            // Imposta la data di oggi per le nuove spese
-            const today = new Date().toISOString().split('T')[0];
-            setTimeout(() => {
-                const dateInput = document.getElementById('newExpenseDate');
-                if (dateInput) dateInput.value = today;
-            }, 100);
-            
-            showNotification('Gruppo caricato con successo!');
+            // Carica i dati del gruppo
+            refreshGroupData();
         }
 
-        function showAddParticipantForm() {
-            document.getElementById('addParticipantForm').classList.remove('hidden');
-            document.getElementById('newParticipantName').focus();
-        }
-
-        function hideAddParticipantForm() {
-            document.getElementById('addParticipantForm').classList.add('hidden');
-            document.getElementById('newParticipantName').value = '';
-        }
-
-        function showAddExpenseForm() {
-            // Popola il select dei pagatori
-            const payerSelect = document.getElementById('newExpensePayer');
-            payerSelect.innerHTML = '<option value="">Chi ha pagato?</option>';
-            currentGroup.participants.forEach(participant => {
-                const option = document.createElement('option');
-                option.value = participant.name;
-                option.textContent = participant.name;
-                payerSelect.appendChild(option);
-            });
+        async function refreshGroupData() {
+            if (!currentGroup) return;
             
-            // Popola le checkbox dei partecipanti
-            const participantsList = document.getElementById('expenseParticipantsList');
-            participantsList.innerHTML = '';
-            currentGroup.participants.forEach(participant => {
+            try {
+                const response = await fetch(`${API_BASE}/groups/${currentGroup.code}`);
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    displaySharedParticipants(data.participants);
+                    displaySharedExpenses(data.expenses);
+                    updateSharedParticipantSelect(data.participants);
+                    updateSharedParticipantCheckboxes(data.participants);
+                    loadSharedBalances();
+                } else {
+                    showNotification('Errore nel caricare i dati del gruppo', 'error');
+                }
+            } catch (error) {
+                console.error('Errore:', error);
+                showNotification('Errore di connessione', 'error');
+            }
+        }
+
+        function displaySharedParticipants(participants) {
+            const list = document.getElementById('sharedParticipantsList');
+            list.innerHTML = '';
+            
+            participants.forEach(participant => {
                 const div = document.createElement('div');
-                div.className = 'flex items-center';
+                div.className = 'flex items-center justify-between bg-gray-50 p-3 rounded-lg';
                 div.innerHTML = `
-                    <input type="checkbox" id="expense_participant_${participant.name}" value="${participant.name}" class="mr-2">
-                    <label for="expense_participant_${participant.name}" class="text-sm text-gray-700">${participant.name}</label>
+                    <span class="font-medium text-gray-800">${participant.name}</span>
+                    <span class="text-sm text-gray-500">ID: ${participant.id}</span>
                 `;
-                participantsList.appendChild(div);
+                list.appendChild(div);
             });
+        }
+
+        function displaySharedExpenses(expenses) {
+            const list = document.getElementById('sharedExpensesList');
+            list.innerHTML = '';
             
-            document.getElementById('addExpenseForm').classList.remove('hidden');
-        }
-
-        function hideAddExpenseForm() {
-            document.getElementById('addExpenseForm').classList.add('hidden');
-            // Reset form
-            document.getElementById('newExpenseDescription').value = '';
-            document.getElementById('newExpenseAmount').value = '';
-            document.getElementById('newExpensePayer').value = '';
-            currentGroup.participants.forEach(participant => {
-                const checkbox = document.getElementById(`expense_participant_${participant.name}`);
-                if (checkbox) checkbox.checked = false;
+            if (expenses.length === 0) {
+                list.innerHTML = '<p class="text-gray-500 text-center py-4">Nessuna spesa registrata</p>';
+                return;
+            }
+            
+            expenses.forEach(expense => {
+                const div = document.createElement('div');
+                div.className = 'bg-gray-50 p-4 rounded-lg';
+                div.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="font-medium text-gray-800">${expense.description}</h4>
+                    </div>
+                    <div class="text-sm text-gray-600">
+                        <p><strong>€${expense.amount.toFixed(2)}</strong> • Pagato da <strong>${expense.payer_id}</strong></p>
+                        <p>Partecipanti: ${expense.participants.length}</p>
+                    </div>
+                `;
+                list.appendChild(div);
             });
         }
 
-        async function addParticipantToGroup() {
+        function updateSharedParticipantSelect(participants) {
+            const select = document.getElementById('sharedExpensePayer');
+            select.innerHTML = '<option value="">Chi ha pagato?</option>';
+            
+            participants.forEach(participant => {
+                const option = document.createElement('option');
+                option.value = participant.id;
+                option.textContent = participant.name;
+                select.appendChild(option);
+            });
+        }
+
+        function updateSharedParticipantCheckboxes(participants) {
+            const container = document.getElementById('sharedParticipantsCheckboxes');
+            container.innerHTML = '<label class="text-sm font-medium text-gray-700 block mb-2">Dividi tra:</label>';
+            
+            participants.forEach(participant => {
+                const div = document.createElement('div');
+                div.className = 'flex items-center mb-2';
+                div.innerHTML = `
+                    <input type="checkbox" id="shared_participant_${participant.id}" value="${participant.id}" class="mr-2">
+                    <label for="shared_participant_${participant.id}" class="text-sm text-gray-700">${participant.name}</label>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        async function addSharedParticipant() {
             const name = document.getElementById('newParticipantName').value.trim();
             
             if (!name) {
-                showNotification('Inserisci un nome valido', 'error');
+                showNotification('Inserisci un nome', 'error');
                 return;
             }
             
             try {
-                const response = await fetch(`${API_BASE}/groups/${currentGroup.code}/participants`, {
+                const response = await fetch(`${API_BASE}/groups/${currentGroup.id}/participants`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -1161,10 +1040,10 @@
                 
                 const data = await response.json();
                 
-                if (response.ok) {
-                    showNotification('Partecipante aggiunto!');
-                    hideAddParticipantForm();
-                    refreshGroup();
+                if (response.ok && data.success) {
+                    document.getElementById('newParticipantName').value = '';
+                    showNotification('Partecipante aggiunto');
+                    refreshGroupData();
                 } else {
                     showNotification(data.error || 'Errore nell\'aggiungere il partecipante', 'error');
                 }
@@ -1174,47 +1053,20 @@
             }
         }
 
-        async function removeParticipantFromGroup(name) {
-            if (!confirm(`Rimuovere ${name} dal gruppo? Verranno eliminate anche le sue spese.`)) {
-                return;
-            }
+        async function addSharedExpense() {
+            const description = document.getElementById('sharedExpenseDescription').value.trim();
+            const amount = parseFloat(document.getElementById('sharedExpenseAmount').value);
+            const payerId = document.getElementById('sharedExpensePayer').value;
             
-            try {
-                const response = await fetch(`${API_BASE}/groups/${currentGroup.code}/participants/${encodeURIComponent(name)}`, {
-                    method: 'DELETE'
-                });
-                
-                const data = await response.json();
-                
-                if (response.ok) {
-                    showNotification('Partecipante rimosso');
-                    refreshGroup();
-                } else {
-                    showNotification(data.error || 'Errore nella rimozione del partecipante', 'error');
-                }
-            } catch (error) {
-                console.error('Errore:', error);
-                showNotification('Errore di connessione', 'error');
-            }
-        }
-
-        async function addExpenseToGroup() {
-            const description = document.getElementById('newExpenseDescription').value.trim();
-            const amount = parseFloat(document.getElementById('newExpenseAmount').value);
-            const date = document.getElementById('newExpenseDate').value;
-            const payer = document.getElementById('newExpensePayer').value;
-            
-            if (!description || !amount || !date || !payer) {
+            if (!description || !amount || !payerId) {
                 showNotification('Compila tutti i campi obbligatori', 'error');
                 return;
             }
             
             const selectedParticipants = [];
-            currentGroup.participants.forEach(participant => {
-                const checkbox = document.getElementById(`expense_participant_${participant.name}`);
-                if (checkbox && checkbox.checked) {
-                    selectedParticipants.push(participant.name);
-                }
+            const checkboxes = document.querySelectorAll('#sharedParticipantsCheckboxes input[type="checkbox"]:checked');
+            checkboxes.forEach(checkbox => {
+                selectedParticipants.push(checkbox.value);
             });
             
             if (selectedParticipants.length === 0) {
@@ -1223,7 +1075,7 @@
             }
             
             try {
-                const response = await fetch(`${API_BASE}/groups/${currentGroup.code}/expenses`, {
+                const response = await fetch(`${API_BASE}/groups/${currentGroup.id}/expenses`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -1231,18 +1083,22 @@
                     body: JSON.stringify({
                         description,
                         amount,
-                        date,
-                        payer,
+                        payer_id: payerId,
                         participants: selectedParticipants
                     })
                 });
                 
                 const data = await response.json();
                 
-                if (response.ok) {
-                    showNotification('Spesa aggiunta!');
-                    hideAddExpenseForm();
-                    refreshGroup();
+                if (response.ok && data.success) {
+                    // Reset form
+                    document.getElementById('sharedExpenseDescription').value = '';
+                    document.getElementById('sharedExpenseAmount').value = '';
+                    document.getElementById('sharedExpensePayer').value = '';
+                    checkboxes.forEach(checkbox => checkbox.checked = false);
+                    
+                    showNotification('Spesa aggiunta');
+                    refreshGroupData();
                 } else {
                     showNotification(data.error || 'Errore nell\'aggiungere la spesa', 'error');
                 }
@@ -1252,41 +1108,17 @@
             }
         }
 
-        async function removeExpenseFromGroup(expenseId) {
-            if (!confirm('Rimuovere questa spesa?')) {
-                return;
-            }
-            
-            try {
-                const response = await fetch(`${API_BASE}/groups/${currentGroup.code}/expenses/${expenseId}`, {
-                    method: 'DELETE'
-                });
-                
-                const data = await response.json();
-                
-                if (response.ok) {
-                    showNotification('Spesa rimossa');
-                    refreshGroup();
-                } else {
-                    showNotification(data.error || 'Errore nella rimozione della spesa', 'error');
-                }
-            } catch (error) {
-                console.error('Errore:', error);
-                showNotification('Errore di connessione', 'error');
-            }
-        }
-
-        async function refreshGroup() {
+        async function loadSharedBalances() {
             if (!currentGroup) return;
             
             try {
-                const response = await fetch(`${API_BASE}/groups/${currentGroup.code}`);
+                const response = await fetch(`${API_BASE}/groups/${currentGroup.id}/balance`);
                 const data = await response.json();
                 
-                if (response.ok) {
-                    loadGroupInterface(data);
+                if (response.ok && data.success) {
+                    displaySharedBalances(data.balances, data.settlements);
                 } else {
-                    showNotification(data.error || 'Errore nel ricaricare il gruppo', 'error');
+                    showNotification('Errore nel caricare i bilanci', 'error');
                 }
             } catch (error) {
                 console.error('Errore:', error);
@@ -1294,137 +1126,55 @@
             }
         }
 
-        async function showBalances() {
-            if (!currentGroup) return;
+        function displaySharedBalances(balances, settlements) {
+            const list = document.getElementById('sharedBalancesList');
+            list.innerHTML = '';
             
-            try {
-                const response = await fetch(`${API_BASE}/groups/${currentGroup.code}/balances`);
-                const data = await response.json();
-                
-                if (response.ok) {
-                    displayGroupBalances(data.balances, data.reimbursements);
-                } else {
-                    showNotification(data.error || 'Errore nel calcolare i bilanci', 'error');
-                }
-            } catch (error) {
-                console.error('Errore:', error);
-                showNotification('Errore di connessione', 'error');
-            }
-        }
-
-        function displayGroupBalances(balances, reimbursements) {
-            const balancesDiv = document.getElementById('groupBalances');
-            
-            let balancesHtml = `
-                <h4 class="text-lg font-bold text-gray-800 mb-4">
-                    <i class="fas fa-balance-scale text-orange-600 mr-2"></i>Bilanci del Gruppo
-                </h4>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            `;
+            // Mostra bilanci individuali
+            const balanceDiv = document.createElement('div');
+            balanceDiv.className = 'mb-4';
+            balanceDiv.innerHTML = '<h4 class="font-bold text-gray-800 mb-2">Bilanci individuali:</h4>';
             
             Object.entries(balances).forEach(([participant, balance]) => {
-                let balanceClass = 'text-gray-800';
-                let balanceText = '€0.00';
-                let statusIcon = 'fas fa-equals';
+                const div = document.createElement('div');
+                div.className = `flex items-center justify-between p-3 rounded-lg ${
+                    balance > 0.01 ? 'bg-green-50 border-l-4 border-green-500' :
+                    balance < -0.01 ? 'bg-red-50 border-l-4 border-red-500' :
+                    'bg-gray-50 border-l-4 border-gray-300'
+                }`;
                 
-                if (balance > 0.01) {
-                    balanceClass = 'text-green-600 font-medium';
-                    balanceText = `+€${balance.toFixed(2)}`;
-                    statusIcon = 'fas fa-arrow-up';
-                } else if (balance < -0.01) {
-                    balanceClass = 'text-red-600 font-medium';
-                    balanceText = `€${balance.toFixed(2)}`;
-                    statusIcon = 'fas fa-arrow-down';
-                }
+                const status = balance > 0.01 ? 'deve ricevere' : balance < -0.01 ? 'deve dare' : 'è in pari';
+                const color = balance > 0.01 ? 'text-green-700' : balance < -0.01 ? 'text-red-700' : 'text-gray-700';
                 
-                balancesHtml += `
-                    <div class="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
-                        <span class="font-medium text-gray-800">${participant}</span>
-                        <div class="flex items-center">
-                            <i class="${statusIcon} ${balanceClass} mr-2"></i>
-                            <span class="${balanceClass}">${balanceText}</span>
-                        </div>
-                    </div>
+                div.innerHTML = `
+                    <span class="font-medium text-gray-800">${participant}</span>
+                    <span class="${color} font-bold">€${Math.abs(balance).toFixed(2)} ${status}</span>
                 `;
+                balanceDiv.appendChild(div);
             });
             
-            balancesHtml += '</div>';
+            list.appendChild(balanceDiv);
             
-            if (reimbursements.length > 0) {
-                balancesHtml += `
-                    <div class="bg-blue-50 p-4 rounded-lg">
-                        <h5 class="font-medium text-blue-800 mb-3">
-                            <i class="fas fa-exchange-alt mr-2"></i>Rimborsi suggeriti:
-                        </h5>
-                        <div class="space-y-2">
-                `;
+            // Mostra rimborsi suggeriti
+            if (settlements && settlements.length > 0) {
+                const settlementsDiv = document.createElement('div');
+                settlementsDiv.innerHTML = '<h4 class="font-bold text-gray-800 mb-2">Rimborsi suggeriti:</h4>';
                 
-                reimbursements.forEach(reimb => {
-                    balancesHtml += `
-                        <div class="flex items-center justify-between bg-white p-3 rounded border-l-4 border-blue-500">
-                            <span class="text-blue-700">
-                                <strong>${reimb.from}</strong> deve dare <strong>€${reimb.amount.toFixed(2)}</strong> a <strong>${reimb.to}</strong>
-                            </span>
-                            <i class="fas fa-arrow-right text-blue-500"></i>
-                        </div>
+                settlements.forEach(settlement => {
+                    const div = document.createElement('div');
+                    div.className = 'bg-blue-50 p-3 rounded-lg border-l-4 border-blue-500';
+                    div.innerHTML = `
+                        <span class="text-blue-800">
+                            <strong>${settlement.from}</strong> deve dare <strong>€${settlement.amount.toFixed(2)}</strong> a <strong>${settlement.to}</strong>
+                        </span>
                     `;
+                    settlementsDiv.appendChild(div);
                 });
                 
-                balancesHtml += '</div></div>';
+                list.appendChild(settlementsDiv);
             }
-            
-            balancesHtml += `
-                <div class="text-center mt-4">
-                    <button onclick="hideBalances()" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors">
-                        <i class="fas fa-times mr-2"></i>Chiudi Bilanci
-                    </button>
-                </div>
-            `;
-            
-            balancesDiv.innerHTML = balancesHtml;
-            balancesDiv.classList.remove('hidden');
-        }
-
-        function hideBalances() {
-            document.getElementById('groupBalances').classList.add('hidden');
-        }
-
-        function copyGroupCode() {
-            if (currentGroup) {
-                navigator.clipboard.writeText(currentGroup.code);
-                showNotification('Codice gruppo copiato!');
-            }
-        }
-
-        function leaveGroup() {
-            if (confirm('Uscire dal gruppo?')) {
-                currentGroup = null;
-                document.getElementById('groupManagement').classList.add('hidden');
-                document.getElementById('sharedSelection').classList.remove('hidden');
-                showNotification('Sei uscito dal gruppo');
-            }
-        }
-
-        // === UTILITÀ ===
-        
-        function showNotification(message, type = 'success') {
-            const notification = document.getElementById('notification');
-            const text = document.getElementById('notificationText');
-            
-            text.textContent = message;
-            
-            if (type === 'error') {
-                notification.querySelector('div').className = 'bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg';
-            } else {
-                notification.querySelector('div').className = 'bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg';
-            }
-            
-            notification.classList.remove('hidden');
-            
-            setTimeout(() => {
-                notification.classList.add('hidden');
-            }, 3000);
         }
     </script>
 </body>
 </html>
+
