@@ -333,9 +333,7 @@
                         <div class="border border-gray-200 rounded-lg p-4">
                             <h4 class="font-bold text-gray-800 mb-2">❓ Posso modificare o cancellare una spesa?</h4>
                             <p class="text-gray-700">
-                                Attualmente non è possibile modificare le spese inserite. Assicurati di inserire i dati corretti. 
-                                In modalità locale puoi usare "Reset" per ricominciare.
-                            </p>
+Sì! Ora puoi modificare o cancellare le spese utilizzando le icone di modifica (matita) e cancellazione (cestino) accanto a ciascuna spesa.
                         </div>
                     </div>
                 </div>
@@ -356,10 +354,8 @@
                 <i class="fas fa-calculator text-white text-4xl mr-3"></i>
                 <h1 class="text-4xl font-bold text-white">Gestione spese by Ezio</h1>
             </div>
-            <p class="text-white text-lg opacity-90">Gestisci le tue spese condivise in modo semplice e veloce</p>
-            <p class="text-white text-sm opacity-75 mt-2">
-                <i class="fas fa-question-circle mr-1"></i>
-                Clicca il pulsante "?" in alto a destra per le istruzioni
+            <p class="text-white 
+                
             </p>
         </div>
 
@@ -1473,7 +1469,173 @@
                 
                 list.appendChild(settlementsDiv);
             }
+    
+            // Added functions to allow editing and deleting participants and expenses
+    function editParticipant(oldName) {
+      const newName = prompt("Inserisci il nuovo nome per " + oldName + ":", oldName);
+      if (!newName || newName.trim() === "" || participants.includes(newName)) {
+        return;
+      }
+      // Update participants array
+      const index = participants.indexOf(oldName);
+      if (index !== -1) {
+        participants[index] = newName;
+      }
+      // Update expenses payer and participants lists
+      expenses.forEach(expense => {
+        if (expense.payer === oldName) {
+          expense.payer = newName;
         }
+        expense.participants = expense.participants.map(p => p === oldName ? newName : p);
+      });
+      updateParticipantSelect();
+      updateParticipantCheckboxes();
+      displayParticipants();
+      displayExpenses();
+      calculateBalances();
+      saveLocalData();
+    }
+
+    // Override removeParticipant to also update expenses
+    function removeParticipant(name) {
+      if (!confirm("Vuoi cancellare il partecipante '" + name + "'? Verranno rimosse anche le spese associate.")) {
+        return;
+      }
+      // Remove participant from participants array
+      const idx = participants.indexOf(name);
+      if (idx !== -1) {
+        participants.splice(idx, 1);
+      }
+      // Remove expenses where this person is payer or participant
+      expenses = expenses.filter(expense => {
+        const isPayer = expense.payer === name;
+        const isInvolved = expense.participants.includes(name);
+        return !isPayer && !isInvolved;
+      });
+      updateParticipantSelect();
+      updateParticipantCheckboxes();
+      displayParticipants();
+      displayExpenses();
+      calculateBalances();
+      saveLocalData();
+    }
+
+    // Add functions to edit and remove expenses
+    function removeExpense(id) {
+      if (!confirm("Vuoi cancellare questa spesa?")) return;
+      expenses = expenses.filter(exp => exp.id !== id);
+      displayExpenses();
+      calculateBalances();
+      saveLocalData();
+    }
+
+    function editExpense(id) {
+      const expense = expenses.find(exp => exp.id === id);
+      if (!expense) return;
+      const newDesc = prompt("Nuova descrizione:", expense.description) || expense.description;
+      const newAmountStr = prompt("Nuovo importo:", expense.amount);
+      const newAmount = parseFloat(newAmountStr);
+      const newDate = prompt("Nuova data (AAAA-MM-GG):", expense.date) || expense.date;
+      const newPayer = prompt("Nuovo pagatore:", expense.payer) || expense.payer;
+      const newParticipantsStr = prompt("Nuovi partecipanti separati da virgola:", expense.participants.join(", ")) || expense.participants.join(", ");
+      const newParticipants = newParticipantsStr.split(",").map(p => p.trim()).filter(p => p);
+      expense.description = newDesc;
+      expense.amount = isNaN(newAmount) ? expense.amount : newAmount;
+      expense.date = newDate;
+      expense.payer = newPayer;
+      expense.participants = newParticipants;
+      displayExpenses();
+      calculateBalances();
+      saveLocalData();
+    }
+
+    // Override displayParticipants to show edit and delete icons
+    function displayParticipants() {
+      const list = document.getElementById('participant-list');
+      list.innerHTML = '';
+      participants.forEach(participant => {
+        const div = document.createElement('div');
+        div.className = 'flex items-center justify-between mb-2';
+        div.innerHTML = `
+          <span class="font-medium text-gray-800">${participant}</span>
+          <span>
+            <button class="text-blue-500 mr-2" onclick="editParticipant('${participant}')">
+              <i class="fas fa-pen"></i>
+            </button>
+            <button class="text-red-500" onclick="removeParticipant('${participant}')">
+              <i class="fas fa-trash"></i>
+            </button>
+          </span>
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    // Override displayExpenses to include edit and delete icons
+    function displayExpenses() {
+      const list = document.getElementById('expense-list');
+      list.innerHTML = '';
+      expenses.forEach(expense => {
+        const div = document.createElement('div');
+        div.className = 'flex items-center justify-between bg-gray-100 p-4 rounded mb-2';
+        const participantsStr = expense.participants.join(', ');
+        div.innerHTML = `
+          <div>
+            <span class="font-semibold text-blue-800">${expense.description}</span>
+            <span class="text-gray-700"> - $${expense.amount.toFixed(2)} - ${expense.date}</span>
+            <p class="text-gray-600">${expense.payer} ha pagato. Partecipanti: ${participantsStr}</p>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button onclick="editExpense(${expense.id})" class="text-blue-500"><i class="fas fa-pen"></i></button>
+            <button onclick="removeExpense(${expense.id})" class="text-red-500"><i class="fas fa-trash"></i></button>
+          </div>
+        `;
+        list.appendChild(div);
+      });
+    }
+}
+            // Final override functions for participants and expenses display
+    function displayParticipants() {
+      const list = document.getElementById('participant-list');
+      list.innerHTML = '';
+      participants.forEach(function(participant) {
+        const div = document.createElement('div');
+        div.className = 'flex items-center justify-between mb-2';
+        div.innerHTML =
+          '<span class="font-medium text-gray-800">' + participant + '</span>' +
+          '<span>' +
+            '<button class="text-blue-500 mr-2" onclick="editParticipant(\'' + participant + '\')">' +
+              '<i class="fas fa-pen"></i>' +
+            '</button>' +
+            '<button class="text-red-500" onclick="removeParticipant(\'' + participant + '\')">' +
+              '<i class="fas fa-trash"></i>' +
+            '</button>' +
+          '</span>';
+        list.appendChild(div);
+      });
+    }
+
+    function displayExpenses() {
+      const list = document.getElementById('expense-list');
+      list.innerHTML = '';
+      expenses.forEach(function(expense) {
+        const div = document.createElement('div');
+        div.className = 'flex items-center justify-between bg-gray-100 p-4 rounded mb-2';
+        const participantsStr = expense.participants.join(', ');
+        div.innerHTML =
+          '<div>' +
+            '<span class="font-semibold text-blue-800">' + expense.description + '</span>' +
+            '<span class="text-gray-700"> - $' + expense.amount.toFixed(2) + ' - ' + expense.date + '</span>' +
+            '<p class="text-gray-600">' + expense.payer + ' ha pagato. Partecipanti: ' + participantsStr + '</p>' +
+          '</div>' +
+          '<div class="flex items-center space-x-2">' +
+            '<button onclick="editExpense(' + expense.id + ')" class="text-blue-500"><i class="fas fa-pen"></i></button>' +
+            '<button onclick="removeExpense(' + expense.id + ')" class="text-red-500"><i class="fas fa-trash"></i></button>' +
+          '</div>';
+        list.appendChild(div);
+      });
+    }
+
     </script>
 </body>
 </html>
