@@ -421,8 +421,10 @@
         });
         if (!res.ok) throw new Error('Errore creazione gruppo');
         const data = await res.json();
-        groupId = data.id;
-        groupCode = data.code;
+        // The backend returns {success, group:{id, code, ...}} so grab nested group or top-level
+        const group = data.group || data;
+        groupId = group.id;
+        groupCode = group.code;
         document.getElementById('groupCreateResult').textContent = `Gruppo creato! Codice: ${groupCode}`;
         document.getElementById('groupActions').classList.remove('hidden');
         await refreshGroupData();
@@ -439,8 +441,11 @@
         const res = await fetch(`${API_BASE}/groups/${code}`);
         if (!res.ok) throw new Error('Gruppo non trovato');
         const data = await res.json();
-        groupId = data.id;
-        groupCode = code;
+        // If backend wraps group data, extract it
+        const group = data.group || data;
+        groupId = group.id;
+        // Prefer group.code from response, fall back to entered code
+        groupCode = group.code || code;
         document.getElementById('groupJoinResult').textContent = `Sei entrato nel gruppo con ID ${groupId}`;
         document.getElementById('groupActions').classList.remove('hidden');
         await refreshGroupData();
@@ -506,8 +511,10 @@
         const groupRes = await fetch(`${API_BASE}/groups/${groupCode}`);
         if (!groupRes.ok) throw new Error('Errore recupero gruppo');
         const groupData = await groupRes.json();
-        groupParticipantsData = groupData.participants;
-        groupId = groupData.id;
+        // Backend returns {success, group:{...}} so handle both cases
+        const groupObj = groupData.group || groupData;
+        groupParticipantsData = groupObj.participants;
+        groupId = groupObj.id;
         // Update participants list
         const partDiv = document.getElementById('groupParticipants');
         partDiv.innerHTML = '';
@@ -541,7 +548,9 @@
         // Get expenses
         const expRes = await fetch(`${API_BASE}/groups/${groupId}/expenses`);
         if (!expRes.ok) throw new Error('Errore recupero spese');
-        groupExpensesData = await expRes.json();
+        const expData = await expRes.json();
+        // For remote mode the backend returns {success, expenses:[...]}
+        groupExpensesData = expData.expenses || expData;
         displayGroupExpenses();
         calculateGroupBalances();
       } catch (err) {
