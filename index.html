@@ -195,6 +195,45 @@
     // ----- Local mode variables -----
     let participants = [];
     let expenses = [];
+    
+    // Funzioni per localStorage
+    function saveLocalData() {
+      localStorage.setItem('localExpenses', JSON.stringify({
+        participants: participants,
+        expenses: expenses
+      }));
+    }
+    
+    function loadLocalData() {
+      const data = localStorage.getItem('localExpenses');
+      if (data) {
+        try {
+          const parsed = JSON.parse(data);
+          participants = parsed.participants || [];
+          expenses = parsed.expenses || [];
+          displayParticipants();
+          updateParticipantSelect();
+          displayExpenses();
+          calculateBalances();
+        } catch (e) {
+          console.error('Errore nel caricamento dei dati:', e);
+        }
+      }
+    }
+    
+    // Funzione per mostrare notifiche
+    function showNotification(message) {
+      // Crea un elemento di notifica temporaneo
+      const notification = document.createElement('div');
+      notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded shadow-lg z-50';
+      notification.textContent = message;
+      document.body.appendChild(notification);
+      
+      // Rimuovi dopo 3 secondi
+      setTimeout(() => {
+        notification.remove();
+      }, 3000);
+    }
 
     // Update payer dropdown and participant checkboxes
     function updateParticipantSelect() {
@@ -252,9 +291,11 @@
       }
       participants.push(name);
       nameInput.value = '';
+      saveLocalData();
       updateParticipantSelect();
       displayParticipants();
       calculateBalances();
+      showNotification('Partecipante aggiunto con successo!');
     }
 
     // Edit a participant's name
@@ -268,10 +309,12 @@
         if (exp.payer === oldName) exp.payer = newName;
         exp.participants = exp.participants.map(p => p === oldName ? newName : p);
       });
+      saveLocalData();
       updateParticipantSelect();
       displayParticipants();
       displayExpenses();
       calculateBalances();
+      showNotification('Partecipante modificato con successo!');
     }
 
     // Remove a participant and associated expenses
@@ -284,10 +327,12 @@
         exp.participants = exp.participants.filter(p => p !== name);
         return exp.participants.length > 0;
       });
+      saveLocalData();
       updateParticipantSelect();
       displayParticipants();
       displayExpenses();
       calculateBalances();
+      showNotification('Partecipante eliminato con successo!');
     }
 
     // Display expenses list
@@ -320,8 +365,23 @@
       const payer = document.getElementById('expensePayer').value;
       const checkboxes = document.querySelectorAll('#expenseParticipants input[type="checkbox"]:checked');
       const participantsSelected = Array.from(checkboxes).map(cb => cb.value);
+      
+      // Validazione campi
       if (!description || isNaN(amount) || !date || !payer || participantsSelected.length === 0) {
         alert('Compila tutti i campi e seleziona almeno un partecipante.');
+        return;
+      }
+      
+      // Validazione importo positivo
+      if (amount <= 0) {
+        alert('L\'importo deve essere maggiore di zero.');
+        return;
+      }
+      
+      // Validazione data (deve essere una data valida)
+      const dateObj = new Date(date);
+      if (isNaN(dateObj.getTime())) {
+        alert('Inserisci una data valida.');
         return;
       }
       const expense = {
@@ -338,8 +398,10 @@
       document.getElementById('expenseAmount').value = '';
       document.getElementById('expenseDate').value = '';
       document.querySelectorAll('#expenseParticipants input[type="checkbox"]').forEach(cb => cb.checked = false);
+      saveLocalData();
       displayExpenses();
       calculateBalances();
+      showNotification('Spesa aggiunta con successo!');
     }
 
     // Edit an existing expense
@@ -356,16 +418,22 @@
       exp.date = newDate;
       exp.payer = newPayer.trim();
       exp.participants = parts.split(',').map(p => p.trim()).filter(Boolean);
+      saveLocalData();
       displayExpenses();
       calculateBalances();
+      showNotification('Spesa modificata con successo!');
     }
 
     // Remove an expense
     function removeExpense(id) {
       if (!confirm('Vuoi eliminare questa spesa?')) return;
       expenses = expenses.filter(e => e.id !== id);
+      // Salva su localStorage
+      saveLocalData();
       displayExpenses();
       calculateBalances();
+      // Feedback visivo
+      showNotification('Spesa eliminata con successo!');
     }
 
     // Calculate balances (who owes what) for local mode
@@ -482,8 +550,23 @@
       const payer = document.getElementById('groupExpensePayer').value;
       const checkboxes = document.querySelectorAll('#groupExpenseParticipants input[type="checkbox"]:checked');
       const participantsSelected = Array.from(checkboxes).map(cb => cb.value);
+      
+      // Validazione campi
       if (!description || isNaN(amount) || !date || !payer || participantsSelected.length === 0) {
         alert('Compila tutti i campi e seleziona almeno un partecipante');
+        return;
+      }
+      
+      // Validazione importo positivo
+      if (amount <= 0) {
+        alert('L\'importo deve essere maggiore di zero.');
+        return;
+      }
+      
+      // Validazione data (deve essere una data valida)
+      const dateObj = new Date(date);
+      if (isNaN(dateObj.getTime())) {
+        alert('Inserisci una data valida.');
         return;
       }
       try {
@@ -521,7 +604,9 @@
         partDiv.innerHTML = '';
         groupParticipantsData.forEach(p => {
           const row = document.createElement('div');
-          row.textContent = p.name;
+          // Handle both object {name: "..."} and string formats
+          const participantName = typeof p === 'string' ? p : (p.name || p);
+          row.textContent = participantName;
           partDiv.appendChild(row);
         });
         // Populate payer select
@@ -529,8 +614,10 @@
         payerSelect.innerHTML = '';
         groupParticipantsData.forEach(p => {
           const opt = document.createElement('option');
-          opt.value = p.name;
-          opt.textContent = p.name;
+          // Handle both object {name: "..."} and string formats
+          const participantName = typeof p === 'string' ? p : (p.name || p);
+          opt.value = participantName;
+          opt.textContent = participantName;
           payerSelect.appendChild(opt);
         });
         // Populate participants checkboxes
@@ -541,9 +628,11 @@
           label.className = 'mr-4 flex items-center space-x-1';
           const cb = document.createElement('input');
           cb.type = 'checkbox';
-          cb.value = p.name;
+          // Handle both object {name: "..."} and string formats
+          const participantName = typeof p === 'string' ? p : (p.name || p);
+          cb.value = participantName;
           label.appendChild(cb);
-          label.appendChild(document.createTextNode(p.name));
+          label.appendChild(document.createTextNode(participantName));
           partChecks.appendChild(label);
         });
         // Get expenses
@@ -575,7 +664,11 @@
     // Calculate balances for group
     function calculateGroupBalances() {
       const balances = {};
-      groupParticipantsData.forEach(p => balances[p.name] = 0);
+      groupParticipantsData.forEach(p => {
+        // Handle both object {name: "..."} and string formats
+        const participantName = typeof p === 'string' ? p : (p.name || p);
+        balances[participantName] = 0;
+      });
       groupExpensesData.forEach(exp => {
         const share = exp.amount / exp.participants.length;
         exp.participants.forEach(p => {
@@ -604,6 +697,9 @@
 
     // Initialize default UI (update selects)
     updateParticipantSelect();
+    
+    // Carica i dati salvati all'avvio
+    loadLocalData();
   </script>
 </body>
 </html>
