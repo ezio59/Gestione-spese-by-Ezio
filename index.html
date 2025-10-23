@@ -1,236 +1,599 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <title>Gestione spese</title>
-    <!-- Tailwind CSS for quick styling -->
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <!-- Font Awesome for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestione spese by Ezio</title>
+  <!-- Tailwind CSS and Font Awesome for styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+  <style>
+    /* Basic styling inspired by the original app */
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 0.5rem;
+      border: 1px solid rgba(255,255,255,0.4);
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .mode-card {
+      transition: transform 0.3s ease;
+      cursor: pointer;
+    }
+    .mode-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+    .hidden { display: none; }
+  </style>
 </head>
-<body class="bg-gray-100 p-4">
-    <h1 class="text-2xl font-bold mb-4 text-center">Gestione spese</h1>
-    <div id="app" class="max-w-3xl mx-auto">
-        <!-- Sezione partecipanti -->
-        <section class="mb-8 bg-white p-4 rounded shadow">
-            <h2 class="text-xl font-semibold mb-4">Partecipanti</h2>
-            <div id="participantsList" class="space-y-2 mb-4"></div>
-            <div class="flex">
-                <input id="participantName" class="flex-grow border p-2 rounded-l" placeholder="Nome partecipante">
-                <button onclick="addParticipant()" class="bg-blue-500 text-white px-4 rounded-r">Aggiungi</button>
-            </div>
-        </section>
-
-        <!-- Sezione spese -->
-        <section class="mb-8 bg-white p-4 rounded shadow">
-            <h2 class="text-xl font-semibold mb-4">Spese</h2>
-            <div id="expensesList" class="space-y-2 mb-4"></div>
-            <div class="space-y-2">
-                <input id="expenseDescription" class="w-full border p-2 rounded" placeholder="Descrizione">
-                <input id="expenseAmount" type="number" step="0.01" class="w-full border p-2 rounded" placeholder="Importo">
-                <input id="expenseDate" type="date" class="w-full border p-2 rounded">
-                <select id="expensePayer" class="w-full border p-2 rounded"></select>
-                <div id="expenseParticipants" class="grid grid-cols-2 gap-2"></div>
-                <button onclick="addExpense()" class="bg-green-600 text-white px-4 py-2 rounded w-full">Aggiungi spesa</button>
-            </div>
-        </section>
-
-        <!-- Sezione saldi -->
-        <section class="bg-white p-4 rounded shadow">
-            <h2 class="text-xl font-semibold mb-4">Saldi</h2>
-            <div id="balances" class="space-y-1"></div>
-        </section>
+<body class="text-gray-900">
+  <div class="container mx-auto p-4">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-3xl font-bold text-white">Gestione spese by Ezio</h1>
+      <!-- Help icon opens the guide modal -->
+      <button onclick="openHelp()" class="text-white text-2xl">
+        <i class="fas fa-question-circle"></i>
+      </button>
+    </div>
+    <!-- Mode selection -->
+    <div id="modeSelection" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+      <div class="mode-card glass-card p-6 text-center" onclick="useLocalMode()">
+        <h2 class="text-xl font-bold mb-2">Modalità locale</h2>
+        <p>Gestisci le spese sul tuo dispositivo, senza sincronizzazione online.</p>
+      </div>
+      <div class="mode-card glass-card p-6 text-center" onclick="useSharedMode()">
+        <h2 class="text-xl font-bold mb-2">Modalità condivisa</h2>
+        <p>Crea o unisciti a un gruppo per condividere le spese con altri partecipanti.</p>
+      </div>
     </div>
 
-    <script>
-    // Array dei partecipanti e delle spese
+    <!-- Local mode section -->
+    <div id="localMode" class="hidden">
+      <div class="glass-card p-6 mb-6">
+        <h2 class="text-2xl font-semibold mb-4">Gestione locale</h2>
+        <!-- Participants input -->
+        <div class="mb-4 flex flex-col md:flex-row md:items-end md:space-x-4">
+          <div class="flex-1 mb-2 md:mb-0">
+            <label for="participantName" class="block text-gray-700 mb-1">Nome partecipante</label>
+            <input id="participantName" type="text" class="w-full p-2 border rounded" placeholder="Aggiungi un partecipante" />
+          </div>
+          <button onclick="addParticipant()" class="bg-blue-600 text-white px-4 py-2 rounded">Aggiungi partecipante</button>
+        </div>
+        <!-- Participants list -->
+        <div class="mb-6">
+          <h3 class="font-semibold mb-2">Partecipanti</h3>
+          <div id="participantsList" class="space-y-2"></div>
+        </div>
+        <!-- Expense input -->
+        <div class="mb-4 grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div>
+            <label for="expenseDescription" class="block text-gray-700 mb-1">Descrizione</label>
+            <input id="expenseDescription" type="text" class="w-full p-2 border rounded" placeholder="Descrizione spesa" />
+          </div>
+          <div>
+            <label for="expenseAmount" class="block text-gray-700 mb-1">Importo (€)</label>
+            <input id="expenseAmount" type="number" min="0" step="0.01" class="w-full p-2 border rounded" placeholder="0.00" />
+          </div>
+          <div>
+            <label for="expenseDate" class="block text-gray-700 mb-1">Data</label>
+            <input id="expenseDate" type="date" class="w-full p-2 border rounded" />
+          </div>
+          <div>
+            <label for="expensePayer" class="block text-gray-700 mb-1">Pagatore</label>
+            <select id="expensePayer" class="w-full p-2 border rounded"></select>
+          </div>
+        </div>
+        <div class="mb-4">
+          <span class="block text-gray-700 mb-1">Chi partecipa alla spesa?</span>
+          <div id="expenseParticipants" class="flex flex-wrap space-x-4"></div>
+        </div>
+        <button onclick="addExpense()" class="bg-green-600 text-white px-4 py-2 rounded">Aggiungi spesa</button>
+        <!-- Expenses list -->
+        <div class="mt-8">
+          <h3 class="font-semibold mb-2">Spese</h3>
+          <div id="expensesList" class="space-y-2"></div>
+        </div>
+        <!-- Balances -->
+        <div class="mt-8">
+          <h3 class="font-semibold mb-2">Bilanci</h3>
+          <div id="balancesList" class="space-y-1"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Shared mode section -->
+    <div id="sharedMode" class="hidden">
+      <div class="glass-card p-6 mb-6">
+        <h2 class="text-2xl font-semibold mb-4">Gestione condivisa</h2>
+        <!-- Group actions -->
+        <div class="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <h3 class="font-semibold mb-2">Crea un nuovo gruppo</h3>
+            <input id="groupName" type="text" class="w-full p-2 border rounded mb-2" placeholder="Nome gruppo" />
+            <button onclick="createGroup()" class="bg-blue-600 text-white px-4 py-2 rounded">Crea gruppo</button>
+            <div id="groupCreateResult" class="mt-2 text-sm"></div>
+          </div>
+          <div>
+            <h3 class="font-semibold mb-2">Unisciti a un gruppo</h3>
+            <input id="groupCodeInput" type="text" class="w-full p-2 border rounded mb-2" placeholder="Codice gruppo" />
+            <button onclick="joinGroup()" class="bg-blue-600 text-white px-4 py-2 rounded">Entra nel gruppo</button>
+            <div id="groupJoinResult" class="mt-2 text-sm"></div>
+          </div>
+        </div>
+        <!-- Group participants and expenses actions -->
+        <div id="groupActions" class="hidden">
+          <h3 class="font-semibold mb-2">Partecipanti al gruppo</h3>
+          <div id="groupParticipants" class="space-y-2 mb-4"></div>
+          <div class="mb-4 flex flex-col md:flex-row md:items-end md:space-x-4">
+            <div class="flex-1 mb-2 md:mb-0">
+              <label for="groupParticipantName" class="block text-gray-700 mb-1">Nome partecipante</label>
+              <input id="groupParticipantName" type="text" class="w-full p-2 border rounded" placeholder="Aggiungi partecipante" />
+            </div>
+            <button onclick="addGroupParticipant()" class="bg-blue-600 text-white px-4 py-2 rounded">Aggiungi partecipante</button>
+          </div>
+          <h3 class="font-semibold mb-2 mt-4">Aggiungi una spesa</h3>
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+            <div>
+              <label for="groupExpenseDescription" class="block text-gray-700 mb-1">Descrizione</label>
+              <input id="groupExpenseDescription" type="text" class="w-full p-2 border rounded" placeholder="Descrizione spesa" />
+            </div>
+            <div>
+              <label for="groupExpenseAmount" class="block text-gray-700 mb-1">Importo (€)</label>
+              <input id="groupExpenseAmount" type="number" min="0" step="0.01" class="w-full p-2 border rounded" placeholder="0.00" />
+            </div>
+            <div>
+              <label for="groupExpenseDate" class="block text-gray-700 mb-1">Data</label>
+              <input id="groupExpenseDate" type="date" class="w-full p-2 border rounded" />
+            </div>
+            <div>
+              <label for="groupExpensePayer" class="block text-gray-700 mb-1">Pagatore</label>
+              <select id="groupExpensePayer" class="w-full p-2 border rounded"></select>
+            </div>
+          </div>
+          <div class="mb-4">
+            <span class="block text-gray-700 mb-1">Chi partecipa alla spesa?</span>
+            <div id="groupExpenseParticipants" class="flex flex-wrap space-x-4"></div>
+          </div>
+          <button onclick="addGroupExpense()" class="bg-green-600 text-white px-4 py-2 rounded">Aggiungi spesa</button>
+          <div class="mt-8">
+            <h3 class="font-semibold mb-2">Spese del gruppo</h3>
+            <div id="groupExpenses" class="space-y-2"></div>
+          </div>
+          <div class="mt-8">
+            <h3 class="font-semibold mb-2">Bilanci del gruppo</h3>
+            <div id="groupBalances" class="space-y-1"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Help modal -->
+  <div id="helpModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10">
+    <div class="glass-card p-6 max-w-3xl w-full relative">
+      <h2 class="text-xl font-bold mb-2">Guida</h2>
+      <p class="mb-4">Questa applicazione permette di gestire facilmente le spese di un gruppo di persone. Puoi usarla in due modalità: <strong>locale</strong> e <strong>condivisa</strong>. In modalità locale i dati rimangono sul tuo dispositivo e non vengono sincronizzati. In modalità condivisa puoi creare un gruppo online e invitare i partecipanti tramite codice. Tutti i partecipanti vedranno le spese in tempo reale.</p>
+      <h3 class="font-semibold mt-4 mb-1">FAQ</h3>
+      <p class="mb-2"><strong>Posso modificare o cancellare una spesa in locale?</strong><br> Sì. Una volta inserita la spesa puoi cliccare sulle icone della matita o del cestino per modificarla o cancellarla.</p>
+      <p class="mb-2"><strong>Posso modificare o eliminare un partecipante?</strong><br> Sì. I partecipanti inseriti possono essere modificati o rimossi cliccando sull’icona della matita o del cestino accanto al loro nome. Se elimini un partecipante, tutte le spese in cui compariva saranno aggiornate di conseguenza.</p>
+      <p class="mb-2"><strong>Come funziona la modalità condivisa?</strong><br> In modalità condivisa, puoi creare un gruppo e condividere il codice con gli amici. Gli altri potranno unirsi al gruppo tramite il codice, aggiungere spese e vedere i bilanci aggiornarsi in tempo reale.</p>
+      <button onclick="closeHelp()" class="absolute top-2 right-2 text-gray-700"><i class="fas fa-times"></i></button>
+    </div>
+  </div>
+
+  <!-- Script -->
+  <script>
+    // Base API URL for shared mode; update to your Heroku backend
+    const API_BASE = 'https://gestione-spese-backend-by-ezio-1038eccce3f3.herokuapp.com/api';
+
+    // ----- Local mode variables -----
     let participants = [];
     let expenses = [];
 
-    // Aggiorna il menu a tendina dei pagatori e le checkbox dei partecipanti
+    // Update payer dropdown and participant checkboxes
     function updateParticipantSelect() {
-        const select = document.getElementById('expensePayer');
-        select.innerHTML = '<option value="">Seleziona pagatore</option>';
-        participants.forEach(p => {
-            const option = document.createElement('option');
-            option.value = p;
-            option.textContent = p;
-            select.appendChild(option);
-        });
-        // Aggiorna le checkbox per i partecipanti alla spesa
-        const partDiv = document.getElementById('expenseParticipants');
-        partDiv.innerHTML = '';
-        participants.forEach(p => {
-            const label = document.createElement('label');
-            label.className = 'flex items-center space-x-2';
-            const cb = document.createElement('input');
-            cb.type = 'checkbox';
-            cb.value = p;
-            label.appendChild(cb);
-            label.appendChild(document.createTextNode(p));
-            partDiv.appendChild(label);
-        });
+      const payerSelect = document.getElementById('expensePayer');
+      payerSelect.innerHTML = '';
+      participants.forEach(name => {
+        const option = document.createElement('option');
+        option.value = name;
+        option.textContent = name;
+        payerSelect.appendChild(option);
+      });
+
+      // Update checkboxes
+      const container = document.getElementById('expenseParticipants');
+      container.innerHTML = '';
+      participants.forEach(name => {
+        const label = document.createElement('label');
+        label.className = 'mr-4 flex items-center space-x-1';
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.value = name;
+        checkbox.className = 'mr-1';
+        label.appendChild(checkbox);
+        label.appendChild(document.createTextNode(name));
+        container.appendChild(label);
+      });
     }
 
-    // Visualizza la lista dei partecipanti con icone di modifica e cancellazione
+    // Display participants list
     function displayParticipants() {
-        const list = document.getElementById('participantsList');
-        list.innerHTML = '';
-        participants.forEach(p => {
-            const div = document.createElement('div');
-            div.className = 'flex justify-between items-center bg-gray-50 p-2 rounded';
-            div.innerHTML = `<span>${p}</span>` +
-                `<span>` +
-                `<button class="text-blue-600 mr-2" onclick="editParticipant('${p}')"><i class="fas fa-pen"></i></button>` +
-                `<button class="text-red-600" onclick="removeParticipant('${p}')"><i class="fas fa-trash"></i></button>` +
-                `</span>`;
-            list.appendChild(div);
-        });
+      const list = document.getElementById('participantsList');
+      list.innerHTML = '';
+      participants.forEach(name => {
+        const row = document.createElement('div');
+        row.className = 'flex justify-between items-center p-2 bg-gray-100 rounded';
+        row.innerHTML = `
+          <span>${name}</span>
+          <div class="space-x-2">
+            <button onclick="editParticipant('${name}')" class="text-blue-500"><i class="fas fa-pen"></i></button>
+            <button onclick="removeParticipant('${name}')" class="text-red-500"><i class="fas fa-trash"></i></button>
+          </div>
+        `;
+        list.appendChild(row);
+      });
     }
 
-    // Aggiungi un nuovo partecipante
+    // Add a new participant
     function addParticipant() {
-        const input = document.getElementById('participantName');
-        const name = input.value.trim();
-        if (!name || participants.includes(name)) return;
-        participants.push(name);
-        input.value = '';
-        updateParticipantSelect();
-        displayParticipants();
+      const nameInput = document.getElementById('participantName');
+      const name = nameInput.value.trim();
+      if (!name) return;
+      if (participants.includes(name)) {
+        alert('Questo nome è già presente.');
+        return;
+      }
+      participants.push(name);
+      nameInput.value = '';
+      updateParticipantSelect();
+      displayParticipants();
+      calculateBalances();
     }
 
-    // Modifica il nome di un partecipante e aggiorna le spese associate
+    // Edit a participant's name
     function editParticipant(oldName) {
-        const newName = prompt('Nuovo nome:', oldName);
-        if (!newName || newName.trim() === '' || participants.includes(newName)) return;
-        const idx = participants.indexOf(oldName);
-        if (idx !== -1) participants[idx] = newName;
-        expenses.forEach(exp => {
-            if (exp.payer === oldName) exp.payer = newName;
-            exp.participants = exp.participants.map(x => x === oldName ? newName : x);
-        });
-        updateParticipantSelect();
-        displayParticipants();
-        displayExpenses();
-        calculateBalances();
+      const newName = prompt('Nuovo nome:', oldName);
+      if (!newName || newName.trim() === '' || participants.includes(newName)) return;
+      const index = participants.indexOf(oldName);
+      if (index !== -1) participants[index] = newName;
+      // Update any expenses referencing the participant
+      expenses.forEach(exp => {
+        if (exp.payer === oldName) exp.payer = newName;
+        exp.participants = exp.participants.map(p => p === oldName ? newName : p);
+      });
+      updateParticipantSelect();
+      displayParticipants();
+      displayExpenses();
+      calculateBalances();
     }
 
-    // Rimuovi un partecipante e tutte le spese in cui compare
+    // Remove a participant and associated expenses
     function removeParticipant(name) {
-        if (!confirm('Cancellare il partecipante e le sue spese?')) return;
-        participants = participants.filter(p => p !== name);
-        expenses = expenses.filter(exp => exp.payer !== name && !exp.participants.includes(name));
-        updateParticipantSelect();
-        displayParticipants();
-        displayExpenses();
-        calculateBalances();
+      if (!confirm('Vuoi rimuovere ' + name + '? Tutte le spese relative saranno aggiornate.')) return;
+      participants = participants.filter(p => p !== name);
+      // Remove or update expenses
+      expenses = expenses.filter(exp => {
+        if (exp.payer === name) return false;
+        exp.participants = exp.participants.filter(p => p !== name);
+        return exp.participants.length > 0;
+      });
+      updateParticipantSelect();
+      displayParticipants();
+      displayExpenses();
+      calculateBalances();
     }
 
-    // Visualizza le spese con icone di modifica e cancellazione
+    // Display expenses list
     function displayExpenses() {
-        const list = document.getElementById('expensesList');
-        list.innerHTML = '';
-        if (expenses.length === 0) {
-            list.innerHTML = '<p class="text-gray-500">Nessuna spesa</p>';
-            return;
-        }
-        expenses.forEach(exp => {
-            const participantsStr = exp.participants.join(', ');
-            const div = document.createElement('div');
-            div.className = 'bg-gray-50 p-3 rounded flex justify-between items-start';
-            div.innerHTML = `<div>` +
-                `<strong>${exp.description}</strong> - €${exp.amount.toFixed(2)} - ${exp.date}` +
-                `<br><span class="text-sm text-gray-600">${exp.payer} ha pagato. Partecipanti: ${participantsStr}</span>` +
-                `</div>` +
-                `<div class="flex space-x-2 mt-1">` +
-                `<button class="text-blue-600" onclick="editExpense(${exp.id})"><i class="fas fa-pen"></i></button>` +
-                `<button class="text-red-600" onclick="removeExpense(${exp.id})"><i class="fas fa-trash"></i></button>` +
-                `</div>`;
-            list.appendChild(div);
-        });
+      const list = document.getElementById('expensesList');
+      list.innerHTML = '';
+      expenses.forEach(exp => {
+        const div = document.createElement('div');
+        div.className = 'flex justify-between items-center p-3 bg-gray-100 rounded';
+        const participantsStr = exp.participants.join(', ');
+        div.innerHTML = `
+          <div>
+            <p><strong>${exp.description}</strong> - €${exp.amount.toFixed(2)} - ${exp.date}</p>
+            <p class="text-sm text-gray-600">${exp.payer} ha pagato. Partecipanti: ${participantsStr}</p>
+          </div>
+          <div class="space-x-2">
+            <button onclick="editExpense(${exp.id})" class="text-blue-500"><i class="fas fa-pen"></i></button>
+            <button onclick="removeExpense(${exp.id})" class="text-red-500"><i class="fas fa-trash"></i></button>
+          </div>
+        `;
+        list.appendChild(div);
+      });
     }
 
-    // Aggiungi una nuova spesa
+    // Add a new expense
     function addExpense() {
-        const description = document.getElementById('expenseDescription').value.trim();
-        const amountStr = document.getElementById('expenseAmount').value;
-        const date = document.getElementById('expenseDate').value;
-        const payer = document.getElementById('expensePayer').value;
-        const checkboxes = document.getElementById('expenseParticipants').querySelectorAll('input[type="checkbox"]');
-        const selected = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
-        const amount = parseFloat(amountStr);
-        if (!description || isNaN(amount) || !date || !payer || selected.length === 0) return;
-        const exp = {
-            id: Date.now(),
-            description,
-            amount,
-            date,
-            payer,
-            participants: selected
-        };
-        expenses.push(exp);
-        // Reset input fields
-        document.getElementById('expenseDescription').value = '';
-        document.getElementById('expenseAmount').value = '';
-        document.getElementById('expenseDate').value = '';
-        document.getElementById('expensePayer').value = '';
-        checkboxes.forEach(cb => cb.checked = false);
-        displayExpenses();
-        calculateBalances();
+      const description = document.getElementById('expenseDescription').value.trim();
+      const amount = parseFloat(document.getElementById('expenseAmount').value);
+      const date = document.getElementById('expenseDate').value;
+      const payer = document.getElementById('expensePayer').value;
+      const checkboxes = document.querySelectorAll('#expenseParticipants input[type="checkbox"]:checked');
+      const participantsSelected = Array.from(checkboxes).map(cb => cb.value);
+      if (!description || isNaN(amount) || !date || !payer || participantsSelected.length === 0) {
+        alert('Compila tutti i campi e seleziona almeno un partecipante.');
+        return;
+      }
+      const expense = {
+        id: Date.now(),
+        description,
+        amount,
+        date,
+        payer,
+        participants: participantsSelected
+      };
+      expenses.push(expense);
+      // Reset fields
+      document.getElementById('expenseDescription').value = '';
+      document.getElementById('expenseAmount').value = '';
+      document.getElementById('expenseDate').value = '';
+      document.querySelectorAll('#expenseParticipants input[type="checkbox"]').forEach(cb => cb.checked = false);
+      displayExpenses();
+      calculateBalances();
     }
 
-    // Modifica una spesa esistente
+    // Edit an existing expense
     function editExpense(id) {
-        const exp = expenses.find(e => e.id === id);
-        if (!exp) return;
-        const desc = prompt('Descrizione:', exp.description) || exp.description;
-        const amountInput = prompt('Importo:', exp.amount) || exp.amount;
-        const newAmount = parseFloat(amountInput);
-        const date = prompt('Data (AAAA-MM-GG):', exp.date) || exp.date;
-        const payer = prompt('Pagatore:', exp.payer) || exp.payer;
-        const partsInput = prompt('Partecipanti (separati da virgola):', exp.participants.join(', ')) || exp.participants.join(', ');
-        const parts = partsInput.split(',').map(s => s.trim()).filter(Boolean);
-        exp.description = desc;
-        exp.amount = isNaN(newAmount) ? exp.amount : newAmount;
-        exp.date = date;
-        exp.payer = payer;
-        exp.participants = parts;
-        displayExpenses();
-        calculateBalances();
+      const exp = expenses.find(e => e.id === id);
+      if (!exp) return;
+      const newDesc = prompt('Nuova descrizione:', exp.description) || exp.description;
+      const newAmt = parseFloat(prompt('Nuovo importo:', exp.amount)) || exp.amount;
+      const newDate = prompt('Nuova data (AAAA-MM-GG):', exp.date) || exp.date;
+      const newPayer = prompt('Nuovo pagatore:', exp.payer) || exp.payer;
+      const parts = prompt('Nuovi partecipanti separati da virgola:', exp.participants.join(', ')) || exp.participants.join(', ');
+      exp.description = newDesc.trim();
+      exp.amount = newAmt;
+      exp.date = newDate;
+      exp.payer = newPayer.trim();
+      exp.participants = parts.split(',').map(p => p.trim()).filter(Boolean);
+      displayExpenses();
+      calculateBalances();
     }
 
-    // Rimuovi una spesa
+    // Remove an expense
     function removeExpense(id) {
-        if (!confirm('Cancellare questa spesa?')) return;
-        expenses = expenses.filter(e => e.id !== id);
-        displayExpenses();
-        calculateBalances();
+      if (!confirm('Vuoi eliminare questa spesa?')) return;
+      expenses = expenses.filter(e => e.id !== id);
+      displayExpenses();
+      calculateBalances();
     }
 
-    // Calcola e visualizza i saldi per ogni partecipante
+    // Calculate balances (who owes what) for local mode
     function calculateBalances() {
-        const balances = {};
-        participants.forEach(p => balances[p] = 0);
-        expenses.forEach(exp => {
-            const share = exp.amount / exp.participants.length;
-            exp.participants.forEach(p => {
-                balances[p] -= share;
-            });
-            balances[exp.payer] += exp.amount;
+      const balances = {};
+      participants.forEach(name => balances[name] = 0);
+      expenses.forEach(exp => {
+        const share = exp.amount / exp.participants.length;
+        exp.participants.forEach(p => {
+          balances[p] -= share;
         });
-        const balDiv = document.getElementById('balances');
-        balDiv.innerHTML = '';
-        participants.forEach(p => {
-            const amount = balances[p];
-            const line = document.createElement('div');
-            line.textContent = `${p}: ${amount >= 0 ? '+' : ''}${amount.toFixed(2)} €`;
-            line.className = amount >= 0 ? 'text-green-700' : 'text-red-700';
-            balDiv.appendChild(line);
-        });
+        balances[exp.payer] += exp.amount;
+      });
+      // Display balances
+      const list = document.getElementById('balancesList');
+      list.innerHTML = '';
+      Object.keys(balances).forEach(name => {
+        const amount = balances[name];
+        const li = document.createElement('div');
+        li.className = amount < 0 ? 'text-red-600' : amount > 0 ? 'text-green-600' : '';
+        li.textContent = `${name}: ${amount.toFixed(2)} €`;
+        list.appendChild(li);
+      });
     }
 
-    // Inizializza selezioni e liste
+    // ----- Shared mode variables -----
+    let groupId = null;
+    let groupCode = null;
+    let groupParticipantsData = [];
+    let groupExpensesData = [];
+
+    // Switch to local mode UI
+    function useLocalMode() {
+      document.getElementById('modeSelection').classList.add('hidden');
+      document.getElementById('sharedMode').classList.add('hidden');
+      document.getElementById('localMode').classList.remove('hidden');
+    }
+    // Switch to shared mode UI
+    function useSharedMode() {
+      document.getElementById('modeSelection').classList.add('hidden');
+      document.getElementById('localMode').classList.add('hidden');
+      document.getElementById('sharedMode').classList.remove('hidden');
+    }
+
+    // Create a new group via API
+    async function createGroup() {
+      const name = document.getElementById('groupName').value.trim();
+      if (!name) return;
+      try {
+        const res = await fetch(`${API_BASE}/groups`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name })
+        });
+        if (!res.ok) throw new Error('Errore creazione gruppo');
+        const data = await res.json();
+        groupId = data.id;
+        groupCode = data.code;
+        document.getElementById('groupCreateResult').textContent = `Gruppo creato! Codice: ${groupCode}`;
+        document.getElementById('groupActions').classList.remove('hidden');
+        await refreshGroupData();
+      } catch (err) {
+        document.getElementById('groupCreateResult').textContent = err.message;
+      }
+    }
+
+    // Join an existing group via code
+    async function joinGroup() {
+      const code = document.getElementById('groupCodeInput').value.trim();
+      if (!code) return;
+      try {
+        const res = await fetch(`${API_BASE}/groups/${code}`);
+        if (!res.ok) throw new Error('Gruppo non trovato');
+        const data = await res.json();
+        groupId = data.id;
+        groupCode = code;
+        document.getElementById('groupJoinResult').textContent = `Sei entrato nel gruppo con ID ${groupId}`;
+        document.getElementById('groupActions').classList.remove('hidden');
+        await refreshGroupData();
+      } catch (err) {
+        document.getElementById('groupJoinResult').textContent = err.message;
+      }
+    }
+
+    // Add participant to group
+    async function addGroupParticipant() {
+      const name = document.getElementById('groupParticipantName').value.trim();
+      if (!name || !groupId) return;
+      try {
+        const res = await fetch(`${API_BASE}/groups/${groupId}/participants`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name })
+        });
+        if (!res.ok) throw new Error('Errore aggiunta partecipante');
+        document.getElementById('groupParticipantName').value = '';
+        await refreshGroupData();
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    // Add expense to group
+    async function addGroupExpense() {
+      if (!groupId) return;
+      const description = document.getElementById('groupExpenseDescription').value.trim();
+      const amount = parseFloat(document.getElementById('groupExpenseAmount').value);
+      const date = document.getElementById('groupExpenseDate').value;
+      const payer = document.getElementById('groupExpensePayer').value;
+      const checkboxes = document.querySelectorAll('#groupExpenseParticipants input[type="checkbox"]:checked');
+      const participantsSelected = Array.from(checkboxes).map(cb => cb.value);
+      if (!description || isNaN(amount) || !date || !payer || participantsSelected.length === 0) {
+        alert('Compila tutti i campi e seleziona almeno un partecipante');
+        return;
+      }
+      try {
+        const res = await fetch(`${API_BASE}/groups/${groupId}/expenses`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ description, amount, date, payer, participants: participantsSelected })
+        });
+        if (!res.ok) throw new Error('Errore aggiunta spesa');
+        // Reset fields
+        document.getElementById('groupExpenseDescription').value = '';
+        document.getElementById('groupExpenseAmount').value = '';
+        document.getElementById('groupExpenseDate').value = '';
+        document.querySelectorAll('#groupExpenseParticipants input[type="checkbox"]').forEach(cb => cb.checked = false);
+        await refreshGroupData();
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    // Refresh group data (participants and expenses)
+    async function refreshGroupData() {
+      if (!groupId || !groupCode) return;
+      try {
+        // Get group info (participants)
+        const groupRes = await fetch(`${API_BASE}/groups/${groupCode}`);
+        if (!groupRes.ok) throw new Error('Errore recupero gruppo');
+        const groupData = await groupRes.json();
+        groupParticipantsData = groupData.participants;
+        groupId = groupData.id;
+        // Update participants list
+        const partDiv = document.getElementById('groupParticipants');
+        partDiv.innerHTML = '';
+        groupParticipantsData.forEach(p => {
+          const row = document.createElement('div');
+          row.textContent = p.name;
+          partDiv.appendChild(row);
+        });
+        // Populate payer select
+        const payerSelect = document.getElementById('groupExpensePayer');
+        payerSelect.innerHTML = '';
+        groupParticipantsData.forEach(p => {
+          const opt = document.createElement('option');
+          opt.value = p.name;
+          opt.textContent = p.name;
+          payerSelect.appendChild(opt);
+        });
+        // Populate participants checkboxes
+        const partChecks = document.getElementById('groupExpenseParticipants');
+        partChecks.innerHTML = '';
+        groupParticipantsData.forEach(p => {
+          const label = document.createElement('label');
+          label.className = 'mr-4 flex items-center space-x-1';
+          const cb = document.createElement('input');
+          cb.type = 'checkbox';
+          cb.value = p.name;
+          label.appendChild(cb);
+          label.appendChild(document.createTextNode(p.name));
+          partChecks.appendChild(label);
+        });
+        // Get expenses
+        const expRes = await fetch(`${API_BASE}/groups/${groupId}/expenses`);
+        if (!expRes.ok) throw new Error('Errore recupero spese');
+        groupExpensesData = await expRes.json();
+        displayGroupExpenses();
+        calculateGroupBalances();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    // Display group expenses
+    function displayGroupExpenses() {
+      const container = document.getElementById('groupExpenses');
+      container.innerHTML = '';
+      groupExpensesData.forEach(exp => {
+        const div = document.createElement('div');
+        div.className = 'p-3 bg-gray-100 rounded mb-2';
+        const participantsStr = exp.participants.join(', ');
+        div.innerHTML = `<p><strong>${exp.description}</strong> - €${exp.amount.toFixed(2)} - ${exp.date}</p><p class="text-sm text-gray-600">${exp.payer} ha pagato. Partecipanti: ${participantsStr}</p>`;
+        container.appendChild(div);
+      });
+    }
+
+    // Calculate balances for group
+    function calculateGroupBalances() {
+      const balances = {};
+      groupParticipantsData.forEach(p => balances[p.name] = 0);
+      groupExpensesData.forEach(exp => {
+        const share = exp.amount / exp.participants.length;
+        exp.participants.forEach(p => {
+          balances[p] -= share;
+        });
+        balances[exp.payer] += exp.amount;
+      });
+      const container = document.getElementById('groupBalances');
+      container.innerHTML = '';
+      Object.keys(balances).forEach(name => {
+        const val = balances[name];
+        const div = document.createElement('div');
+        div.className = val < 0 ? 'text-red-600' : val > 0 ? 'text-green-600' : '';
+        div.textContent = `${name}: ${val.toFixed(2)} €`;
+        container.appendChild(div);
+      });
+    }
+
+    // Help modal functions
+    function openHelp() {
+      document.getElementById('helpModal').classList.remove('hidden');
+    }
+    function closeHelp() {
+      document.getElementById('helpModal').classList.add('hidden');
+    }
+
+    // Initialize default UI (update selects)
     updateParticipantSelect();
-    </script>
+  </script>
 </body>
 </html>
