@@ -3,9 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gestione spese by Ezio</title>
+  <title>GruppoSpese by Ezio</title>
+  
+  <!-- PWA Meta Tags -->
+  <meta name="description" content="Gestisci facilmente le spese di gruppo con amici e famiglia">
+  <meta name="theme-color" content="#8B5CF6">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="GruppoSpese">
+  
+  <!-- Icons -->
+  <link rel="icon" href="icons/icon-192x192.png" type="image/png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="manifest" href="manifest.json">
+  
   <!-- Tailwind CSS and Font Awesome for styling -->
-      <link rel="icon" href="icon.png" type="image/png">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
   <style>
@@ -700,6 +713,45 @@
     
     // Carica i dati salvati all'avvio
     loadLocalData();
+    
+    // Registrazione del Service Worker per PWA
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/Gestione-spese-by-Ezio/sw.js')
+          .then(registration => {
+            console.log('Service Worker registrato con successo:', registration.scope);
+          })
+          .catch(error => {
+            console.log('Registrazione Service Worker fallita:', error);
+          });
+      });
+    }
+    
+    // Gestione dell'evento di installazione PWA
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      // Previeni il prompt automatico
+      e.preventDefault();
+      // Salva l'evento per mostrarlo successivamente
+      deferredPrompt = e;
+      // Mostra un pulsante di installazione personalizzato (opzionale)
+      console.log('App pronta per l\'installazione');
+    });
+    
+    // Funzione per mostrare il prompt di installazione (può essere chiamata da un pulsante)
+    function showInstallPrompt() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            console.log('Utente ha accettato l\'installazione');
+          } else {
+            console.log('Utente ha rifiutato l\'installazione');
+          }
+          deferredPrompt = null;
+        });
+      }
+    }
   </script>
 </body>
 </html>
