@@ -296,7 +296,7 @@
       expenses.forEach(exp => {
         const div = document.createElement('div');
         div.className = 'flex justify-between items-center p-3 bg-gray-100 rounded';
-        const participantsStr = exp.participants.map(p => typeof p === 'string' ? p : p.name).join(', ');
+        const participantsStr = exp.participants.join(', ');
         div.innerHTML = `
           <div>
             <p><strong>${exp.description}</strong> - €${exp.amount.toFixed(2)} - ${exp.date}</p>
@@ -373,7 +373,10 @@
       participants.forEach(name => balances[name] = 0);
       expenses.forEach(exp => {
         const share = exp.amount / exp.participants.length;
-        exp.participants.forEach(part => { const name = typeof part === 'string' ? part : part.name; balances[name] -= share; }); const payerName = typeof exp.payer === 'string' ? exp.payer : exp.payer.name; balances[payerName] += exp.amount;
+        exp.participants.forEach(p => {
+          balances[p] -= share;
+        });
+        balances[exp.payer] += exp.amount;
       });
       // Display balances
       const list = document.getElementById('balancesList');
@@ -510,9 +513,7 @@
         const groupData = await groupRes.json();
         // Backend returns {success, group:{...}} so handle both cases
         const groupObj = groupData.group || groupData;
-        // Participants may be returned as an array of names (strings) or objects with a name property.
-const participantsRaw = groupObj.participants || [];
-groupParticipantsData = participantsRaw.map(p => typeof p === 'string' ? { name: p } : p);
+        groupParticipantsData = groupObj.participants;
         groupId = groupObj.id;
         // Update participants list
         const partDiv = document.getElementById('groupParticipants');
@@ -564,7 +565,7 @@ groupParticipantsData = participantsRaw.map(p => typeof p === 'string' ? { name:
       groupExpensesData.forEach(exp => {
         const div = document.createElement('div');
         div.className = 'p-3 bg-gray-100 rounded mb-2';
-        const participantsStr = exp.participants.map(p => typeof p === 'string' ? p : p.name).join(', ');
+        const participantsStr = exp.participants.join(', ');
         div.innerHTML = `<p><strong>${exp.description}</strong> - €${exp.amount.toFixed(2)} - ${exp.date}</p><p class="text-sm text-gray-600">${exp.payer} ha pagato. Partecipanti: ${participantsStr}</p>`;
         container.appendChild(div);
       });
@@ -573,15 +574,13 @@ groupParticipantsData = participantsRaw.map(p => typeof p === 'string' ? { name:
     // Calculate balances for group
     function calculateGroupBalances() {
       const balances = {};
-      groupParticipantsData.forEach(p => { const name = typeof p === 'string' ? p : p.name; balances[name] = 0; });
+      groupParticipantsData.forEach(p => balances[p.name] = 0);
       groupExpensesData.forEach(exp => {
         const share = exp.amount / exp.participants.length;
-        exp.participants.forEach(part => {
-          const name = typeof part === 'string' ? part : part.name;
-          balances[name] -= share;
+        exp.participants.forEach(p => {
+          balances[p] -= share;
         });
-        const payerName = typeof exp.payer === 'string' ? exp.payer : exp.payer.name;
-        balances[payerName] += exp.amount;
+        balances[exp.payer] += exp.amount;
       });
       const container = document.getElementById('groupBalances');
       container.innerHTML = '';
