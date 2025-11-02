@@ -141,7 +141,13 @@
         </div>
         <!-- Group participants and expenses actions -->
         <div id="groupActions" class="hidden">
-          <h3 class="font-semibold mb-2">Partecipanti al gruppo</h3>
+          <div class="mb-4 flex justify-between items-center">
+            <h3 class="font-semibold">Partecipanti al gruppo</h3>
+            <button onclick="leaveGroup()" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition">
+              <i class="fas fa-sign-out-alt mr-2"></i>Esci dal gruppo
+            </button>
+          </div>
+          <h3 class="font-semibold mb-2" style="display:none;">Partecipanti al gruppo</h3>
           <div id="groupParticipants" class="space-y-2 mb-4"></div>
           <div class="mb-4 flex flex-col md:flex-row md:items-end md:space-x-4">
             <div class="flex-1 mb-2 md:mb-0">
@@ -485,10 +491,22 @@
       document.getElementById('localMode').classList.remove('hidden');
     }
     // Switch to shared mode UI
-    function useSharedMode() {
+    async function useSharedMode() {
       document.getElementById('modeSelection').classList.add('hidden');
       document.getElementById('localMode').classList.add('hidden');
       document.getElementById('sharedMode').classList.remove('hidden');
+      
+      // Carica automaticamente il gruppo salvato se esiste
+      const savedCode = localStorage.getItem('savedGroupCode');
+      const savedId = localStorage.getItem('savedGroupId');
+      
+      if (savedCode && savedId) {
+        // Pre-compila il campo del codice gruppo
+        document.getElementById('groupCodeInput').value = savedCode;
+        // Mostra un messaggio
+        document.getElementById('groupJoinResult').textContent = `Gruppo salvato trovato: ${savedCode}. Clicca "Entra nel gruppo" per riconnetterti.`;
+        document.getElementById('groupJoinResult').style.color = '#059669'; // Verde
+      }
     }
 
     // Create a new group via API
@@ -507,6 +525,9 @@
         const group = data.group || data;
         groupId = group.id;
         groupCode = group.code;
+        // Salva il codice gruppo nel localStorage
+        localStorage.setItem('savedGroupCode', groupCode);
+        localStorage.setItem('savedGroupId', groupId);
         document.getElementById('groupCreateResult').textContent = `Gruppo creato! Codice: ${groupCode}`;
         document.getElementById('groupActions').classList.remove('hidden');
         await refreshGroupData();
@@ -528,6 +549,9 @@
         groupId = group.id;
         // Prefer group.code from response, fall back to entered code
         groupCode = group.code || code;
+        // Salva il codice gruppo nel localStorage
+        localStorage.setItem('savedGroupCode', groupCode);
+        localStorage.setItem('savedGroupId', groupId);
         document.getElementById('groupJoinResult').textContent = `Sei entrato nel gruppo con ID ${groupId}`;
         document.getElementById('groupActions').classList.remove('hidden');
         await refreshGroupData();
@@ -617,9 +641,37 @@
         partDiv.innerHTML = '';
         groupParticipantsData.forEach(p => {
           const row = document.createElement('div');
+          row.className = 'flex justify-between items-center p-2 bg-white rounded mb-2';
+          
           // Handle both object {name: "..."} and string formats
           const participantName = typeof p === 'string' ? p : (p.name || p);
-          row.textContent = participantName;
+          
+          const nameSpan = document.createElement('span');
+          nameSpan.textContent = participantName;
+          nameSpan.className = 'font-medium';
+          
+          const actionsDiv = document.createElement('div');
+          actionsDiv.className = 'space-x-2';
+          
+          // Pulsante Modifica
+          const editBtn = document.createElement('button');
+          editBtn.innerHTML = '<i class="fas fa-edit"></i>';
+          editBtn.className = 'text-blue-600 hover:text-blue-800 px-2 py-1';
+          editBtn.title = 'Modifica partecipante';
+          editBtn.onclick = () => editGroupParticipant(participantName);
+          
+          // Pulsante Elimina
+          const deleteBtn = document.createElement('button');
+          deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+          deleteBtn.className = 'text-red-600 hover:text-red-800 px-2 py-1';
+          deleteBtn.title = 'Elimina partecipante';
+          deleteBtn.onclick = () => removeGroupParticipant(participantName);
+          
+          actionsDiv.appendChild(editBtn);
+          actionsDiv.appendChild(deleteBtn);
+          
+          row.appendChild(nameSpan);
+          row.appendChild(actionsDiv);
           partDiv.appendChild(row);
         });
         // Populate payer select
@@ -667,9 +719,27 @@
       container.innerHTML = '';
       groupExpensesData.forEach(exp => {
         const div = document.createElement('div');
-        div.className = 'p-3 bg-gray-100 rounded mb-2';
+        div.className = 'p-3 bg-gray-100 rounded mb-2 flex justify-between items-start';
+        
+        const infoDiv = document.createElement('div');
+        infoDiv.className = 'flex-1';
         const participantsStr = exp.participants.join(', ');
-        div.innerHTML = `<p><strong>${exp.description}</strong> - €${exp.amount.toFixed(2)} - ${exp.date}</p><p class="text-sm text-gray-600">${exp.payer} ha pagato. Partecipanti: ${participantsStr}</p>`;
+        infoDiv.innerHTML = `<p><strong>${exp.description}</strong> - €${exp.amount.toFixed(2)} - ${exp.date}</p><p class="text-sm text-gray-600">${exp.payer} ha pagato. Partecipanti: ${participantsStr}</p>`;
+        
+        const actionsDiv = document.createElement('div');
+        actionsDiv.className = 'flex space-x-2 ml-4';
+        
+        // Pulsante Elimina
+        const deleteBtn = document.createElement('button');
+        deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+        deleteBtn.className = 'text-red-600 hover:text-red-800 px-2 py-1';
+        deleteBtn.title = 'Elimina spesa';
+        deleteBtn.onclick = () => removeGroupExpense(exp.id);
+        
+        actionsDiv.appendChild(deleteBtn);
+        
+        div.appendChild(infoDiv);
+        div.appendChild(actionsDiv);
         container.appendChild(div);
       });
     }
@@ -698,6 +768,115 @@
         div.textContent = `${name}: ${val.toFixed(2)} €`;
         container.appendChild(div);
       });
+    }
+
+    // Funzione per uscire dal gruppo
+    function leaveGroup() {
+      if (confirm('Sei sicuro di voler uscire dal gruppo? Il codice gruppo salvato verrà cancellato.')) {
+        // Cancella i dati salvati
+        localStorage.removeItem('savedGroupCode');
+        localStorage.removeItem('savedGroupId');
+        
+        // Reset variabili
+        groupId = null;
+        groupCode = null;
+        groupParticipantsData = [];
+        groupExpensesData = [];
+        
+        // Nascondi la sezione groupActions
+        document.getElementById('groupActions').classList.add('hidden');
+        
+        // Pulisci i campi
+        document.getElementById('groupCodeInput').value = '';
+        document.getElementById('groupName').value = '';
+        document.getElementById('groupCreateResult').textContent = '';
+        document.getElementById('groupJoinResult').textContent = 'Sei uscito dal gruppo. Puoi crearne uno nuovo o unirti a un altro.';
+        document.getElementById('groupJoinResult').style.color = '#059669';
+        
+        // Mostra notifica
+        showNotification('Sei uscito dal gruppo con successo');
+      }
+    }
+
+    // ========================================
+    // FUNZIONI PER MODIFICA/ELIMINA PARTECIPANTI E SPESE
+    // Modalità Condivisa
+    // ========================================
+
+    // Modifica partecipante in modalità condivisa
+    async function editGroupParticipant(oldName) {
+      const newName = prompt(`Modifica il nome del partecipante "${oldName}":`, oldName);
+      if (!newName || newName.trim() === '' || newName === oldName) return;
+      
+      try {
+        const res = await fetch(`${API_BASE}/groups/${groupId}/participants/${encodeURIComponent(oldName)}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ new_name: newName.trim() })
+        });
+        
+        if (!res.ok) {
+          const error = await res.json();
+          throw new Error(error.error || 'Errore modifica partecipante');
+        }
+        
+        showNotification(`Partecipante "${oldName}" modificato in "${newName}"`);
+        await refreshGroupData();
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    // Elimina partecipante in modalità condivisa
+    async function removeGroupParticipant(name) {
+      if (!confirm(`Sei sicuro di voler eliminare il partecipante "${name}"?\n\nATTENZIONE: Verranno eliminate anche tutte le spese dove ${name} è il pagatore!`)) {
+        return;
+      }
+      
+      try {
+        const res = await fetch(`${API_BASE}/groups/${groupId}/participants/${encodeURIComponent(name)}`, {
+          method: 'DELETE'
+        });
+        
+        if (!res.ok) {
+          const error = await res.json();
+          throw new Error(error.error || 'Errore eliminazione partecipante');
+        }
+        
+        showNotification(`Partecipante "${name}" eliminato`);
+        await refreshGroupData();
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    // Elimina spesa in modalità condivisa
+    async function removeGroupExpense(expenseId) {
+      const expense = groupExpensesData.find(e => e.id === expenseId);
+      if (!expense) {
+        alert('Spesa non trovata');
+        return;
+      }
+      
+      if (!confirm(`Sei sicuro di voler eliminare la spesa "${expense.description}" (€${expense.amount.toFixed(2)})?`)) {
+        return;
+      }
+      
+      try {
+        const res = await fetch(`${API_BASE}/groups/${groupId}/expenses/${expenseId}`, {
+          method: 'DELETE'
+        });
+        
+        if (!res.ok) {
+          const error = await res.json();
+          throw new Error(error.error || 'Errore eliminazione spesa');
+        }
+        
+        showNotification('Spesa eliminata con successo');
+        await refreshGroupData();
+      } catch (err) {
+        alert(err.message);
+      }
     }
 
     // Help modal functions
