@@ -4,7 +4,7 @@ Web app per dividere spese di gruppo, conoscere i bilanci e vedere dove si è sp
 
 ## Funzioni
 
-- Accesso personale con Google o link email; partecipazione al gruppo su invito e approvazione dell'amministratore.
+- Accesso personale con GitHub; partecipazione al gruppo su invito e approvazione dell'amministratore.
 - Spese visibili in tempo reale ai membri approvati. Ogni partecipante inserisce e modifica le proprie spese; l'amministratore può intervenire su tutte.
 - Cronologia di aggiunte, modifiche, eliminazioni e ripristini con autore e orario del server.
 - Divisione delle spese tra i partecipanti scelti e calcolo dei bilanci.
@@ -12,7 +12,7 @@ Web app per dividere spese di gruppo, conoscere i bilanci e vedere dove si è sp
 
 ## Avvio
 
-La configurazione è in [SETUP.md](SETUP.md). Servono il Project URL e la **publishable key** Supabase in `config.js` e lo schema in [`supabase/schema.sql`](supabase/schema.sql). Non caricare chiavi segrete nel sito.
+La configurazione è in [SETUP.md](SETUP.md). Il Project URL e la **publishable key** sono già in `config.js` e lo schema [`supabase/schema.sql`](supabase/schema.sql) è stato applicato. Completa il collegamento GitHub OAuth seguendo la guida. Non caricare chiavi segrete nel sito.
 
 Per provare in locale: `python3 -m http.server 8000`, poi apri `http://localhost:8000`. Per verificare i calcoli: `node --test tests/finance.test.mjs`.
 

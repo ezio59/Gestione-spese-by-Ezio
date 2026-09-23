@@ -1,27 +1,21 @@
-# Attivare la nuova app condivisa
+# Nuova app condivisa
 
-La nuova app parte con un gruppo vuoto. Le spese precedenti non vengono importate e non serve scaricarle. GitHub Pages ospita l'interfaccia; un progetto Supabase conserva le spese, gestisce gli accessi e invia gli aggiornamenti in tempo reale. Finché `config.js` è vuoto, la nuova interfaccia mostra una schermata di configurazione.
+La nuova app parte con un gruppo vuoto. Le spese precedenti non vengono importate. GitHub Pages ospita l'interfaccia; il progetto Supabase `gestione-spese-ezio` a Francoforte conserva le spese, gestisce gli accessi e invia gli aggiornamenti in tempo reale. Lo schema in [`supabase/schema.sql`](supabase/schema.sql) è già stato applicato al progetto. `config.js` contiene solo il suo URL e la chiave pubblicabile; non salvare nel repository chiavi segrete.
 
-## 1. Crea il progetto online
+## Attivare l'accesso
 
-1. Crea un progetto su [Supabase](https://supabase.com/dashboard), scegliendo regione e piano.
-2. Nel suo SQL Editor esegui [`supabase/schema.sql`](supabase/schema.sql) su un progetto nuovo. Lo script crea tabelle, regole di accesso, cronologia e sottoscrizioni in tempo reale.
-3. In Authentication → Providers attiva Google e configura le credenziali OAuth seguendo la [guida ufficiale](https://supabase.com/docs/guides/auth/social-login/auth-google). Per usare anche il link via email con altri partecipanti, configura un tuo provider SMTP: quello predefinito è adatto solo alle prove.
-4. In Authentication → URL Configuration imposta il Site URL su `https://ezio59.github.io/Gestione-spese-by-Ezio/` e aggiungi lo stesso indirizzo ai redirect consentiti. Per le prove locali aggiungi anche l'URL locale.
-5. In Project Settings → API copia il **Project URL** e la **publishable key** in `config.js`. Non mettere mai chiavi segrete o `service_role` nel sito.
+L'accesso GitHub richiede un'app OAuth registrata nell'account GitHub del proprietario. L'app **Gestione spese by Ezio** è già registrata con homepage `https://ezio59.github.io/Gestione-spese-by-Ezio/` e callback `https://xgtreqiunwbiqihfxoiv.supabase.co/auth/v1/callback`.
 
-La publishable key è visibile nel browser. La protezione dei dati dipende dalle regole del database e dall'accesso personale.
+1. Nelle [impostazioni OAuth di GitHub](https://github.com/settings/developers) apri l'app **Gestione spese by Ezio** e genera un client secret. Copialo senza inserirlo in chat o nel repository.
+2. Nel [pannello Supabase dei provider](https://supabase.com/dashboard/project/xgtreqiunwbiqihfxoiv/auth/providers) apri **GitHub**, attivalo, inserisci il Client ID visibile nella pagina GitHub e il client secret appena generato, poi salva.
+3. In Supabase → Authentication → URL Configuration il Site URL e il redirect consentito sono già impostati sul sito GitHub Pages.
 
-## 2. Prova con due account
+Il servizio email predefinito di Supabase non consegna inviti a persone esterne al team del progetto: per questo la prima versione usa GitHub. Per aggiungere Google in futuro servono un progetto Google Cloud e le sue credenziali OAuth; per l'accesso via email serve un servizio SMTP esterno.
 
-1. Avvia `python3 -m http.server 8000` nella cartella del progetto e apri `http://localhost:8000`.
-2. Accedi con due account diversi. Il primo crea un gruppo nuovo e copia il link di invito dalla sezione **Partecipanti**. Il secondo chiede di partecipare. Il primo verifica l'email e approva la richiesta.
-3. Il primo aggiunge una spesa: il secondo deve vederla senza ricaricare. Prova anche l'inserimento da parte del secondo. Ognuno può modificare ed eliminare le spese che ha creato; l'amministratore può intervenire su tutte.
-4. Controlla le voci di cronologia con autore e orario, il ripristino di una spesa eliminata, i bilanci e le percentuali per categoria. Verifica CSV, PNG e PDF tramite la funzione **Stampa / salva PDF**.
-5. Quando le prove riescono, pubblica i file su GitHub Pages e ripeti il controllo su telefono e computer.
+## Prova con due partecipanti
 
-## Uso del gruppo
+1. Dopo aver abilitato GitHub, pubblica i file su GitHub Pages e accedi da due account GitHub personali. Il primo crea il gruppo e condivide il link dalla sezione **Partecipanti**; il secondo richiede l'accesso e il primo lo approva.
+2. Aggiungi una spesa da un account: l'altro deve vederla senza ricaricare. Prova un'aggiunta anche dal secondo account. Ognuno può modificare ed eliminare le proprie spese; l'amministratore può intervenire su tutte.
+3. Controlla autore e orario nella cronologia, ripristino dopo eliminazione, bilanci, percentuali per categoria ed esportazioni CSV, PNG e PDF mediante stampa.
 
-Ogni persona accede con il proprio account e sceglie il suo nome nel gruppo. L'approvazione impedisce agli estranei di leggere le spese. Una spesa registra automaticamente chi l'ha inserita, modificata, eliminata o ripristinata, con l'orario del server. Il pagatore della nuova spesa è l'account che la inserisce; può includere altri partecipanti nella divisione.
-
-Il progetto Supabase richiede manutenzione secondo il piano scelto. Il CSV esporta le spese visibili nel filtro corrente; il PNG esporta il riepilogo per categoria. Per ottenere il PDF, seleziona **Salva come PDF** nella finestra di stampa del dispositivo.
+Il piano gratuito consente di cominciare senza costi, ma Supabase può sospendere il progetto dopo una settimana di scarsa attività. Se questo causa interruzioni per il gruppo, valuta Pro (da 25 USD al mese) che evita la sospensione. Verifica sempre il prezzo corrente prima di un cambio di piano.

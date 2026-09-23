@@ -308,13 +308,9 @@ function exportPng() {
 }
 
 function bind() {
-  $('googleLogin').addEventListener('click', event => run(event.currentTarget, async () => {
-    await response(state.client.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: location.origin + location.pathname + location.search } }));
+  $('githubLogin').addEventListener('click', event => run(event.currentTarget, async () => {
+    await response(state.client.auth.signInWithOAuth({ provider: 'github', options: { redirectTo: location.origin + location.pathname + location.search } }));
   }));
-  $('emailForm').addEventListener('submit', event => { event.preventDefault(); run(event.submitter, async () => {
-    await response(state.client.auth.signInWithOtp({ email: $('email').value.trim(), options: { emailRedirectTo: location.origin + location.pathname + location.search } }));
-    notice('Controlla la tua email e apri il link di accesso.');
-  }); });
   $('logout').addEventListener('click', event => run(event.currentTarget, async () => { await response(state.client.auth.signOut()); await renderSession(null); }));
   $('createForm').addEventListener('submit', event => { event.preventDefault(); const form = event.currentTarget; run(event.submitter, async () => {
     const data = new FormData(form);
