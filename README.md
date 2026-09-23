@@ -12,7 +12,7 @@ Web app per dividere spese di gruppo, conoscere i bilanci e vedere dove si è sp
 
 ## Avvio
 
-La configurazione è in [SETUP.md](SETUP.md). Il Project URL e la **publishable key** sono già in `config.js` e lo schema [`supabase/schema.sql`](supabase/schema.sql) è stato applicato. Completa il collegamento GitHub OAuth seguendo la guida. Non caricare chiavi segrete nel sito.
+Apri [l'app pubblicata](https://ezio59.github.io/Gestione-spese-by-Ezio/) e accedi con GitHub. Il collegamento OAuth è già attivo. Crea un gruppo, poi condividi il suo link d'invito con gli altri partecipanti e approva le loro richieste. Per dettagli e controlli consulta [SETUP.md](SETUP.md). La configurazione pubblica è in `config.js`; lo schema [`supabase/schema.sql`](supabase/schema.sql) è già applicato. Non caricare chiavi segrete nel sito.
 
 Per provare in locale: `python3 -m http.server 8000`, poi apri `http://localhost:8000`. Per verificare i calcoli: `node --test tests/finance.test.mjs`.
 
