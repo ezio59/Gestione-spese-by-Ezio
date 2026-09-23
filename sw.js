@@ -1,6 +1,9 @@
-// Refresh the app shell so the local backup button appears in installed PWAs.
-const CACHE_NAME = 'gruppospese-local-backup-v2';
-const APP_FILES = ['./', './index.html', './manifest.json', './icons/icon-192x192.png', './icons/icon-512x512.png'];
+// The app shell can open offline. Shared expenses still require a connection.
+const CACHE_NAME = 'gruppospese-shared-v2';
+const APP_FILES = [
+  './', './index.html', './style.css', './app.js', './finance.mjs', './config.js',
+  './manifest.json', './icons/icon-192x192.png', './icons/icon-512x512.png'
+];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_FILES)).then(() => self.skipWaiting()));
 });

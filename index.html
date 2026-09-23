@@ -1,659 +1,96 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GruppoSpese by Ezio</title>
-  
-  <!-- PWA Meta Tags -->
-  <meta name="description" content="Gestisci facilmente le spese di gruppo con amici e famiglia">
-  <meta name="theme-color" content="#8B5CF6">
-  <meta name="mobile-web-app-capable" content="yes">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#443485">
+  <meta name="description" content="Le spese del gruppo, sempre aggiornate e facili da capire.">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="GruppoSpese">
-  
-  <!-- Icons -->
-  <link rel="icon" href="icons/icon-192x192.png" type="image/png">
-  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <title>Gestione spese by Ezio</title>
   <link rel="manifest" href="manifest.json">
-  
-  <!-- Tailwind CSS and Font Awesome for styling -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
-  <style>
-    /* Basic styling inspired by the original app */
-    body {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-    }
-    .glass-card {
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 0.5rem;
-      border: 1px solid rgba(255,255,255,0.4);
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-    .mode-card {
-      transition: transform 0.3s ease;
-      cursor: pointer;
-    }
-    .mode-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-    }
-    .hidden { display: none; }
-  </style>
+  <link rel="icon" href="icons/icon-192x192.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="style.css">
+  <script defer src="config.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/dist/umd/supabase.min.js"></script>
+  <script type="module" src="app.js"></script>
 </head>
-<body class="text-gray-900">
-  <div class="container mx-auto p-4">
-    <!-- Header -->
-    <div class="flex justify-between items-center mb-6">
-      <h1 class="text-3xl font-bold text-white">Gestione spese by Ezio</h1>
-      <!-- Help icon opens the guide modal -->
-      <button onclick="openHelp()" class="text-white text-2xl">
-        <i class="fas fa-question-circle"></i>
-      </button>
-    </div>
-    <!-- Gestione locale -->
-    <div id="modeSelection" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-      <div class="mode-card glass-card p-6 text-center" onclick="useLocalMode()">
-        <h2 class="text-xl font-bold mb-2">Modalità locale</h2>
-        <p>Gestisci le spese sul tuo dispositivo, senza sincronizzazione online.</p>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div><span class="eyebrow">LE SPESE INSIEME</span><h1>Gestione spese <span>by Ezio</span></h1></div>
+      <button id="logout" class="quiet hidden" type="button">Esci</button>
+    </header>
+    <div id="notice" class="notice hidden" role="status" aria-live="polite"></div>
+    <section id="setup" class="panel intro hidden">
+      <span class="pill">Configurazione necessaria</span>
+      <h2>La versione condivisa è pronta per il collegamento</h2>
+      <p>Per attivare la sincronizzazione, configura il progetto Supabase seguendo <a href="SETUP.md">la guida di installazione</a>. La versione pubblicata non va sostituita finché il collegamento e l’importazione dei dati non sono stati verificati.</p>
+      <div id="legacySetup"></div>
+    </section>
+    <section id="login" class="panel intro hidden">
+      <span class="pill">Gruppo privato · aggiornamenti in tempo reale</span>
+      <h2>Le spese di tutti, sempre chiare.</h2>
+      <p>Entra con il tuo account. Il gruppo vede chi aggiunge, modifica o elimina una spesa.</p>
+      <button id="googleLogin" class="primary" type="button">Continua con Google</button>
+      <div class="divider">oppure accedi senza password</div>
+      <form id="emailForm" class="inline-form">
+        <label for="email">La tua email</label>
+        <div class="inline-controls"><input id="email" type="email" required autocomplete="email" placeholder="nome@esempio.it"><button type="submit">Invia link</button></div>
+      </form>
+      <p class="hint">Riceverai un link nella tua casella email. Gli inviti ai gruppi richiedono l’approvazione di chi li amministra.</p>
+      <div id="legacyLogin"></div>
+    </section>
+    <main id="workspace" class="hidden">
+      <section class="panel group-panel">
+        <div class="section-head"><div><span class="eyebrow dark">IL TUO SPAZIO</span><h2>Gruppi</h2></div><span id="syncStatus" class="status">Collegamento…</span></div>
+        <div id="groupsList" class="group-list"></div>
+        <details id="createDetails"><summary>Crea un nuovo gruppo</summary>
+          <form id="createForm" class="form-stack"><label>Nome del gruppo<input name="groupName" required maxlength="80" placeholder="Per esempio: Vacanza in moto"></label><label>Il tuo nome nel gruppo<input name="displayName" required maxlength="60" placeholder="Ezio"></label><button type="submit" class="primary">Crea gruppo</button></form>
+        </details>
+        <details id="joinDetails"><summary>Hai ricevuto un invito?</summary>
+          <form id="joinForm" class="form-stack"><label>Codice o link di invito<input name="invite" required placeholder="Incolla qui l’invito"></label><label>Il tuo nome nel gruppo<input name="displayName" required maxlength="60" placeholder="Come ti riconosceranno"></label><button type="submit" class="primary">Chiedi di partecipare</button></form>
+        </details>
+        <div id="legacyWorkspace"></div>
+      </section>
+      <div id="groupContent" class="hidden">
+        <section class="group-heading"><div><span class="eyebrow">GRUPPO SELEZIONATO</span><h2 id="groupTitle"></h2></div><span id="memberCount" class="chip"></span></section>
+        <nav class="tabs" aria-label="Sezioni del gruppo">
+          <button type="button" data-tab="expenses" class="active">Spese</button>
+          <button type="button" data-tab="dashboard">Riepilogo</button>
+          <button type="button" data-tab="history">Attività</button>
+          <button type="button" data-tab="people">Partecipanti</button>
+        </nav>
+        <section id="expensesTab" class="tab-content">
+          <div class="layout"><div class="panel"><h3 id="formTitle">Aggiungi una spesa</h3>
+            <form id="expenseForm" class="form-stack">
+              <label>Descrizione<input name="description" required maxlength="160" placeholder="Per esempio: Cena al ristorante"></label>
+              <div class="two-cols"><label>Importo in euro<input name="amount" type="number" inputmode="decimal" min="0.01" max="1000000" step="0.01" required placeholder="0,00"></label><label>Data<input name="spentOn" type="date" required></label></div>
+              <label>Categoria<select name="category" required></select></label>
+              <div><span class="field-label">Chi partecipa alla spesa?</span><div id="splitChoices" class="check-grid"></div></div>
+              <p class="hint">Pagatore: <strong id="currentPayer"></strong>. Ogni persona registra le spese che ha pagato.</p>
+              <div class="actions"><button id="saveExpense" type="submit" class="primary">Salva spesa</button><button id="cancelEdit" type="button" class="quiet hidden">Annulla modifica</button></div>
+            </form>
+          </div><div class="panel"><div class="section-head"><h3>Spese del gruppo</h3><span id="expenseCount" class="chip muted"></span></div><div id="expensesList" class="item-list"></div></div></div>
+        </section>
+        <section id="dashboardTab" class="tab-content hidden">
+          <div id="report" class="panel report"><div class="section-head"><div><span class="eyebrow dark">DOVE ABBIAMO SPESO</span><h3>Riepilogo per categoria</h3></div><span id="reportGroup" class="chip muted"></span></div>
+            <div class="filters"><label>Dal<input id="filterFrom" type="date"></label><label>Al<input id="filterTo" type="date"></label><label>Spese pagate da<select id="filterPayer"><option value="">Tutti</option></select></label></div>
+            <div class="total-label">Totale nel periodo</div><div id="reportTotal" class="big-total">€ 0,00</div>
+            <div class="chart-grid"><div id="donut" class="donut-wrap"></div><div id="categoryRows" class="category-list"></div></div>
+            <p class="hint">Le percentuali si riferiscono al totale delle spese mostrate con questi filtri.</p>
+          </div>
+          <div class="export-row"><button id="exportPdf" type="button">Stampa o salva PDF</button><button id="exportPng" type="button">Esporta grafico PNG</button><button id="exportCsv" type="button">Esporta spese CSV</button></div>
+          <div class="panel balances"><h3>Bilanci del gruppo</h3><p class="hint">Saldo positivo: ha anticipato denaro. Saldo negativo: deve contribuire.</p><div id="balancesList"></div></div>
+        </section>
+        <section id="historyTab" class="tab-content hidden"><div class="panel"><h3>Attività del gruppo</h3><p class="hint">Ogni intervento conserva autore, ora e valori precedenti.</p><div id="historyList" class="item-list"></div></div></section>
+        <section id="peopleTab" class="tab-content hidden"><div class="panel"><h3>Partecipanti</h3><div id="peopleList" class="item-list"></div><div id="inviteBox" class="hidden"><h4>Invita altre persone</h4><p class="hint">Condividi questo link solo con le persone che vuoi invitare. Approverai tu il loro ingresso.</p><div class="inline-controls"><input id="inviteLink" readonly aria-label="Link di invito"><button id="copyInvite" type="button">Copia link</button></div></div></div>
+          <div id="importBox" class="panel hidden"><h3>Importa le vecchie spese</h3><p class="hint">Prima invita e approva tutti i partecipanti presenti nel vecchio elenco. Seleziona il backup JSON scaricato dalla versione locale e associa ogni nome alla persona giusta. Le spese già importate non verranno duplicate.</p><label>Backup JSON<input id="legacyFile" type="file" accept=".json,application/json"></label><div id="legacyMapping" class="form-stack"></div><button id="importLegacy" type="button" class="primary hidden">Importa spese</button><p id="importProgress" class="hint" role="status"></p></div>
+        </section>
       </div>
-    </div>
-    <div class="glass-card p-4 mb-6">
-      <p class="mb-2 font-semibold">Prima di passare alla versione condivisa, salva una copia delle spese su ogni dispositivo.</p>
-      <button type="button" onclick="downloadLocalBackup()" class="bg-indigo-700 text-white px-4 py-2 rounded">Scarica backup JSON</button>
-      <p class="text-sm mt-2">Il backup non elimina né modifica le spese. Se usi l'app sulla schermata Home dell'iPhone, scaricalo da lì.</p>
-    </div>
-
-    <!-- Local mode section -->
-    <div id="localMode" class="hidden">
-      <div class="glass-card p-6 mb-6">
-        <h2 class="text-2xl font-semibold mb-4">Gestione locale</h2>
-        <!-- Participants input -->
-        <div class="mb-4 flex flex-col md:flex-row md:items-end md:space-x-4">
-          <div class="flex-1 mb-2 md:mb-0">
-            <label for="participantName" class="block text-gray-700 mb-1">Nome partecipante</label>
-            <input id="participantName" type="text" class="w-full p-2 border rounded" placeholder="Aggiungi un partecipante" />
-          </div>
-          <button onclick="addParticipant()" class="bg-blue-600 text-white px-4 py-2 rounded">Aggiungi partecipante</button>
-        </div>
-        <!-- Participants list -->
-        <div class="mb-6">
-          <h3 class="font-semibold mb-2">Partecipanti</h3>
-          <div id="participantsList" class="space-y-2"></div>
-        </div>
-        <!-- Expense input -->
-        <div class="mb-4 grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div>
-            <label for="expenseDescription" class="block text-gray-700 mb-1">Descrizione</label>
-            <input id="expenseDescription" type="text" class="w-full p-2 border rounded" placeholder="Descrizione spesa" />
-          </div>
-          <div>
-            <label for="expenseAmount" class="block text-gray-700 mb-1">Importo (€)</label>
-            <input id="expenseAmount" type="number" min="0" step="0.01" class="w-full p-2 border rounded" placeholder="0.00" />
-          </div>
-          <div>
-            <label for="expenseDate" class="block text-gray-700 mb-1">Data</label>
-            <input id="expenseDate" type="date" class="w-full p-2 border rounded" />
-          </div>
-          <div>
-            <label for="expensePayer" class="block text-gray-700 mb-1">Pagatore</label>
-            <select id="expensePayer" class="w-full p-2 border rounded"></select>
-          </div>
-        </div>
-        <div class="mb-4">
-          <span class="block text-gray-700 mb-1">Chi partecipa alla spesa?</span>
-          <div id="expenseParticipants" class="flex flex-wrap space-x-4"></div>
-        </div>
-        <button onclick="addExpense()" class="bg-green-600 text-white px-4 py-2 rounded">Aggiungi spesa</button>
-        <!-- Expenses list -->
-        <div class="mt-8">
-          <h3 class="font-semibold mb-2">Spese</h3>
-          <div id="expensesList" class="space-y-2"></div>
-        </div>
-        <!-- Balances -->
-        <div class="mt-8">
-          <h3 class="font-semibold mb-2">Bilanci</h3>
-          <div id="balancesList" class="space-y-1"></div>
-        </div>
-      </div>
-    </div>
-
+    </main>
+    <footer>Gestione spese by Ezio · I dati del gruppo sono visibili solo ai membri approvati.</footer>
   </div>
-
-  <!-- Help modal -->
-  <div id="helpModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10">
-    <div class="glass-card p-6 max-w-3xl w-full relative">
-      <h2 class="text-xl font-bold mb-2">Guida</h2>
-      <p class="mb-4">Questa applicazione permette di gestire facilmente le spese di un gruppo di persone. I dati rimangono sul tuo dispositivo e non vengono sincronizzati online.</p>
-      <h3 class="font-semibold mt-4 mb-1">FAQ</h3>
-      <p class="mb-2"><strong>Posso modificare o cancellare una spesa in locale?</strong><br> Sì. Una volta inserita la spesa puoi cliccare sulle icone della matita o del cestino per modificarla o cancellarla.</p>
-      <p class="mb-2"><strong>Posso modificare o eliminare un partecipante?</strong><br> Sì. I partecipanti inseriti possono essere modificati o rimossi cliccando sull’icona della matita o del cestino accanto al loro nome. Se elimini un partecipante, tutte le spese in cui compariva saranno aggiornate di conseguenza.</p>
-      
-      <button onclick="closeHelp()" class="absolute top-2 right-2 text-gray-700"><i class="fas fa-times"></i></button>
-    </div>
-  </div>
-
-  <!-- Script -->
-  <script>
-
-    // ----- Local mode variables -----
-    let participants = [];
-    let expenses = [];
-
-    function downloadLocalBackup() {
-      const raw = localStorage.getItem('localExpenses');
-      if (!raw) { alert('Non ci sono spese locali da salvare su questo dispositivo.'); return; }
-      const url = URL.createObjectURL(new Blob([raw], {type: 'application/json'}));
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'spese-locali-ezio.json';
-      link.click();
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
-    }
-    
-    // Funzioni per localStorage
-    function saveLocalData() {
-      localStorage.setItem('localExpenses', JSON.stringify({
-        participants: participants,
-        expenses: expenses
-      }));
-    }
-    
-    function loadLocalData() {
-      const data = localStorage.getItem('localExpenses');
-      if (data) {
-        try {
-          const parsed = JSON.parse(data);
-          participants = parsed.participants || [];
-          expenses = parsed.expenses || [];
-          displayParticipants();
-          updateParticipantSelect();
-          displayExpenses();
-          calculateBalances();
-        } catch (e) {
-          console.error('Errore nel caricamento dei dati:', e);
-        }
-      }
-    }
-    
-    // Funzione per mostrare notifiche
-    function showNotification(message) {
-      // Crea un elemento di notifica temporaneo
-      const notification = document.createElement('div');
-      notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded shadow-lg z-50';
-      notification.textContent = message;
-      document.body.appendChild(notification);
-      
-      // Rimuovi dopo 3 secondi
-      setTimeout(() => {
-        notification.remove();
-      }, 3000);
-    }
-
-    // Update payer dropdown and participant checkboxes
-    function updateParticipantSelect() {
-      const payerSelect = document.getElementById('expensePayer');
-      payerSelect.innerHTML = '';
-      participants.forEach(name => {
-        const option = document.createElement('option');
-        option.value = name;
-        option.textContent = name;
-        payerSelect.appendChild(option);
-      });
-
-      // Update checkboxes
-      const container = document.getElementById('expenseParticipants');
-      container.innerHTML = '';
-      participants.forEach(name => {
-        const label = document.createElement('label');
-        label.className = 'mr-4 flex items-center space-x-1';
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.value = name;
-        checkbox.className = 'mr-1';
-        label.appendChild(checkbox);
-        label.appendChild(document.createTextNode(name));
-        container.appendChild(label);
-      });
-    }
-
-    // Display participants list
-    function displayParticipants() {
-      const list = document.getElementById('participantsList');
-      list.innerHTML = '';
-      participants.forEach(name => {
-        const row = document.createElement('div');
-        row.className = 'flex justify-between items-center p-2 bg-gray-100 rounded';
-        row.innerHTML = `
-          <span>${name}</span>
-          <div class="space-x-2">
-            <button onclick="editParticipant('${name}')" class="text-blue-500"><i class="fas fa-pen"></i></button>
-            <button onclick="removeParticipant('${name}')" class="text-red-500"><i class="fas fa-trash"></i></button>
-          </div>
-        `;
-        list.appendChild(row);
-      });
-    }
-
-    // Add a new participant
-    function addParticipant() {
-      const nameInput = document.getElementById('participantName');
-      const name = nameInput.value.trim();
-      if (!name) return;
-      if (participants.includes(name)) {
-        alert('Questo nome è già presente.');
-        return;
-      }
-      participants.push(name);
-      nameInput.value = '';
-      saveLocalData();
-      updateParticipantSelect();
-      displayParticipants();
-      calculateBalances();
-      showNotification('Partecipante aggiunto con successo!');
-    }
-
-    // Edit a participant's name
-    function editParticipant(oldName) {
-      const newName = prompt('Nuovo nome:', oldName);
-      if (!newName || newName.trim() === '' || participants.includes(newName)) return;
-      const index = participants.indexOf(oldName);
-      if (index !== -1) participants[index] = newName;
-      // Update any expenses referencing the participant
-      expenses.forEach(exp => {
-        if (exp.payer === oldName) exp.payer = newName;
-        exp.participants = exp.participants.map(p => p === oldName ? newName : p);
-      });
-      saveLocalData();
-      updateParticipantSelect();
-      displayParticipants();
-      displayExpenses();
-      calculateBalances();
-      showNotification('Partecipante modificato con successo!');
-    }
-
-    // Remove a participant and associated expenses
-    function removeParticipant(name) {
-      if (!confirm('Vuoi rimuovere ' + name + '? Tutte le spese relative saranno aggiornate.')) return;
-      participants = participants.filter(p => p !== name);
-      // Remove or update expenses
-      expenses = expenses.filter(exp => {
-        if (exp.payer === name) return false;
-        exp.participants = exp.participants.filter(p => p !== name);
-        return exp.participants.length > 0;
-      });
-      saveLocalData();
-      updateParticipantSelect();
-      displayParticipants();
-      displayExpenses();
-      calculateBalances();
-      showNotification('Partecipante eliminato con successo!');
-    }
-
-    // Display expenses list
-    function displayExpenses() {
-      const list = document.getElementById('expensesList');
-      list.innerHTML = '';
-      expenses.forEach(exp => {
-        const div = document.createElement('div');
-        div.className = 'flex justify-between items-center p-3 bg-gray-100 rounded';
-        const participantsStr = exp.participants.join(', ');
-        div.innerHTML = `
-          <div>
-            <p><strong>${exp.description}</strong> - €${exp.amount.toFixed(2)} - ${exp.date}</p>
-            <p class="text-sm text-gray-600">${exp.payer} ha pagato. Partecipanti: ${participantsStr}</p>
-          </div>
-          <div class="space-x-2">
-            <button onclick="editExpense(${exp.id})" class="text-blue-500"><i class="fas fa-pen"></i></button>
-            <button onclick="removeExpense(${exp.id})" class="text-red-500"><i class="fas fa-trash"></i></button>
-          </div>
-        `;
-        list.appendChild(div);
-      });
-    }
-
-    // Add a new expense
-    function addExpense() {
-      const description = document.getElementById('expenseDescription').value.trim();
-      const amount = parseFloat(document.getElementById('expenseAmount').value);
-      const date = document.getElementById('expenseDate').value;
-      const payer = document.getElementById('expensePayer').value;
-      const checkboxes = document.querySelectorAll('#expenseParticipants input[type="checkbox"]:checked');
-      const participantsSelected = Array.from(checkboxes).map(cb => cb.value);
-      
-      // Validazione campi
-      if (!description || isNaN(amount) || !date || !payer || participantsSelected.length === 0) {
-        alert('Compila tutti i campi e seleziona almeno un partecipante.');
-        return;
-      }
-      
-      // Validazione importo positivo
-      if (amount <= 0) {
-        alert('L\'importo deve essere maggiore di zero.');
-        return;
-      }
-      
-      // Validazione data (deve essere una data valida)
-      const dateObj = new Date(date);
-      if (isNaN(dateObj.getTime())) {
-        alert('Inserisci una data valida.');
-        return;
-      }
-      const expense = {
-        id: Date.now(),
-        description,
-        amount,
-        date,
-        payer,
-        participants: participantsSelected
-      };
-      expenses.push(expense);
-      // Reset fields
-      document.getElementById('expenseDescription').value = '';
-      document.getElementById('expenseAmount').value = '';
-      document.getElementById('expenseDate').value = '';
-      document.querySelectorAll('#expenseParticipants input[type="checkbox"]').forEach(cb => cb.checked = false);
-      saveLocalData();
-      displayExpenses();
-      calculateBalances();
-      showNotification('Spesa aggiunta con successo!');
-    }
-
-    // Edit an existing expense
-    function editExpense(id) {
-      const exp = expenses.find(e => e.id === id);
-      if (!exp) return;
-      const newDesc = prompt('Nuova descrizione:', exp.description) || exp.description;
-      const newAmt = parseFloat(prompt('Nuovo importo:', exp.amount)) || exp.amount;
-      const newDate = prompt('Nuova data (AAAA-MM-GG):', exp.date) || exp.date;
-      const newPayer = prompt('Nuovo pagatore:', exp.payer) || exp.payer;
-      const parts = prompt('Nuovi partecipanti separati da virgola:', exp.participants.join(', ')) || exp.participants.join(', ');
-      exp.description = newDesc.trim();
-      exp.amount = newAmt;
-      exp.date = newDate;
-      exp.payer = newPayer.trim();
-      exp.participants = parts.split(',').map(p => p.trim()).filter(Boolean);
-      saveLocalData();
-      displayExpenses();
-      calculateBalances();
-      showNotification('Spesa modificata con successo!');
-    }
-
-    // Remove an expense
-    function removeExpense(id) {
-      if (!confirm('Vuoi eliminare questa spesa?')) return;
-      expenses = expenses.filter(e => e.id !== id);
-      // Salva su localStorage
-      saveLocalData();
-      displayExpenses();
-      calculateBalances();
-      // Feedback visivo
-      showNotification('Spesa eliminata con successo!');
-    }
-
-    // Calculate balances (who owes what) for local mode
-    function calculateBalances() {
-      const balances = {};
-      participants.forEach(name => balances[name] = 0);
-      expenses.forEach(exp => {
-        const share = exp.amount / exp.participants.length;
-        exp.participants.forEach(p => {
-          balances[p] -= share;
-        });
-        balances[exp.payer] += exp.amount;
-      });
-      // Display balances
-      const list = document.getElementById('balancesList');
-      list.innerHTML = '';
-      Object.keys(balances).forEach(name => {
-        const amount = balances[name];
-        const li = document.createElement('div');
-        li.className = amount < 0 ? 'text-red-600' : amount > 0 ? 'text-green-600' : '';
-        li.textContent = `${name}: ${amount.toFixed(2)} €`;
-        list.appendChild(li);
-      });
-    }
-
-    let groupId = null;
-    let groupCode = null;
-    let groupParticipantsData = [];
-    let groupExpensesData = [];
-
-    // Switch to local mode UI
-    function useLocalMode() {
-      document.getElementById('modeSelection').classList.add('hidden');
-      document.getElementById('localMode').classList.remove('hidden');
-    }
-    
-
-    // Create a new group via API
-    
-
-    // Join an existing group via code
-    
-
-    // Add participant to group
-    
-
-    // Add expense to group
-    
-
-    // Refresh group data (participants and expenses)
-    async function refreshGroupData() {
-      if (!groupId || !groupCode) return;
-      try {
-        // Get group info (participants)
-        const groupRes = await fetch(`${API_BASE}/groups/${groupCode}`);
-        if (!groupRes.ok) throw new Error('Errore recupero gruppo');
-        const groupData = await groupRes.json();
-        // Backend returns {success, group:{...}} so handle both cases
-        const groupObj = groupData.group || groupData;
-        groupParticipantsData = groupObj.participants;
-        groupId = groupObj.id;
-        // Update participants list
-        const partDiv = document.getElementById('groupParticipants');
-        partDiv.innerHTML = '';
-        groupParticipantsData.forEach(p => {
-          const row = document.createElement('div');
-          row.className = 'flex justify-between items-center p-2 bg-white rounded mb-2';
-          
-          // Handle both object {name: "..."} and string formats
-          const participantName = typeof p === 'string' ? p : (p.name || p);
-          
-          const nameSpan = document.createElement('span');
-          nameSpan.textContent = participantName;
-          nameSpan.className = 'font-medium';
-          
-          const actionsDiv = document.createElement('div');
-          actionsDiv.className = 'space-x-2';
-          
-          // Pulsante Modifica
-          const editBtn = document.createElement('button');
-          editBtn.innerHTML = '<i class="fas fa-edit"></i>';
-          editBtn.className = 'text-blue-600 hover:text-blue-800 px-2 py-1';
-          editBtn.title = 'Modifica partecipante';
-          editBtn.onclick = () => editGroupParticipant(participantName);
-          
-          // Pulsante Elimina
-          const deleteBtn = document.createElement('button');
-          deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
-          deleteBtn.className = 'text-red-600 hover:text-red-800 px-2 py-1';
-          deleteBtn.title = 'Elimina partecipante';
-          deleteBtn.onclick = () => removeGroupParticipant(participantName);
-          
-          actionsDiv.appendChild(editBtn);
-          actionsDiv.appendChild(deleteBtn);
-          
-          row.appendChild(nameSpan);
-          row.appendChild(actionsDiv);
-          partDiv.appendChild(row);
-        });
-        // Populate payer select
-        const payerSelect = document.getElementById('groupExpensePayer');
-        payerSelect.innerHTML = '';
-        groupParticipantsData.forEach(p => {
-          const opt = document.createElement('option');
-          // Handle both object {name: "..."} and string formats
-          const participantName = typeof p === 'string' ? p : (p.name || p);
-          opt.value = participantName;
-          opt.textContent = participantName;
-          payerSelect.appendChild(opt);
-        });
-        // Populate participants checkboxes
-        const partChecks = document.getElementById('groupExpenseParticipants');
-        partChecks.innerHTML = '';
-        groupParticipantsData.forEach(p => {
-          const label = document.createElement('label');
-          label.className = 'mr-4 flex items-center space-x-1';
-          const cb = document.createElement('input');
-          cb.type = 'checkbox';
-          // Handle both object {name: "..."} and string formats
-          const participantName = typeof p === 'string' ? p : (p.name || p);
-          cb.value = participantName;
-          label.appendChild(cb);
-          label.appendChild(document.createTextNode(participantName));
-          partChecks.appendChild(label);
-        });
-        // Get expenses
-        const expRes = await fetch(`${API_BASE}/groups/${groupId}/expenses`);
-        if (!expRes.ok) throw new Error('Errore recupero spese');
-        const expData = await expRes.json();
-        // For remote mode the backend returns {success, expenses:[...]}
-        groupExpensesData = expData.expenses || expData;
-        displayGroupExpenses();
-        calculateGroupBalances();
-      } catch (err) {
-        console.error(err);
-      }
-    }
-
-    // Display group expenses
-    function displayGroupExpenses() {
-      const container = document.getElementById('groupExpenses');
-      container.innerHTML = '';
-      groupExpensesData.forEach(exp => {
-        const div = document.createElement('div');
-        div.className = 'p-3 bg-gray-100 rounded mb-2 flex justify-between items-start';
-        
-        const infoDiv = document.createElement('div');
-        infoDiv.className = 'flex-1';
-        const participantsStr = exp.participants.join(', ');
-        infoDiv.innerHTML = `<p><strong>${exp.description}</strong> - €${exp.amount.toFixed(2)} - ${exp.date}</p><p class="text-sm text-gray-600">${exp.payer} ha pagato. Partecipanti: ${participantsStr}</p>`;
-        
-        const actionsDiv = document.createElement('div');
-        actionsDiv.className = 'flex space-x-2 ml-4';
-        
-        // Pulsante Elimina
-        const deleteBtn = document.createElement('button');
-        deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
-        deleteBtn.className = 'text-red-600 hover:text-red-800 px-2 py-1';
-        deleteBtn.title = 'Elimina spesa';
-        deleteBtn.onclick = () => removeGroupExpense(exp.id);
-        
-        actionsDiv.appendChild(deleteBtn);
-        
-        div.appendChild(infoDiv);
-        div.appendChild(actionsDiv);
-        container.appendChild(div);
-      });
-    }
-
-    // Calculate balances for group
-    
-
-    // Funzione per uscire dal gruppo
-    function leaveGroup() {
-      if (confirm('Sei sicuro di voler uscire dal gruppo? Il codice gruppo salvato verrà cancellato.')) {
-        // Cancella i dati salvati
-        localStorage.removeItem('savedGroupCode');
-        localStorage.removeItem('savedGroupId');
-        
-        // Reset variabili
-        groupId = null;
-        groupCode = null;
-        groupParticipantsData = [];
-        groupExpensesData = [];
-        
-        // Nascondi la sezione groupActions
-        document.getElementById('groupActions').classList.add('hidden');
-        
-        // Pulisci i campi
-        document.getElementById('groupCodeInput').value = '';
-        document.getElementById('groupName').value = '';
-        document.getElementById('groupCreateResult').textContent = '';
-        document.getElementById('groupJoinResult').textContent = 'Sei uscito dal gruppo. Puoi crearne uno nuovo o unirti a un altro.';
-        document.getElementById('groupJoinResult').style.color = '#059669';
-        
-        // Mostra notifica
-        showNotification('Sei uscito dal gruppo con successo');
-      }
-    }
-
-    // ========================================
-    // FUNZIONI PER MODIFICA/ELIMINA PARTECIPANTI E SPESE
-    // ========================================
-
-    
-
-    
-
-    
-
-    // Help modal functions
-    function openHelp() {
-      document.getElementById('helpModal').classList.remove('hidden');
-    }
-    function closeHelp() {
-      document.getElementById('helpModal').classList.add('hidden');
-    }
-
-    // Initialize default UI (update selects)
-    updateParticipantSelect();
-    
-    // Carica i dati salvati all'avvio
-    loadLocalData();
-    
-    // Registrazione del Service Worker per PWA
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/Gestione-spese-by-Ezio/sw.js')
-          .then(registration => {
-            console.log('Service Worker registrato con successo:', registration.scope);
-          })
-          .catch(error => {
-            console.log('Registrazione Service Worker fallita:', error);
-          });
-      });
-    }
-    
-    // Gestione dell'evento di installazione PWA
-    let deferredPrompt;
-    window.addEventListener('beforeinstallprompt', (e) => {
-      // Previeni il prompt automatico
-      e.preventDefault();
-      // Salva l'evento per mostrarlo successivamente
-      deferredPrompt = e;
-      // Mostra un pulsante di installazione personalizzato (opzionale)
-      console.log('App pronta per l\'installazione');
-    });
-    
-    // Funzione per mostrare il prompt di installazione (può essere chiamata da un pulsante)
-    function showInstallPrompt() {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then((choiceResult) => {
-          if (choiceResult.outcome === 'accepted') {
-            console.log('Utente ha accettato l\'installazione');
-          } else {
-            console.log('Utente ha rifiutato l\'installazione');
-          }
-          deferredPrompt = null;
-        });
-      }
-    }
-  </script>
 </body>
 </html>
