@@ -1,77 +1,20 @@
-// Service Worker per GruppoSpese by Ezio
-const CACHE_NAME = 'gruppospese-v1';
-const urlsToCache = [
-  '/Gestione-spese-by-Ezio/',
-  '/Gestione-spese-by-Ezio/index.html',
-  '/Gestione-spese-by-Ezio/manifest.json',
-  '/Gestione-spese-by-Ezio/icons/icon-192x192.png',
-  '/Gestione-spese-by-Ezio/icons/icon-512x512.png'
-];
-
-// Installazione del Service Worker
+// Refresh the app shell so the local backup button appears in installed PWAs.
+const CACHE_NAME = 'gruppospese-local-backup-v2';
+const APP_FILES = ['./', './index.html', './manifest.json', './icons/icon-192x192.png', './icons/icon-512x512.png'];
 self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('Cache aperta');
-        return cache.addAll(urlsToCache);
-      })
-  );
+  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_FILES)).then(() => self.skipWaiting()));
 });
-
-// Attivazione del Service Worker
 self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheName !== CACHE_NAME) {
-            console.log('Eliminazione cache vecchia:', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
-  );
+  event.waitUntil(caches.keys().then(names => Promise.all(names.filter(name => name !== CACHE_NAME).map(name => caches.delete(name)))).then(() => self.clients.claim()));
 });
-
-// Intercettazione delle richieste
 self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        // Cache hit - restituisci la risposta dalla cache
-        if (response) {
-          return response;
-        }
-
-        // Clona la richiesta
-        const fetchRequest = event.request.clone();
-
-        return fetch(fetchRequest).then(response => {
-          // Controlla se la risposta è valida
-          if (!response || response.status !== 200 || response.type !== 'basic') {
-            return response;
-          }
-
-          // Clona la risposta
-          const responseToCache = response.clone();
-
-          caches.open(CACHE_NAME)
-            .then(cache => {
-              cache.put(event.request, responseToCache);
-            });
-
-          return response;
-        });
-      })
-  );
+  const url = new URL(event.request.url);
+  if (event.request.method !== 'GET' || url.origin !== self.location.origin) return;
+  event.respondWith(fetch(event.request).then(response => {
+    if (response.ok) {
+      const copy = response.clone();
+      event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy)));
+    }
+    return response;
+  }).catch(() => caches.match(event.request)));
 });
-
-// Gestione dei messaggi dal client
-self.addEventListener('message', event => {
-  if (event.data && event.data.type === 'SKIP_WAITING') {
-    self.skipWaiting();
-  }
-});
-

@@ -61,6 +61,11 @@
         <p>Gestisci le spese sul tuo dispositivo, senza sincronizzazione online.</p>
       </div>
     </div>
+    <div class="glass-card p-4 mb-6">
+      <p class="mb-2 font-semibold">Prima di passare alla versione condivisa, salva una copia delle spese su ogni dispositivo.</p>
+      <button type="button" onclick="downloadLocalBackup()" class="bg-indigo-700 text-white px-4 py-2 rounded">Scarica backup JSON</button>
+      <p class="text-sm mt-2">Il backup non elimina né modifica le spese. Se usi l'app sulla schermata Home dell'iPhone, scaricalo da lì.</p>
+    </div>
 
     <!-- Local mode section -->
     <div id="localMode" class="hidden">
@@ -137,6 +142,17 @@
     // ----- Local mode variables -----
     let participants = [];
     let expenses = [];
+
+    function downloadLocalBackup() {
+      const raw = localStorage.getItem('localExpenses');
+      if (!raw) { alert('Non ci sono spese locali da salvare su questo dispositivo.'); return; }
+      const url = URL.createObjectURL(new Blob([raw], {type: 'application/json'}));
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'spese-locali-ezio.json';
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
     
     // Funzioni per localStorage
     function saveLocalData() {
