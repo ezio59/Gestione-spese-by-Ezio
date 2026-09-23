@@ -1,0 +1,1 @@
+Icone per PWA

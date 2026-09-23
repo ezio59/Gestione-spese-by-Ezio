@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#443485">
+  <meta name="description" content="Le spese del gruppo, sempre aggiornate e facili da capire.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="GruppoSpese">
+  <title>Gestione spese by Ezio</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/icon-192x192.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="style.css">
+  <script defer src="config.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/dist/umd/supabase.min.js"></script>
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div><span class="eyebrow">LE SPESE INSIEME</span><h1>Gestione spese <span>by Ezio</span></h1></div>
+      <button id="logout" class="quiet hidden" type="button">Esci</button>
+    </header>
+    <div id="notice" class="notice hidden" role="status" aria-live="polite"></div>
+    <section id="setup" class="panel intro hidden">
+      <span class="pill">Configurazione necessaria</span>
+      <h2>La versione condivisa è pronta per il collegamento</h2>
+      <p>Per attivare la sincronizzazione, configura il progetto Supabase seguendo <a href="SETUP.md">la guida di installazione</a>. Il gruppo partirà senza spese: la versione attuale rimane consultabile sul dispositivo in cui è stata usata.</p>
+    </section>
+    <section id="login" class="panel intro hidden">
+      <span class="pill">Gruppo privato · aggiornamenti in tempo reale</span>
+      <h2>Le spese di tutti, sempre chiare.</h2>
+      <p>Entra con il tuo account. Il gruppo vede chi aggiunge, modifica o elimina una spesa.</p>
+      <button id="githubLogin" class="primary" type="button">Continua con GitHub</button>
+      <p class="hint">Accedi con un account GitHub personale. Gli inviti ai gruppi richiedono l’approvazione di chi li amministra.</p>
+    </section>
+    <main id="workspace" class="hidden">
+      <section class="panel group-panel">
+        <div class="section-head"><div><span class="eyebrow dark">IL TUO SPAZIO</span><h2>Gruppi</h2></div><span id="syncStatus" class="status">Collegamento…</span></div>
+        <div id="groupsList" class="group-list"></div>
+        <details id="createDetails"><summary>Crea un nuovo gruppo</summary>
+          <form id="createForm" class="form-stack"><label>Nome del gruppo<input name="groupName" required maxlength="80" placeholder="Per esempio: Vacanza in moto"></label><label>Il tuo nome nel gruppo<input name="displayName" required maxlength="60" placeholder="Ezio"></label><button type="submit" class="primary">Crea gruppo</button></form>
+        </details>
+        <details id="joinDetails"><summary>Hai ricevuto un invito?</summary>
+          <form id="joinForm" class="form-stack"><label>Codice o link di invito<input name="invite" required placeholder="Incolla qui l’invito"></label><label>Il tuo nome nel gruppo<input name="displayName" required maxlength="60" placeholder="Come ti riconosceranno"></label><button type="submit" class="primary">Chiedi di partecipare</button></form>
+        </details>
+      </section>
+      <div id="groupContent" class="hidden">
+        <section class="group-heading"><div><span class="eyebrow">GRUPPO SELEZIONATO</span><h2 id="groupTitle"></h2></div><span id="memberCount" class="chip"></span></section>
+        <nav class="tabs" aria-label="Sezioni del gruppo">
+          <button type="button" data-tab="expenses" class="active">Spese</button>
+          <button type="button" data-tab="dashboard">Riepilogo</button>
+          <button type="button" data-tab="history">Attività</button>
+          <button type="button" data-tab="people">Partecipanti</button>
+        </nav>
+        <section id="expensesTab" class="tab-content">
+          <div class="layout"><div class="panel"><h3 id="formTitle">Aggiungi una spesa</h3>
+            <form id="expenseForm" class="form-stack">
+              <label>Descrizione<input name="description" required maxlength="160" placeholder="Per esempio: Cena al ristorante"></label>
+              <div class="two-cols"><label>Importo in euro<input name="amount" type="number" inputmode="decimal" min="0.01" max="1000000" step="0.01" required placeholder="0,00"></label><label>Data<input name="spentOn" type="date" required></label></div>
+              <label>Categoria<select name="category" required></select></label>
+              <div><span class="field-label">Chi partecipa alla spesa?</span><div id="splitChoices" class="check-grid"></div></div>
+              <p class="hint">Pagatore: <strong id="currentPayer"></strong>. Ogni persona registra le spese che ha pagato.</p>
+              <div class="actions"><button id="saveExpense" type="submit" class="primary">Salva spesa</button><button id="cancelEdit" type="button" class="quiet hidden">Annulla modifica</button></div>
+            </form>
+          </div><div class="panel"><div class="section-head"><h3>Spese del gruppo</h3><span id="expenseCount" class="chip muted"></span></div><div id="expensesList" class="item-list"></div></div></div>
+        </section>
+        <section id="dashboardTab" class="tab-content hidden">
+          <div id="report" class="panel report"><div class="section-head"><div><span class="eyebrow dark">DOVE ABBIAMO SPESO</span><h3>Riepilogo per categoria</h3></div><span id="reportGroup" class="chip muted"></span></div>
+            <div class="filters"><label>Dal<input id="filterFrom" type="date"></label><label>Al<input id="filterTo" type="date"></label><label>Spese pagate da<select id="filterPayer"><option value="">Tutti</option></select></label></div>
+            <div class="total-label">Totale nel periodo</div><div id="reportTotal" class="big-total">€ 0,00</div>
+            <div class="chart-grid"><div id="donut" class="donut-wrap"></div><div id="categoryRows" class="category-list"></div></div>
+            <p class="hint">Le percentuali si riferiscono al totale delle spese mostrate con questi filtri.</p>
+          </div>
+          <div class="export-row"><button id="exportPdf" type="button">Stampa o salva PDF</button><button id="exportPng" type="button">Esporta grafico PNG</button><button id="exportCsv" type="button">Esporta spese CSV</button></div>
+          <div class="panel balances"><h3>Bilanci del gruppo</h3><p class="hint">Saldo positivo: ha anticipato denaro. Saldo negativo: deve contribuire.</p><div id="balancesList"></div></div>
+        </section>
+        <section id="historyTab" class="tab-content hidden"><div class="panel"><h3>Attività del gruppo</h3><p class="hint">Ogni intervento conserva autore, ora e valori precedenti.</p><div id="historyList" class="item-list"></div></div></section>
+        <section id="peopleTab" class="tab-content hidden"><div class="panel"><h3>Partecipanti</h3><div id="peopleList" class="item-list"></div><div id="inviteBox" class="hidden"><h4>Invita altre persone</h4><p class="hint">Condividi questo link solo con le persone che vuoi invitare. Approverai tu il loro ingresso.</p><div class="inline-controls"><input id="inviteLink" readonly aria-label="Link di invito"><button id="copyInvite" type="button">Copia link</button></div></div></div></section>
+      </div>
+    </main>
+    <footer>Gestione spese by Ezio · I dati del gruppo sono visibili solo ai membri approvati.</footer>
+  </div>
+</body>
+</html>
