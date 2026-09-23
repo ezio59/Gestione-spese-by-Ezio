@@ -26,8 +26,7 @@
     <section id="setup" class="panel intro hidden">
       <span class="pill">Configurazione necessaria</span>
       <h2>La versione condivisa è pronta per il collegamento</h2>
-      <p>Per attivare la sincronizzazione, configura il progetto Supabase seguendo <a href="SETUP.md">la guida di installazione</a>. La versione pubblicata non va sostituita finché il collegamento e l’importazione dei dati non sono stati verificati.</p>
-      <div id="legacySetup"></div>
+      <p>Per attivare la sincronizzazione, configura il progetto Supabase seguendo <a href="SETUP.md">la guida di installazione</a>. Il gruppo partirà senza spese: la versione attuale rimane consultabile sul dispositivo in cui è stata usata.</p>
     </section>
     <section id="login" class="panel intro hidden">
       <span class="pill">Gruppo privato · aggiornamenti in tempo reale</span>
@@ -40,7 +39,6 @@
         <div class="inline-controls"><input id="email" type="email" required autocomplete="email" placeholder="nome@esempio.it"><button type="submit">Invia link</button></div>
       </form>
       <p class="hint">Riceverai un link nella tua casella email. Gli inviti ai gruppi richiedono l’approvazione di chi li amministra.</p>
-      <div id="legacyLogin"></div>
     </section>
     <main id="workspace" class="hidden">
       <section class="panel group-panel">
@@ -52,7 +50,6 @@
         <details id="joinDetails"><summary>Hai ricevuto un invito?</summary>
           <form id="joinForm" class="form-stack"><label>Codice o link di invito<input name="invite" required placeholder="Incolla qui l’invito"></label><label>Il tuo nome nel gruppo<input name="displayName" required maxlength="60" placeholder="Come ti riconosceranno"></label><button type="submit" class="primary">Chiedi di partecipare</button></form>
         </details>
-        <div id="legacyWorkspace"></div>
       </section>
       <div id="groupContent" class="hidden">
         <section class="group-heading"><div><span class="eyebrow">GRUPPO SELEZIONATO</span><h2 id="groupTitle"></h2></div><span id="memberCount" class="chip"></span></section>
@@ -85,9 +82,7 @@
           <div class="panel balances"><h3>Bilanci del gruppo</h3><p class="hint">Saldo positivo: ha anticipato denaro. Saldo negativo: deve contribuire.</p><div id="balancesList"></div></div>
         </section>
         <section id="historyTab" class="tab-content hidden"><div class="panel"><h3>Attività del gruppo</h3><p class="hint">Ogni intervento conserva autore, ora e valori precedenti.</p><div id="historyList" class="item-list"></div></div></section>
-        <section id="peopleTab" class="tab-content hidden"><div class="panel"><h3>Partecipanti</h3><div id="peopleList" class="item-list"></div><div id="inviteBox" class="hidden"><h4>Invita altre persone</h4><p class="hint">Condividi questo link solo con le persone che vuoi invitare. Approverai tu il loro ingresso.</p><div class="inline-controls"><input id="inviteLink" readonly aria-label="Link di invito"><button id="copyInvite" type="button">Copia link</button></div></div></div>
-          <div id="importBox" class="panel hidden"><h3>Importa le vecchie spese</h3><p class="hint">Prima invita e approva tutti i partecipanti presenti nel vecchio elenco. Seleziona il backup JSON scaricato dalla versione locale e associa ogni nome alla persona giusta. Le spese già importate non verranno duplicate.</p><label>Backup JSON<input id="legacyFile" type="file" accept=".json,application/json"></label><div id="legacyMapping" class="form-stack"></div><button id="importLegacy" type="button" class="primary hidden">Importa spese</button><p id="importProgress" class="hint" role="status"></p></div>
-        </section>
+        <section id="peopleTab" class="tab-content hidden"><div class="panel"><h3>Partecipanti</h3><div id="peopleList" class="item-list"></div><div id="inviteBox" class="hidden"><h4>Invita altre persone</h4><p class="hint">Condividi questo link solo con le persone che vuoi invitare. Approverai tu il loro ingresso.</p><div class="inline-controls"><input id="inviteLink" readonly aria-label="Link di invito"><button id="copyInvite" type="button">Copia link</button></div></div></div></section>
       </div>
     </main>
     <footer>Gestione spese by Ezio · I dati del gruppo sono visibili solo ai membri approvati.</footer>

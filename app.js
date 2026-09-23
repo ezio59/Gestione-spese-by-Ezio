@@ -4,7 +4,7 @@ const $ = id => document.getElementById(id);
 const palette = ['#6251c8', '#15a7a1', '#f3a94e', '#e76e91', '#688bc9', '#a9a3b8'];
 const config = window.EXPENSE_APP_CONFIG || {};
 const state = { client: null, user: null, groups: [], memberships: [], group: null,
-  members: [], expenses: [], events: [], editing: null, channel: null, refreshTimer: null, legacy: null };
+  members: [], expenses: [], events: [], editing: null, channel: null, refreshTimer: null };
 const make = (tag, className = '', content = '') => {
   const node = document.createElement(tag);
   node.className = className;
@@ -41,19 +41,6 @@ const download = (name, contents, type) => {
   const link = document.createElement('a'); link.href = url; link.download = name; link.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 };
-
-function showLegacy(target) {
-  const raw = localStorage.getItem('localExpenses');
-  if (!raw) return;
-  let old; try { old = JSON.parse(raw); } catch { return; }
-  const count = Array.isArray(old.expenses) ? old.expenses.length : 0;
-  const panel = make('div', 'legacy');
-  panel.append(make('div', '', `Su questo dispositivo ci sono ${count} vecchie spese locali. Scaricane una copia prima di passare alla versione condivisa. I dati non verranno cancellati.`));
-  const button = make('button', '', 'Scarica copia dei vecchi dati');
-  button.type = 'button';
-  button.addEventListener('click', () => download('spese-locali-ezio.json', raw, 'application/json'));
-  panel.append(button); $(target).append(panel);
-}
 
 async function renderSession(session) {
   state.user = session?.user || null;
@@ -274,7 +261,6 @@ async function renderPeople() {
     list.append(card);
   });
   $('inviteBox').classList.toggle('hidden', !owner);
-  $('importBox').classList.toggle('hidden', !owner);
   if (owner) {
     try {
       const code = await rpc('expense_invite_code', { p_group: state.group.id });
@@ -284,50 +270,6 @@ async function renderPeople() {
       }
     } catch (error) { notice(error.message, true); }
   }
-}
-function prepareLegacyMapping(data) {
-  if (!Array.isArray(data?.participants) || !Array.isArray(data?.expenses)) throw Error('Questo file non è un backup valido della vecchia app.');
-  const names = [...new Set(data.participants.filter(name => typeof name === 'string' && name.trim()))];
-  if (!names.length || !data.expenses.length) throw Error('Il backup non contiene partecipanti e spese da importare.');
-  state.legacy = data;
-  const list = $('legacyMapping'); list.replaceChildren();
-  for (const name of names) {
-    const label = make('label', '', `Nel backup: ${name}`);
-    const select = make('select'); select.dataset.oldName = name;
-    select.add(new Option('Associa a un partecipante…', ''));
-    state.members.filter(member => member.status === 'active').forEach(member => select.add(new Option(member.display_name, member.user_id)));
-    const guess = state.members.find(member => member.status === 'active' && member.display_name.toLowerCase() === name.toLowerCase());
-    if (guess) select.value = guess.user_id;
-    label.append(select); list.append(label);
-  }
-  $('importLegacy').classList.remove('hidden');
-  $('importProgress').textContent = `${data.expenses.length} spese nel backup. Controlla bene le associazioni prima di importare.`;
-}
-async function importLegacy() {
-  if (!state.legacy || !isOwner()) throw Error('Solo chi amministra il gruppo può importare.');
-  const mapping = Object.fromEntries([...$('legacyMapping').querySelectorAll('select')]
-    .map(select => [select.dataset.oldName, select.value]));
-  if (Object.values(mapping).some(value => !value) || new Set(Object.values(mapping)).size !== Object.values(mapping).length) {
-    throw Error('Associa ogni nome a una persona diversa già approvata nel gruppo.');
-  }
-  const expenses = state.legacy.expenses;
-  for (let i = 0; i < expenses.length; i++) {
-    const old = expenses[i];
-    const people = Array.isArray(old.participants) ? old.participants.map(name => mapping[name]) : [];
-    const payer = mapping[old.payer]; const cents = Math.round(Number(old.amount) * 100);
-    if (!payer || !people.length || people.some(value => !value) || !Number.isInteger(cents) || cents < 1 ||
-        !/^\d{4}-\d{2}-\d{2}$/.test(old.date || '') || !String(old.description || '').trim()) {
-      throw Error(`Spesa ${i + 1} non valida. Correggi il backup prima di ritentare: le spese precedenti non saranno duplicate.`);
-    }
-    await rpc('import_legacy_expense', { p_group: state.group.id, p_legacy_key: `locale-${old.id ?? i}`,
-      p_description: String(old.description).trim(), p_amount_cents: cents, p_spent_on: old.date,
-      p_category: 'Altro', p_paid_by: payer, p_split_between: people });
-    $('importProgress').textContent = `Importate ${i + 1} spese su ${expenses.length}…`;
-  }
-  state.legacy = null; $('legacyFile').value = ''; $('legacyMapping').replaceChildren();
-  $('importLegacy').classList.add('hidden');
-  $('importProgress').textContent = `${expenses.length} spese importate. La categoria iniziale è “Altro”: puoi correggerla aprendo ogni spesa.`;
-  await refreshCurrent(); notice('Importazione completata. Controlla categorie e bilanci.');
 }
 function selectedExpenses() { return expensesInPeriod(state.expenses, $('filterFrom').value, $('filterTo').value, $('filterPayer').value); }
 function csvCell(value) { return `"${String(value ?? '').replaceAll('"', '""')}"`; }
@@ -410,12 +352,6 @@ function bind() {
   $('copyInvite').addEventListener('click', event => run(event.currentTarget, async () => {
     await navigator.clipboard.writeText($('inviteLink').value); notice('Link di invito copiato.');
   }));
-  $('legacyFile').addEventListener('change', event => run(null, async () => {
-    const file = event.currentTarget.files?.[0]; if (!file) return;
-    if (file.size > 5_000_000) throw Error('Il backup supera 5 MB.');
-    prepareLegacyMapping(JSON.parse(await file.text()));
-  }));
-  $('importLegacy').addEventListener('click', event => run(event.currentTarget, importLegacy));
   $('exportCsv').addEventListener('click', exportCsv);
   $('exportPng').addEventListener('click', exportPng);
   $('exportPdf').addEventListener('click', () => window.print());
@@ -426,7 +362,6 @@ async function start() {
   if ('serviceWorker' in navigator && location.protocol === 'https:') {
     navigator.serviceWorker.register('./sw.js').catch(() => {});
   }
-  showLegacy('legacySetup'); showLegacy('legacyLogin'); showLegacy('legacyWorkspace');
   CATEGORIES.forEach(category => $('expenseForm').elements.category.add(new Option(category, category)));
   $('expenseForm').elements.spentOn.value = new Date().toISOString().slice(0, 10);
   bind();

@@ -35,12 +35,9 @@ create table if not exists public.shared_expenses (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   deleted_at timestamptz,
-  deleted_by uuid references auth.users(id),
-  legacy_key text
+  deleted_by uuid references auth.users(id)
 );
 create index if not exists shared_expenses_group_date on public.shared_expenses (group_id, spent_on desc);
-create unique index if not exists shared_expenses_legacy_key on public.shared_expenses (group_id, legacy_key)
-  where legacy_key is not null;
 
 create table if not exists public.expense_events (
   id bigint generated always as identity primary key,
@@ -187,30 +184,6 @@ begin
 end;
 $$;
 
--- The group owner maps names in an old local backup to approved accounts.
--- Import time and actor are recorded honestly; original authors cannot be inferred from local data.
-create or replace function public.import_legacy_expense(
-  p_group uuid, p_legacy_key text, p_description text, p_amount_cents integer,
-  p_spent_on date, p_category text, p_paid_by uuid, p_split_between uuid[])
-returns uuid language plpgsql security definer set search_path = '' as $$
-declare v_id uuid; v_user uuid := auth.uid();
-begin
-  if not public.owns_expense_group(p_group) then raise exception 'Solo chi amministra può importare le vecchie spese'; end if;
-  if length(coalesce(p_legacy_key, '')) not between 1 and 200 then raise exception 'Identificativo importazione non valido'; end if;
-  perform public.validate_expense_split(p_group, p_split_between);
-  if not exists(select 1 from public.expense_members where group_id = p_group and user_id = p_paid_by and status = 'active') then
-    raise exception 'Il pagatore deve essere un partecipante approvato';
-  end if;
-  insert into public.shared_expenses(group_id, legacy_key, description, amount_cents, spent_on,
-    category, paid_by, split_between, created_by, updated_by)
-    values(p_group, p_legacy_key, trim(p_description), p_amount_cents, p_spent_on,
-      p_category, p_paid_by, p_split_between, v_user, v_user)
-    on conflict (group_id, legacy_key) where legacy_key is not null do nothing returning id into v_id;
-  if v_id is null then select id into v_id from public.shared_expenses where group_id = p_group and legacy_key = p_legacy_key; end if;
-  return v_id;
-end;
-$$;
-
 create or replace function public.delete_shared_expense(p_id uuid)
 returns void language plpgsql security definer set search_path = '' as $$
 declare v_exp public.shared_expenses%rowtype; v_user uuid := auth.uid();
@@ -271,7 +244,6 @@ grant execute on function public.is_expense_member(uuid), public.has_expense_mem
   public.expense_invite_code(uuid),
   public.add_shared_expense(uuid,text,integer,date,text,uuid[]),
   public.edit_shared_expense(uuid,text,integer,date,text,uuid[]),
-  public.import_legacy_expense(uuid,text,text,integer,date,text,uuid,uuid[]),
   public.delete_shared_expense(uuid), public.restore_shared_expense(uuid) to authenticated;
 
 do $$ begin
