@@ -1,7 +1,14 @@
-import { CATEGORIES, balancesFor, euro, expensesInPeriod, totalsByCategory } from './finance.mjs';
+import { CATEGORIES, balancesFor, categoryLabel, euro, expensesInPeriod, totalsByCategory } from './finance.mjs';
 
 const $ = id => document.getElementById(id);
 const palette = ['#6251c8', '#15a7a1', '#f3a94e', '#e76e91', '#688bc9', '#a9a3b8'];
+const categoryColor = category => {
+  const index = CATEGORIES.indexOf(category);
+  if (index >= 0) return palette[index];
+  let hash = 0;
+  for (const letter of category) hash = (hash * 31 + letter.codePointAt(0)) >>> 0;
+  return `hsl(${hash % 360} 55% 48%)`;
+};
 const config = window.EXPENSE_APP_CONFIG || {};
 const state = { client: null, user: null, groups: [], memberships: [], group: null,
   members: [], expenses: [], events: [], editing: null, channel: null, refreshTimer: null };
@@ -13,6 +20,10 @@ const make = (tag, className = '', content = '') => {
 };
 const dateLabel = value => value ? new Intl.DateTimeFormat('it-IT').format(new Date(`${value}T12:00:00`)) : '';
 const timeLabel = value => value ? new Intl.DateTimeFormat('it-IT', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value)) : '';
+const today = () => {
+  const date = new Date();
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+};
 const memberName = id => state.members.find(member => member.user_id === id)?.display_name || 'Partecipante';
 const currentMember = () => state.members.find(member => member.user_id === state.user?.id);
 const isOwner = () => currentMember()?.role === 'owner';
@@ -46,7 +57,6 @@ async function renderSession(session) {
   state.user = session?.user || null;
   $('login').classList.toggle('hidden', !!state.user);
   $('workspace').classList.toggle('hidden', !state.user);
-  $('logout').classList.toggle('hidden', !state.user);
   if (!state.user) {
     if (state.channel) { await state.client.removeChannel(state.channel); state.channel = null; }
     $('groupContent').classList.add('hidden'); state.group = null; return;
@@ -145,7 +155,7 @@ function renderExpenses() {
   active.forEach(expense => {
     const card = make('article', 'expense-item'); const head = make('div', 'item-head');
     head.append(make('div', 'item-title', expense.description), make('div', 'amount', euro(expense.amount_cents)));
-    card.append(head, make('p', 'meta', `${expense.category} · ${dateLabel(expense.spent_on)} · Pagata da ${memberName(expense.paid_by)}`));
+    card.append(head, make('p', 'meta', `${categoryLabel(expense)} · ${dateLabel(expense.spent_on)} · Pagata da ${memberName(expense.paid_by)}`));
     card.append(make('p', 'meta', `Divisa tra ${expense.split_between.map(memberName).join(', ')}`));
     card.append(make('p', 'meta', `Inserita da ${memberName(expense.created_by)} il ${timeLabel(expense.created_at)}${expense.updated_at !== expense.created_at ? ` · Modificata da ${memberName(expense.updated_by)} il ${timeLabel(expense.updated_at)}` : ''}`));
     if (expense.created_by === state.user.id || isOwner()) {
@@ -167,16 +177,25 @@ function startEdit(expense) {
   form.elements.amount.value = (expense.amount_cents / 100).toFixed(2);
   form.elements.spentOn.value = expense.spent_on;
   form.elements.category.value = expense.category;
+  form.elements.categoryDetail.value = expense.category_detail || '';
+  updateOtherCategoryField();
   document.querySelectorAll('#splitChoices input').forEach(input => { input.checked = expense.split_between.includes(input.value); });
   $('formTitle').textContent = 'Modifica spesa'; $('saveExpense').textContent = 'Salva modifiche';
   $('cancelEdit').classList.remove('hidden'); form.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 function clearForm() {
   state.editing = null; $('expenseForm').reset();
-  $('expenseForm').elements.spentOn.value = new Date().toISOString().slice(0, 10);
+  $('expenseForm').elements.spentOn.value = today();
+  updateOtherCategoryField();
   $('formTitle').textContent = 'Aggiungi una spesa'; $('saveExpense').textContent = 'Salva spesa';
   $('cancelEdit').classList.add('hidden');
   document.querySelectorAll('#splitChoices input').forEach(input => { input.checked = true; });
+}
+function updateOtherCategoryField() {
+  const other = $('expenseForm').elements.category.value === 'Altro';
+  $('otherCategoryField').classList.toggle('hidden', !other);
+  $('expenseForm').elements.categoryDetail.required = other;
+  if (!other) $('expenseForm').elements.categoryDetail.value = '';
 }
 function renderDashboard() {
   const filtered = expensesInPeriod(state.expenses, $('filterFrom').value, $('filterTo').value, $('filterPayer').value);
@@ -192,7 +211,7 @@ function renderDashboard() {
   let offset = 0; const circumference = 2 * Math.PI * 88;
   rows.forEach((row, index) => {
     const slice = document.createElementNS(svgNS, 'circle');
-    for (const [key, value] of Object.entries({ cx: 120, cy: 120, r: 88, fill: 'none', stroke: palette[CATEGORIES.indexOf(row.category)], 'stroke-width': 27,
+    for (const [key, value] of Object.entries({ cx: 120, cy: 120, r: 88, fill: 'none', stroke: categoryColor(row.category), 'stroke-width': 27,
       'stroke-dasharray': `${circumference * row.percentage / 100} ${circumference}`, 'stroke-dashoffset': -circumference * offset / 100,
       transform: 'rotate(-90 120 120)' })) slice.setAttribute(key, value);
     svg.append(slice); offset += row.percentage;
@@ -205,7 +224,7 @@ function renderDashboard() {
   const list = $('categoryRows'); list.replaceChildren();
   if (!rows.length) empty(list, 'Le categorie compariranno dopo la prima spesa nel periodo scelto.');
   rows.forEach(row => {
-    const color = palette[CATEGORIES.indexOf(row.category)]; const item = make('div', 'category-row');
+    const color = categoryColor(row.category); const item = make('div', 'category-row');
     const label = make('span', 'category-name'); const swatch = make('span', 'swatch'); swatch.style.backgroundColor = color;
     label.append(swatch, document.createTextNode(row.category));
     item.append(label, make('strong', '', `${euro(row.cents)} · ${new Intl.NumberFormat('it-IT', { maximumFractionDigits: 1 }).format(row.percentage)}%`));
@@ -231,7 +250,7 @@ function renderHistory() {
     if (event.action === 'edited' && before && after) {
       const changes = [];
       if (before.amount_cents !== after.amount_cents) changes.push(`importo: ${euro(before.amount_cents)} → ${euro(after.amount_cents)}`);
-      if (before.category !== after.category) changes.push(`categoria: ${before.category} → ${after.category}`);
+      if (categoryLabel(before) !== categoryLabel(after)) changes.push(`categoria: ${categoryLabel(before)} → ${categoryLabel(after)}`);
       if (before.description !== after.description) changes.push(`descrizione: ${before.description} → ${after.description}`);
       if (before.spent_on !== after.spent_on) changes.push(`data: ${dateLabel(before.spent_on)} → ${dateLabel(after.spent_on)}`);
       if (JSON.stringify(before.split_between) !== JSON.stringify(after.split_between)) changes.push('partecipanti alla spesa aggiornati');
@@ -253,7 +272,7 @@ async function renderPeople() {
   state.members.forEach(member => {
     const card = make('div', 'person-item');
     card.append(make('strong', '', `${member.display_name}${member.role === 'owner' ? ' · amministratore' : ''}`));
-    card.append(make('p', 'meta', member.status === 'pending' ? `In attesa di approvazione · ${member.email}` : (owner ? member.email : 'Partecipante approvato')));
+    card.append(make('p', 'meta', member.status === 'pending' ? 'In attesa di approvazione' : 'Nel gruppo'));
     if (owner && member.status === 'pending') card.append(actionButton('Approva partecipante', '', async () => {
       await rpc('approve_expense_member', { p_group: state.group.id, p_user: member.user_id });
       await refreshCurrent(); notice(`${member.display_name} può ora vedere il gruppo.`);
@@ -275,7 +294,7 @@ function selectedExpenses() { return expensesInPeriod(state.expenses, $('filterF
 function csvCell(value) { return `"${String(value ?? '').replaceAll('"', '""')}"`; }
 function exportCsv() {
   const headings = ['Data', 'Descrizione', 'Categoria', 'Importo EUR', 'Pagatore', 'Partecipanti', 'Inserita da', 'Inserita il', 'Modificata da', 'Modificata il'];
-  const rows = selectedExpenses().map(expense => [expense.spent_on, expense.description, expense.category,
+  const rows = selectedExpenses().map(expense => [expense.spent_on, expense.description, categoryLabel(expense),
     (expense.amount_cents / 100).toFixed(2).replace('.', ','), memberName(expense.paid_by), expense.split_between.map(memberName).join('; '),
     memberName(expense.created_by), timeLabel(expense.created_at), memberName(expense.updated_by), timeLabel(expense.updated_at)]);
   download('spese-gruppo.csv', '\ufeff' + [headings, ...rows].map(row => row.map(csvCell).join(';')).join('\r\n'), 'text/csv;charset=utf-8');
@@ -292,12 +311,12 @@ function exportPng() {
   if (!rows.length) { ctx.beginPath(); ctx.arc(210, 335, 100, 0, Math.PI * 2); ctx.strokeStyle = '#e9e7f0'; ctx.lineWidth = 42; ctx.stroke(); }
   rows.forEach(row => {
     ctx.beginPath(); ctx.arc(210, 335, 100, start, start + 2 * Math.PI * row.percentage / 100);
-    ctx.strokeStyle = palette[CATEGORIES.indexOf(row.category)]; ctx.lineWidth = 42; ctx.stroke();
+    ctx.strokeStyle = categoryColor(row.category); ctx.lineWidth = 42; ctx.stroke();
     start += 2 * Math.PI * row.percentage / 100;
   });
   rows.forEach((row, i) => {
     const y = 247 + i * 70;
-    ctx.fillStyle = palette[CATEGORIES.indexOf(row.category)]; ctx.fillRect(400, y - 19, 22, 22);
+    ctx.fillStyle = categoryColor(row.category); ctx.fillRect(400, y - 19, 22, 22);
     ctx.font = '25px sans-serif'; ctx.fillStyle = '#302c43'; ctx.fillText(row.category, 438, y);
     ctx.fillText(`${euro(row.cents)}   ${row.percentage.toFixed(1).replace('.', ',')}%`, 770, y);
   });
@@ -311,7 +330,6 @@ function bind() {
   $('githubLogin').addEventListener('click', event => run(event.currentTarget, async () => {
     await response(state.client.auth.signInWithOAuth({ provider: 'github', options: { redirectTo: location.origin + location.pathname + location.search } }));
   }));
-  $('logout').addEventListener('click', event => run(event.currentTarget, async () => { await response(state.client.auth.signOut()); await renderSession(null); }));
   $('createForm').addEventListener('submit', event => { event.preventDefault(); const form = event.currentTarget; run(event.submitter, async () => {
     const data = new FormData(form);
     const id = await rpc('create_expense_group', { p_name: data.get('groupName'), p_display_name: data.get('displayName') });
@@ -323,9 +341,10 @@ function bind() {
     let code = String(data.get('invite')).trim();
     try { code = new URL(code).searchParams.get('invite') || ''; } catch { /* A bare UUID is accepted. */ }
     if (!/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(code)) throw Error('Incolla un codice o link di invito valido.');
-    await rpc('request_expense_membership', { p_code: code, p_display_name: data.get('displayName') });
-    form.reset(); $('joinDetails').open = false; await refreshGroups();
-    notice('Richiesta inviata. Il gruppo apparirà dopo l’approvazione.');
+    const id = await rpc('request_expense_membership', { p_code: code, p_display_name: data.get('displayName') });
+    form.reset(); $('joinDetails').open = false;
+    sessionStorage.setItem('selectedExpenseGroup', id); state.group = null; await refreshGroups();
+    notice('Benvenuto nel gruppo. Le spese sono ora condivise.');
   }); });
   $('expenseForm').addEventListener('submit', event => { event.preventDefault(); const form = event.currentTarget; run(event.submitter, async () => {
     const data = new FormData(form);
@@ -334,12 +353,15 @@ function bind() {
     const people = [...document.querySelectorAll('#splitChoices input:checked')].map(input => input.value);
     if (!people.length) throw Error('Seleziona almeno un partecipante alla spesa.');
     const args = { p_description: String(data.get('description')).trim(), p_amount_cents: cents,
-      p_spent_on: data.get('spentOn'), p_category: data.get('category'), p_split_between: people };
-    if (state.editing) await rpc('edit_shared_expense', { p_id: state.editing, ...args });
-    else await rpc('add_shared_expense', { p_group: state.group.id, ...args });
+      p_spent_on: data.get('spentOn'), p_category: data.get('category'),
+      p_category_detail: data.get('category') === 'Altro' ? String(data.get('categoryDetail')).trim() : null,
+      p_split_between: people };
+    if (state.editing) await rpc('edit_shared_expense_v2', { p_id: state.editing, ...args });
+    else await rpc('add_shared_expense_v2', { p_group: state.group.id, ...args });
     clearForm(); await refreshCurrent(); notice('Spesa salvata e condivisa con il gruppo.');
   }); });
   $('cancelEdit').addEventListener('click', clearForm);
+  $('expenseForm').elements.category.addEventListener('change', updateOtherCategoryField);
   for (const tab of document.querySelectorAll('[data-tab]')) tab.addEventListener('click', () => {
     document.querySelectorAll('[data-tab]').forEach(button => button.classList.toggle('active', button === tab));
     for (const name of ['expenses', 'dashboard', 'history', 'people']) $(`${name}Tab`).classList.toggle('hidden', name !== tab.dataset.tab);
@@ -347,6 +369,11 @@ function bind() {
   for (const id of ['filterFrom', 'filterTo', 'filterPayer']) $(id).addEventListener('change', renderDashboard);
   $('copyInvite').addEventListener('click', event => run(event.currentTarget, async () => {
     await navigator.clipboard.writeText($('inviteLink').value); notice('Link di invito copiato.');
+  }));
+  $('rotateInvite').addEventListener('click', event => run(event.currentTarget, async () => {
+    if (!confirm('Rinnovare il link? Il link precedente non permetterà nuovi ingressi.')) return;
+    await rpc('rotate_expense_invite_code', { p_group: state.group.id });
+    await renderPeople(); notice('Link rinnovato. Copia e condividi quello nuovo.');
   }));
   $('exportCsv').addEventListener('click', exportCsv);
   $('exportPng').addEventListener('click', exportPng);
@@ -359,7 +386,7 @@ async function start() {
     navigator.serviceWorker.register('./sw.js').catch(() => {});
   }
   CATEGORIES.forEach(category => $('expenseForm').elements.category.add(new Option(category, category)));
-  $('expenseForm').elements.spentOn.value = new Date().toISOString().slice(0, 10);
+  $('expenseForm').elements.spentOn.value = today();
   bind();
   if (!config.supabaseUrl || !config.publishableKey || !window.supabase?.createClient) {
     $('setup').classList.remove('hidden'); return;
@@ -369,8 +396,14 @@ async function start() {
     setTimeout(() => run(null, () => renderSession(session)), 0);
   });
   const { data, error } = await state.client.auth.getSession();
-  if (error) notice(error.message, true);
-  await renderSession(data?.session || null);
+  if (error) throw new Error(`Accesso non disponibile: ${error.message}`);
+  let session = data?.session;
+  if (!session) {
+    const anonymous = await state.client.auth.signInAnonymously();
+    if (anonymous.error) throw new Error('Impossibile aprire l’app senza account. Riprova tra poco.');
+    session = anonymous.data.session;
+  }
+  await renderSession(session);
   const invite = new URL(location.href).searchParams.get('invite');
   if (invite) { $('joinDetails').open = true; $('joinForm').elements.invite.value = invite; }
   setInterval(() => { if (state.user) run(null, refreshGroups); }, 30000);
