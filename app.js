@@ -1,4 +1,4 @@
-import { CATEGORIES, balancesFor, categoryLabel, euro, expensesInPeriod, totalsByCategory } from './finance.mjs';
+import { CATEGORIES, balancesFor, categoryLabel, euro, expensesInPeriod, totalsByCategory } from './finance.mjs?v=5';
 
 const $ = id => document.getElementById(id);
 const palette = ['#6251c8', '#15a7a1', '#f3a94e', '#e76e91', '#688bc9', '#a9a3b8'];
