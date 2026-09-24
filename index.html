@@ -20,7 +20,6 @@
   <div class="shell">
     <header class="topbar">
       <div><span class="eyebrow">LE SPESE INSIEME</span><h1>Gestione spese <span>by Ezio</span></h1></div>
-      <button id="logout" class="quiet hidden" type="button">Esci</button>
     </header>
     <div id="notice" class="notice hidden" role="status" aria-live="polite"></div>
     <section id="setup" class="panel intro hidden">
@@ -28,13 +27,7 @@
       <h2>La versione condivisa è pronta per il collegamento</h2>
       <p>Per attivare la sincronizzazione, configura il progetto Supabase seguendo <a href="SETUP.md">la guida di installazione</a>. Il gruppo partirà senza spese: la versione attuale rimane consultabile sul dispositivo in cui è stata usata.</p>
     </section>
-    <section id="login" class="panel intro hidden">
-      <span class="pill">Gruppo privato · aggiornamenti in tempo reale</span>
-      <h2>Le spese di tutti, sempre chiare.</h2>
-      <p>Entra con il tuo account. Il gruppo vede chi aggiunge, modifica o elimina una spesa.</p>
-      <button id="githubLogin" class="primary" type="button">Continua con GitHub</button>
-      <p class="hint">Accedi con un account GitHub personale. Gli inviti ai gruppi richiedono l’approvazione di chi li amministra.</p>
-    </section>
+    <section id="login" class="panel intro hidden"><h2>Preparazione in corso…</h2><p>Stiamo aprendo il tuo spazio personale.</p></section>
     <main id="workspace" class="hidden">
       <section class="panel group-panel">
         <div class="section-head"><div><span class="eyebrow dark">IL TUO SPAZIO</span><h2>Gruppi</h2></div><span id="syncStatus" class="status">Collegamento…</span></div>
@@ -43,8 +36,11 @@
           <form id="createForm" class="form-stack"><label>Nome del gruppo<input name="groupName" required maxlength="80" placeholder="Per esempio: Vacanza in moto"></label><label>Il tuo nome nel gruppo<input name="displayName" required maxlength="60" placeholder="Ezio"></label><button type="submit" class="primary">Crea gruppo</button></form>
         </details>
         <details id="joinDetails"><summary>Hai ricevuto un invito?</summary>
-          <form id="joinForm" class="form-stack"><label>Codice o link di invito<input name="invite" required placeholder="Incolla qui l’invito"></label><label>Il tuo nome nel gruppo<input name="displayName" required maxlength="60" placeholder="Come ti riconosceranno"></label><button type="submit" class="primary">Chiedi di partecipare</button></form>
+          <form id="joinForm" class="form-stack"><label>Codice o link di invito<input name="invite" required placeholder="Incolla qui l’invito"></label><label>Il tuo nome nel gruppo<input name="displayName" required maxlength="60" placeholder="Come ti riconosceranno"></label><button type="submit" class="primary">Entra nel gruppo</button></form>
         </details>
+        <p id="browserAccessHint" class="hint">Il tuo accesso resta su questo browser. Se cambi telefono o cancelli i dati del browser, potresti perdere l’accesso ai gruppi creati qui.</p>
+        <details id="googleDetails" class="hidden"><summary>Accesso Google facoltativo</summary><p id="googleHelp" class="hint"></p><button id="googleAccess" class="quiet" type="button">Collega Google</button><button id="googleRecover" class="quiet hidden" type="button">Ho già usato Google: recupera i gruppi</button></details>
+        <details id="legacyDetails"><summary>Hai già un gruppo collegato a GitHub?</summary><p class="hint">Usa questo accesso solo per recuperare i gruppi creati con la versione precedente.</p><button id="githubLogin" class="quiet" type="button">Recupera con GitHub</button></details>
       </section>
       <div id="groupContent" class="hidden">
         <section class="group-heading"><div><span class="eyebrow">GRUPPO SELEZIONATO</span><h2 id="groupTitle"></h2></div><span id="memberCount" class="chip"></span></section>
@@ -60,6 +56,7 @@
               <label>Descrizione<input name="description" required maxlength="160" placeholder="Per esempio: Cena al ristorante"></label>
               <div class="two-cols"><label>Importo in euro<input name="amount" type="number" inputmode="decimal" min="0.01" max="1000000" step="0.01" required placeholder="0,00"></label><label>Data<input name="spentOn" type="date" required></label></div>
               <label>Categoria<select name="category" required></select></label>
+              <label id="otherCategoryField" class="hidden">Quale voce? <input name="categoryDetail" maxlength="60" placeholder="Per esempio: Musei, parcheggio, souvenir"></label>
               <div><span class="field-label">Chi partecipa alla spesa?</span><div id="splitChoices" class="check-grid"></div></div>
               <p class="hint">Pagatore: <strong id="currentPayer"></strong>. Ogni persona registra le spese che ha pagato.</p>
               <div class="actions"><button id="saveExpense" type="submit" class="primary">Salva spesa</button><button id="cancelEdit" type="button" class="quiet hidden">Annulla modifica</button></div>
@@ -77,10 +74,10 @@
           <div class="panel balances"><h3>Bilanci del gruppo</h3><p class="hint">Saldo positivo: ha anticipato denaro. Saldo negativo: deve contribuire.</p><div id="balancesList"></div></div>
         </section>
         <section id="historyTab" class="tab-content hidden"><div class="panel"><h3>Attività del gruppo</h3><p class="hint">Ogni intervento conserva autore, ora e valori precedenti.</p><div id="historyList" class="item-list"></div></div></section>
-        <section id="peopleTab" class="tab-content hidden"><div class="panel"><h3>Partecipanti</h3><div id="peopleList" class="item-list"></div><div id="inviteBox" class="hidden"><h4>Invita altre persone</h4><p class="hint">Condividi questo link solo con le persone che vuoi invitare. Approverai tu il loro ingresso.</p><div class="inline-controls"><input id="inviteLink" readonly aria-label="Link di invito"><button id="copyInvite" type="button">Copia link</button></div></div></div></section>
+        <section id="peopleTab" class="tab-content hidden"><div class="panel"><h3>Partecipanti</h3><div id="peopleList" class="item-list"></div><div id="inviteBox" class="hidden"><h4>Invita altre persone</h4><p class="hint">Chi riceve questo link inserisce il proprio nome ed entra nel gruppo. Condividilo solo con le persone desiderate.</p><div class="inline-controls"><input id="inviteLink" readonly aria-label="Link di invito"><button id="copyInvite" type="button">Copia link</button></div><button id="rotateInvite" type="button" class="quiet">Rinnova link d’invito</button><p class="hint">Se il link è stato inoltrato ad altri, rinnovalo: il precedente non permetterà nuovi ingressi.</p></div></div></section>
       </div>
     </main>
-    <footer>Gestione spese by Ezio · I dati del gruppo sono visibili solo ai membri approvati.</footer>
+    <footer>Gestione spese by Ezio · I dati del gruppo sono visibili solo ai partecipanti.</footer>
   </div>
 </body>
 </html>

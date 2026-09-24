@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { balancesFor, expensesInPeriod, totalsByCategory } from '../finance.mjs';
+import { balancesFor, categoryLabel, expensesInPeriod, totalsByCategory } from '../finance.mjs';
 
 test('category totals use euro cents and add to 100 percent', () => {
   const result = totalsByCategory([
@@ -12,6 +12,18 @@ test('category totals use euro cents and add to 100 percent', () => {
   ]);
   assert.equal(result.overall, 24000);
   assert.deepEqual(result.rows.map(row => row.percentage), [50, 25, 12.5, 12.5]);
+});
+
+test('custom Altro labels appear separately in the category chart', () => {
+  const result = totalsByCategory([
+    { category: 'Altro', category_detail: 'Musei', amount_cents: 1500 },
+    { category: 'Altro', category_detail: 'Musei', amount_cents: 500 },
+    { category: 'Altro', category_detail: 'Souvenir', amount_cents: 1000 },
+    { category: 'Altro', amount_cents: 1000 }
+  ]);
+  assert.deepEqual(result.rows.map(({ category, cents }) => [category, cents]),
+    [['Altro · Musei', 2000], ['Altro · Souvenir', 1000], ['Altro', 1000]]);
+  assert.equal(categoryLabel({ category: 'Altro', category_detail: '  Cibo ' }), 'Altro · Cibo');
 });
 
 test('splits odd cents exactly without losing a cent', () => {

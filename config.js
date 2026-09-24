@@ -2,5 +2,6 @@
 // Never put a secret API key or service_role key in this file.
 window.EXPENSE_APP_CONFIG = {
   supabaseUrl: 'https://xgtreqiunwbiqihfxoiv.supabase.co',
-  publishableKey: 'sb_publishable_G4RLkHY1-S5G2URiyU8NtA_TLKHps19'
+  publishableKey: 'sb_publishable_G4RLkHY1-S5G2URiyU8NtA_TLKHps19',
+  googleEnabled: false // Set true only after configuring Google OAuth in Supabase.
 };

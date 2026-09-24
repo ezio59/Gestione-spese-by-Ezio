@@ -1,16 +1,25 @@
 export const CATEGORIES = ['Cibo', 'Carburante', 'Bar', 'Alloggio', 'Pedaggi', 'Altro'];
 
+export function categoryLabel(expense) {
+  const category = CATEGORIES.includes(expense.category) ? expense.category : 'Altro';
+  const detail = expense.category_detail?.trim();
+  return category === 'Altro' && detail ? `Altro · ${detail}` : category;
+}
+
 export function euro(cents) {
   return new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(cents / 100);
 }
 
 export function totalsByCategory(expenses) {
-  const totals = Object.fromEntries(CATEGORIES.map(category => [category, 0]));
+  const totals = new Map();
   for (const expense of expenses) {
-    if (!expense.deleted_at) totals[CATEGORIES.includes(expense.category) ? expense.category : 'Altro'] += expense.amount_cents;
+    if (!expense.deleted_at) {
+      const category = categoryLabel(expense);
+      totals.set(category, (totals.get(category) || 0) + expense.amount_cents);
+    }
   }
-  const overall = Object.values(totals).reduce((sum, cents) => sum + cents, 0);
-  return { overall, rows: Object.entries(totals).filter(([, cents]) => cents > 0)
+  const overall = [...totals.values()].reduce((sum, cents) => sum + cents, 0);
+  return { overall, rows: [...totals.entries()].filter(([, cents]) => cents > 0)
     .map(([category, cents]) => ({ category, cents, percentage: overall ? cents * 100 / overall : 0 }))
     .sort((a, b) => b.cents - a.cents) };
 }
