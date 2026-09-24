@@ -54,7 +54,13 @@ const download = (name, contents, type) => {
 };
 
 async function renderSession(session) {
+  const previousUserId = state.user?.id;
   state.user = session?.user || null;
+  if (previousUserId && previousUserId !== state.user?.id) {
+    if (state.channel) { await state.client.removeChannel(state.channel); state.channel = null; }
+    state.group = null; state.members = []; state.expenses = []; state.events = [];
+    $('groupContent').classList.add('hidden'); sessionStorage.removeItem('selectedExpenseGroup');
+  }
   $('login').classList.toggle('hidden', !!state.user);
   $('workspace').classList.toggle('hidden', !state.user);
   if (!state.user) {
@@ -87,6 +93,12 @@ async function refreshGroups() {
   const ids = state.memberships.map(item => item.group_id);
   state.groups = ids.length ? await response(state.client.from('expense_groups')
     .select('id,name,created_by,created_at').in('id', ids)) : [];
+  if (state.group && !state.groups.some(group => group.id === state.group.id &&
+      state.memberships.some(member => member.group_id === group.id && member.status === 'active'))) {
+    if (state.channel) { await state.client.removeChannel(state.channel); state.channel = null; }
+    state.group = null; $('groupContent').classList.add('hidden');
+  }
+  if (!state.group) { $('syncStatus').textContent = 'Pronto'; $('syncStatus').classList.remove('offline'); }
   renderGoogleAccess();
   const list = $('groupsList'); list.replaceChildren();
   if (!state.groups.length) empty(list, 'Crea un gruppo o chiedi di entrare con un invito.');
