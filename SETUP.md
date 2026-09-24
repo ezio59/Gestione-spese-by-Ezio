@@ -10,7 +10,9 @@ L'accesso GitHub resta disponibile nella voce **Hai già un gruppo collegato a G
 
 Il Site URL e il redirect consentito sono impostati sul sito GitHub Pages. Le credenziali OAuth non devono essere copiate nel repository.
 
-Per recuperare un'identità su più dispositivi in futuro servirà un metodo di accesso esplicito. La vecchia modalità GitHub è disponibile; per Google servono un progetto Google Cloud e le sue credenziali OAuth.
+L'accesso Google è facoltativo. Per attivarlo servono un progetto Google Cloud e un client OAuth **Applicazione web**: aggiungi `https://ezio59.github.io` alle origini JavaScript autorizzate e `https://xgtreqiunwbiqihfxoiv.supabase.co/auth/v1/callback` agli URI di reindirizzamento autorizzati. Nella schermata di consenso configura gli utenti ammessi secondo le opzioni di Google. Copia **Client ID e Client Secret soltanto** in **Supabase Authentication → Sign In / Providers → Google** e abilita il provider. Attiva anche **Allow manual linking** in **Sign In / Providers**, necessario per collegare Google a un gruppo già creato senza account. Infine imposta `googleEnabled: true` in `config.js`; non inserire il secret in quel file o su GitHub.
+
+Da un browser che ha già un gruppo, scegli **Collega Google a questi gruppi** per conservare l'identità e i dati: Supabase collega Google allo stesso utente. Da un altro browser scegli **Accedi con Google** per ritrovare i gruppi collegati. Se l'account Google era già in uso, il collegamento può non riuscire: il pulsante di recupero consente di entrare nell'account esistente, ma non sposta automaticamente i gruppi dell'identità anonima. La vecchia modalità GitHub resta disponibile per recuperare i gruppi creati in precedenza.
 
 ## Prima prova con un altro partecipante
 

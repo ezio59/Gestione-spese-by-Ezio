@@ -38,7 +38,8 @@
         <details id="joinDetails"><summary>Hai ricevuto un invito?</summary>
           <form id="joinForm" class="form-stack"><label>Codice o link di invito<input name="invite" required placeholder="Incolla qui l’invito"></label><label>Il tuo nome nel gruppo<input name="displayName" required maxlength="60" placeholder="Come ti riconosceranno"></label><button type="submit" class="primary">Entra nel gruppo</button></form>
         </details>
-        <p class="hint">Il tuo accesso resta su questo browser. Se cambi telefono o cancelli i dati del browser, potresti perdere l’accesso ai gruppi creati qui.</p>
+        <p id="browserAccessHint" class="hint">Il tuo accesso resta su questo browser. Se cambi telefono o cancelli i dati del browser, potresti perdere l’accesso ai gruppi creati qui.</p>
+        <details id="googleDetails" class="hidden"><summary>Accesso Google facoltativo</summary><p id="googleHelp" class="hint"></p><button id="googleAccess" class="quiet" type="button">Collega Google</button><button id="googleRecover" class="quiet hidden" type="button">Ho già usato Google: recupera i gruppi</button></details>
         <details id="legacyDetails"><summary>Hai già un gruppo collegato a GitHub?</summary><p class="hint">Usa questo accesso solo per recuperare i gruppi creati con la versione precedente.</p><button id="githubLogin" class="quiet" type="button">Recupera con GitHub</button></details>
       </section>
       <div id="groupContent" class="hidden">

@@ -64,12 +64,30 @@ async function renderSession(session) {
   await refreshGroups();
 }
 
+function renderGoogleAccess() {
+  $('googleDetails').classList.toggle('hidden', !config.googleEnabled);
+  $('browserAccessHint').classList.toggle('hidden', !state.user?.is_anonymous);
+  if (!config.googleEnabled || !state.user) return;
+  const linked = state.user.identities?.some(identity => identity.provider === 'google');
+  const hasGroups = state.groups.length > 0;
+  const anonymous = !!state.user.is_anonymous;
+  $('googleAccess').classList.toggle('hidden', !!linked);
+  $('googleRecover').classList.toggle('hidden', !anonymous || !hasGroups);
+  $('googleAccess').textContent = hasGroups ? 'Collega Google a questi gruppi' : 'Accedi con Google';
+  $('googleHelp').textContent = linked
+    ? 'Accesso collegato a Google: potrai ritrovare i tuoi gruppi anche su un altro dispositivo.'
+    : hasGroups
+      ? 'Collega Google per ritrovare questi gruppi anche se cambi telefono. È facoltativo.'
+      : 'Puoi entrare con Google per ritrovare i gruppi che hai già collegato.';
+}
+
 async function refreshGroups() {
   state.memberships = await response(state.client.from('expense_members')
     .select('group_id,user_id,display_name,email,role,status').eq('user_id', state.user.id));
   const ids = state.memberships.map(item => item.group_id);
   state.groups = ids.length ? await response(state.client.from('expense_groups')
     .select('id,name,created_by,created_at').in('id', ids)) : [];
+  renderGoogleAccess();
   const list = $('groupsList'); list.replaceChildren();
   if (!state.groups.length) empty(list, 'Crea un gruppo o chiedi di entrare con un invito.');
   for (const group of state.groups) {
@@ -327,6 +345,15 @@ function exportPng() {
 }
 
 function bind() {
+  $('googleAccess').addEventListener('click', event => run(event.currentTarget, async () => {
+    const options = { redirectTo: location.origin + location.pathname + location.search };
+    if (state.groups.length) await response(state.client.auth.linkIdentity({ provider: 'google', options }));
+    else await response(state.client.auth.signInWithOAuth({ provider: 'google', options }));
+  }));
+  $('googleRecover').addEventListener('click', event => run(event.currentTarget, async () => {
+    if (!confirm('Se usi un account Google già esistente, i gruppi di questo browser potrebbero non essere accessibili. Vuoi continuare?')) return;
+    await response(state.client.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: location.origin + location.pathname + location.search } }));
+  }));
   $('githubLogin').addEventListener('click', event => run(event.currentTarget, async () => {
     await response(state.client.auth.signInWithOAuth({ provider: 'github', options: { redirectTo: location.origin + location.pathname + location.search } }));
   }));
