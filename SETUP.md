@@ -1,6 +1,6 @@
 # Nuova app condivisa
 
-La nuova app non importa le spese della versione locale. [Apri l'app](https://ezio59.github.io/Gestione-spese-by-Ezio/) e crea un gruppo indicando il tuo nome. GitHub Pages ospita l'interfaccia; il progetto Supabase `gestione-spese-ezio` a Francoforte conserva le spese, gestisce gli accessi e invia gli aggiornamenti in tempo reale. Lo schema in [`supabase/schema.sql`](supabase/schema.sql) e la [migrazione](supabase/migrations/20260924_invite_first.sql) vanno applicati in quest'ordine su un progetto nuovo. `config.js` contiene solo l'URL e la chiave pubblicabile; non salvare nel repository chiavi segrete.
+La nuova app non importa le spese della versione locale. [Apri l'app](https://ezio59.github.io/Gestione-spese-by-Ezio/) e crea un gruppo indicando il tuo nome. GitHub Pages ospita l'interfaccia; il progetto Supabase `gestione-spese-ezio` a Francoforte conserva le spese, gestisce gli accessi e invia gli aggiornamenti in tempo reale. Su un progetto nuovo applica nell'ordine [`supabase/schema.sql`](supabase/schema.sql), [`20260924_invite_first.sql`](supabase/migrations/20260924_invite_first.sql) e [`20260924_delete_group.sql`](supabase/migrations/20260924_delete_group.sql). Sul progetto esistente applica soltanto le migrazioni mancanti. `config.js` contiene solo l'URL e la chiave pubblicabile; non salvare nel repository chiavi segrete.
 
 ## Identità e accesso
 

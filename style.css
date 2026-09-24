@@ -5,3 +5,5 @@
 }
 #rotateInvite { margin-top:12px }
 #googleDetails button { margin-top:10px; margin-right:8px }
+.danger-zone { border-top:1px solid #f1d6dd; margin-top:24px; padding-top:18px }
+button.quiet.danger { background:#ffedf0; color:#a13f51 }
