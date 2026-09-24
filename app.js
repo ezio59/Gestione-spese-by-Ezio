@@ -46,6 +46,44 @@ const response = async promise => {
   return result.data;
 };
 const rpc = (name, args) => response(state.client.rpc(name, args));
+async function readyToJoin() {
+  let { data, error } = await state.client.auth.getUser();
+  if (!error && data.user) {
+    if (state.user?.id !== data.user.id) await renderSession({ user: data.user });
+    return;
+  }
+  const current = await state.client.auth.getSession();
+  if (current.error) throw new Error('Sessione non disponibile. Riapri il link di invito e riprova.');
+  const signedIn = current.data.session
+    ? await state.client.auth.refreshSession()
+    : await state.client.auth.signInAnonymously();
+  if (signedIn.error || !signedIn.data.session) {
+    throw new Error('Impossibile ripristinare l’accesso. Apri il link in Safari e riprova.');
+  }
+  ({ data, error } = await state.client.auth.getUser());
+  if (error || !data.user) throw new Error('Accesso non pronto. Riapri il link di invito e riprova.');
+  await renderSession(signedIn.data.session);
+}
+async function joinByInvite(code, displayName) {
+  await readyToJoin();
+  try {
+    return await rpc('request_expense_membership', { p_code: code, p_display_name: displayName });
+  } catch (error) {
+    if (error.code !== '42501' || !error.message?.includes('request_expense_membership')) throw error;
+    const refreshed = await state.client.auth.refreshSession();
+    if (refreshed.error || !refreshed.data.session) {
+      throw new Error('Sessione scaduta. Riapri il link di invito in Safari e riprova.');
+    }
+    try {
+      return await rpc('request_expense_membership', { p_code: code, p_display_name: displayName });
+    } catch (retryError) {
+      if (retryError.code === '42501') {
+        throw new Error('Accesso al gruppo non disponibile. Riapri il link in Safari e riprova.');
+      }
+      throw retryError;
+    }
+  }
+}
 const empty = (target, text) => target.append(make('p', 'empty', text));
 const download = (name, contents, type) => {
   const url = URL.createObjectURL(new Blob([contents], { type }));
@@ -383,7 +421,7 @@ function bind() {
     let code = String(data.get('invite')).trim();
     try { code = new URL(code).searchParams.get('invite') || ''; } catch { /* A bare UUID is accepted. */ }
     if (!/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(code)) throw Error('Incolla un codice o link di invito valido.');
-    const id = await rpc('request_expense_membership', { p_code: code, p_display_name: data.get('displayName') });
+    const id = await joinByInvite(code, data.get('displayName'));
     form.reset(); $('joinDetails').open = false;
     sessionStorage.setItem('selectedExpenseGroup', id); state.group = null; await refreshGroups();
     notice('Benvenuto nel gruppo. Le spese sono ora condivise.');
