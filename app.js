@@ -355,6 +355,8 @@ function bind() {
     await response(state.client.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: location.origin + location.pathname + location.search } }));
   }));
   $('githubLogin').addEventListener('click', event => run(event.currentTarget, async () => {
+    if (state.user?.is_anonymous && state.groups.length &&
+        !confirm('Passando all’account GitHub, i gruppi creati in questo browser senza account potrebbero non essere più accessibili. Vuoi continuare?')) return;
     await response(state.client.auth.signInWithOAuth({ provider: 'github', options: { redirectTo: location.origin + location.pathname + location.search } }));
   }));
   $('createForm').addEventListener('submit', event => { event.preventDefault(); const form = event.currentTarget; run(event.submitter, async () => {
