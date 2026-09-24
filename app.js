@@ -310,7 +310,7 @@ async function renderPeople() {
     list.append(card);
   });
   $('inviteBox').classList.toggle('hidden', !owner);
-  $('deleteGroupBox').classList.toggle('hidden', !owner || state.group.created_by !== state.user.id);
+  $('deleteGroup').classList.toggle('hidden', !owner || state.group.created_by !== state.user.id);
   if (owner) {
     try {
       const code = await rpc('expense_invite_code', { p_group: state.group.id });
@@ -420,7 +420,7 @@ function bind() {
   $('deleteGroup').addEventListener('click', event => run(event.currentTarget, async () => {
     const group = state.group;
     if (!group || !isOwner() || group.created_by !== state.user.id) return;
-    const typed = prompt(`Eliminare definitivamente «${group.name}» e tutte le sue spese e attività? Scrivi il nome esatto del gruppo per confermare:`);
+    const typed = prompt(`Eliminare definitivamente «${group.name}», spese, partecipanti e cronologia? Non si può annullare. Scrivi il nome esatto del gruppo per confermare:`);
     if (typed === null) return;
     if (typed !== group.name) throw Error('Nome diverso: il gruppo non è stato eliminato.');
     await rpc('delete_expense_group', { p_group: group.id, p_confirmation: typed });

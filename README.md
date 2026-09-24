@@ -6,7 +6,7 @@ Web app per dividere spese di gruppo, conoscere i bilanci e vedere dove si è sp
 
 - Accesso automatico senza account: ogni dispositivo ha un'identità privata. Con il link d'invito e il nome si entra nel gruppo; chi crea il gruppo può rinnovare il link. Google è disponibile come accesso facoltativo dopo la configurazione OAuth.
 - Spese visibili in tempo reale ai membri del gruppo. Ogni partecipante inserisce e modifica le proprie spese; l'amministratore può intervenire su tutte.
-- Chi ha creato il gruppo può eliminarlo dalla scheda Partecipanti digitandone il nome. La cancellazione rimuove definitivamente spese, partecipanti e cronologia.
+- Chi ha creato il gruppo trova «Elimina questo gruppo» sotto il nome del gruppo: per confermare deve digitare il nome esatto. La cancellazione rimuove definitivamente spese, partecipanti e cronologia.
 - Cronologia di aggiunte, modifiche, eliminazioni e ripristini con autore e orario del server.
 - Divisione delle spese tra i partecipanti scelti e calcolo dei bilanci.
 - Grafico ad anello con importi e percentuali per categoria, comprese le voci personalizzate di "Altro", filtri per periodo e pagatore, esportazione CSV e PNG e stampa PDF.

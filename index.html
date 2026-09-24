@@ -11,10 +11,10 @@
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="icons/icon-192x192.png">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-  <link rel="stylesheet" href="style.css?v=7">
+  <link rel="stylesheet" href="style.css?v=8">
   <script defer src="config.js?v=5"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/dist/umd/supabase.min.js"></script>
-  <script type="module" src="app.js?v=7"></script>
+  <script type="module" src="app.js?v=8"></script>
 </head>
 <body>
   <div class="shell">
@@ -43,7 +43,7 @@
         <details id="legacyDetails"><summary>Hai già un gruppo collegato a GitHub?</summary><p class="hint">Usa questo accesso solo per recuperare i gruppi creati con la versione precedente.</p><button id="githubLogin" class="quiet" type="button">Recupera con GitHub</button></details>
       </section>
       <div id="groupContent" class="hidden">
-        <section class="group-heading"><div><span class="eyebrow">GRUPPO SELEZIONATO</span><h2 id="groupTitle"></h2></div><span id="memberCount" class="chip"></span></section>
+        <section class="group-heading"><div><span class="eyebrow">GRUPPO SELEZIONATO</span><h2 id="groupTitle"></h2><button id="deleteGroup" type="button" class="quiet danger hidden">Elimina questo gruppo</button></div><span id="memberCount" class="chip"></span></section>
         <nav class="tabs" aria-label="Sezioni del gruppo">
           <button type="button" data-tab="expenses" class="active">Spese</button>
           <button type="button" data-tab="dashboard">Riepilogo</button>
@@ -74,7 +74,7 @@
           <div class="panel balances"><h3>Bilanci del gruppo</h3><p class="hint">Saldo positivo: ha anticipato denaro. Saldo negativo: deve contribuire.</p><div id="balancesList"></div></div>
         </section>
         <section id="historyTab" class="tab-content hidden"><div class="panel"><h3>Attività del gruppo</h3><p class="hint">Ogni intervento conserva autore, ora e valori precedenti.</p><div id="historyList" class="item-list"></div></div></section>
-        <section id="peopleTab" class="tab-content hidden"><div class="panel"><h3>Partecipanti</h3><div id="peopleList" class="item-list"></div><div id="inviteBox" class="hidden"><h4>Invita altre persone</h4><p class="hint">Chi riceve questo link inserisce il proprio nome ed entra nel gruppo. Condividilo solo con le persone desiderate.</p><div class="inline-controls"><input id="inviteLink" readonly aria-label="Link di invito"><button id="copyInvite" type="button">Copia link</button></div><button id="rotateInvite" type="button" class="quiet">Rinnova link d’invito</button><p class="hint">Se il link è stato inoltrato ad altri, rinnovalo: il precedente non permetterà nuovi ingressi.</p></div><div id="deleteGroupBox" class="danger-zone hidden"><h4>Elimina il gruppo</h4><p class="hint">Solo chi lo ha creato può eliminarlo. Tutte le spese, la cronologia e gli inviti saranno cancellati definitivamente per ogni partecipante.</p><button id="deleteGroup" type="button" class="quiet danger">Elimina gruppo definitivamente</button></div></div></section>
+        <section id="peopleTab" class="tab-content hidden"><div class="panel"><h3>Partecipanti</h3><div id="peopleList" class="item-list"></div><div id="inviteBox" class="hidden"><h4>Invita altre persone</h4><p class="hint">Chi riceve questo link inserisce il proprio nome ed entra nel gruppo. Condividilo solo con le persone desiderate.</p><div class="inline-controls"><input id="inviteLink" readonly aria-label="Link di invito"><button id="copyInvite" type="button">Copia link</button></div><button id="rotateInvite" type="button" class="quiet">Rinnova link d’invito</button><p class="hint">Se il link è stato inoltrato ad altri, rinnovalo: il precedente non permetterà nuovi ingressi.</p></div></div></section>
       </div>
     </main>
     <footer>Gestione spese by Ezio · I dati del gruppo sono visibili solo ai partecipanti.</footer>
