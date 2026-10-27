@@ -5,6 +5,9 @@ on:
     # Four checks daily, away from the top of the hour (UTC).
     - cron: '17 1,7,13,19 * * *'
   workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/supabase-activity.yml'
 
 permissions:
   contents: read
