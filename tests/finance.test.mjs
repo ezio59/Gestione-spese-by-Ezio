@@ -42,3 +42,14 @@ test('filters the selected period and payer, excluding deleted expenses', () => 
   ];
   assert.equal(expensesInPeriod(rows, '2026-09-01', '2026-09-30', 'a').length, 1);
 });
+
+
+test('rimborso ricevuto azzera i bilanci senza cambiare la spesa', () => {
+  const members = [{ user_id: 'ezio' }, { user_id: 'lucio' }];
+  const expenses = [{ amount_cents: 9250, paid_by: 'ezio', split_between: ['ezio', 'lucio'] }];
+  const settlements = [{ from_user: 'lucio', to_user: 'ezio', amount_cents: 4625 }];
+  assert.deepEqual(balancesFor(members, expenses, settlements), { ezio: 0, lucio: 0 });
+  assert.equal(totalsByCategory([{ ...expenses[0], category: 'Cibo' }]).overall, 9250);
+  const voided = [{ ...settlements[0], voided_at: '2026-10-29T14:00:00Z' }];
+  assert.deepEqual(balancesFor(members, expenses, voided), { ezio: 4625, lucio: -4625 });
+});
