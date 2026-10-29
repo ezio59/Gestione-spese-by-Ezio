@@ -18,3 +18,11 @@ Una volta attivato l'accesso anonimo e applicata la [migrazione](supabase/migrat
 Per provare in locale: `python3 -m http.server 8000`, poi apri `http://localhost:8000`. Per verificare i calcoli: `node --test tests/finance.test.mjs`.
 
 La nuova app inizia con zero spese. I dati della precedente versione locale non vengono trasferiti.
+
+## Rimborsi e viaggi separati
+
+Nel **Riepilogo** puoi registrare un rimborso realmente avvenuto, indicando chi ha pagato, chi ha ricevuto, importo, data e nota facoltativa. Il rimborso aggiorna i saldi dei partecipanti ma non modifica le spese originali né le statistiche per categoria. Un rimborso registrato per errore può essere annullato senza cancellarne lo storico.
+
+Il pulsante **Archivia e apri nuovo viaggio** crea un gruppo separato con gli stessi partecipanti attivi e saldo iniziale zero. Il gruppo precedente compare come **archiviato**, rimane accessibile e le sue spese possono ancora essere modificate, aggiunte, eliminate o ripristinate secondo le autorizzazioni esistenti. Le correzioni a un viaggio archiviato ricalcolano esclusivamente i saldi di quel viaggio; eventuali rimborsi già registrati restano separati.
+
+Lo schema aggiornato è nelle migrazioni `20261029_settlements_and_followup_trips.sql` e `20261029_archive_trip.sql`.
