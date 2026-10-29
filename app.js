@@ -11,7 +11,7 @@ const categoryColor = category => {
 };
 const config = window.EXPENSE_APP_CONFIG || {};
 const state = { client: null, user: null, groups: [], memberships: [], group: null,
-  members: [], expenses: [], events: [], editing: null, channel: null, refreshTimer: null };
+  members: [], expenses: [], events: [], settlements: [], editing: null, channel: null, refreshTimer: null };
 const make = (tag, className = '', content = '') => {
   const node = document.createElement(tag);
   node.className = className;
@@ -96,7 +96,7 @@ async function renderSession(session) {
   state.user = session?.user || null;
   if (previousUserId && previousUserId !== state.user?.id) {
     if (state.channel) { await state.client.removeChannel(state.channel); state.channel = null; }
-    state.group = null; state.members = []; state.expenses = []; state.events = [];
+    state.group = null; state.members = []; state.expenses = []; state.events = []; state.settlements = [];
     $('groupContent').classList.add('hidden'); sessionStorage.removeItem('selectedExpenseGroup');
   }
   $('login').classList.toggle('hidden', !!state.user);
@@ -170,6 +170,7 @@ async function loadGroup(group) {
   state.channel = state.client.channel(`expenses-${group.id}`)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'shared_expenses', filter: `group_id=eq.${group.id}` }, scheduleRefresh)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'expense_events', filter: `group_id=eq.${group.id}` }, scheduleRefresh)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'expense_settlements', filter: `group_id=eq.${group.id}` }, scheduleRefresh)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'expense_members', filter: `group_id=eq.${group.id}` }, scheduleRefresh)
     .subscribe(status => {
       $('syncStatus').textContent = status === 'SUBSCRIBED' ? 'Sincronizzazione attiva' : 'Riconnessione…';
@@ -184,13 +185,14 @@ function scheduleRefresh() {
 async function refreshCurrent() {
   if (!state.group) return;
   const groupId = state.group.id;
-  const [members, expenses, events] = await Promise.all([
+  const [members, expenses, events, settlements] = await Promise.all([
     response(state.client.from('expense_members').select('group_id,user_id,display_name,email,role,status').eq('group_id', groupId)),
     response(state.client.from('shared_expenses').select('*').eq('group_id', groupId).order('spent_on', { ascending: false })),
-    response(state.client.from('expense_events').select('*').eq('group_id', groupId).order('occurred_at', { ascending: false }).limit(150))
+    response(state.client.from('expense_events').select('*').eq('group_id', groupId).order('occurred_at', { ascending: false }).limit(150)),
+    response(state.client.from('expense_settlements').select('*').eq('group_id', groupId).order('paid_on', { ascending: false }))
   ]);
   if (state.group?.id !== groupId) return;
-  state.members = members; state.expenses = expenses; state.events = events;
+  state.members = members; state.expenses = expenses; state.events = events; state.settlements = settlements;
   renderAll();
 }
 function renderAll() {
@@ -209,7 +211,7 @@ function renderAll() {
   payerFilter.replaceChildren(new Option('Tutti', ''));
   active.forEach(member => payerFilter.add(new Option(member.display_name, member.user_id)));
   payerFilter.value = active.some(member => member.user_id === prev) ? prev : '';
-  renderExpenses(); renderDashboard(); renderHistory(); renderPeople();
+  renderSettlementControls(); renderExpenses(); renderDashboard(); renderHistory(); renderPeople();
 }
 function actionButton(text, className, handler) {
   const button = make('button', className, text);
@@ -299,11 +301,54 @@ function renderDashboard() {
     const track = make('div', 'track'); const fill = make('span'); fill.style.width = `${row.percentage}%`; fill.style.backgroundColor = color; track.append(fill); item.append(track); list.append(item);
   });
   const balanceList = $('balancesList'); balanceList.replaceChildren();
-  const balances = balancesFor(state.members.filter(m => m.status === 'active'), state.expenses);
+  const balances = balancesFor(state.members.filter(m => m.status === 'active'), state.expenses, state.settlements);
   for (const member of state.members.filter(m => m.status === 'active')) {
     const balance = balances[member.user_id] || 0; const row = make('div', 'balance-row');
     row.append(make('span', '', member.display_name), make('strong', balance < 0 ? 'negative' : balance > 0 ? 'positive' : '', euro(balance)));
     balanceList.append(row);
+  }
+  renderSettlements();
+}
+
+function renderSettlementControls() {
+  const members = state.members.filter(member => member.status === 'active');
+  const currentFrom = $('settleFrom').value;
+  const currentTo = $('settleTo').value;
+  const balances = balancesFor(members, state.expenses, state.settlements);
+  const fromDefault = [...members].sort((a, b) => (balances[a.user_id] || 0) - (balances[b.user_id] || 0))[0]?.user_id;
+  const toDefault = [...members].sort((a, b) => (balances[b.user_id] || 0) - (balances[a.user_id] || 0))[0]?.user_id;
+  for (const id of ['settleFrom', 'settleTo']) {
+    const element = $(id);
+    element.replaceChildren();
+    for (const member of members) element.add(new Option(member.display_name, member.user_id));
+  }
+  $('settleFrom').value = members.some(member => member.user_id === currentFrom) ? currentFrom : fromDefault || '';
+  $('settleTo').value = members.some(member => member.user_id === currentTo) ? currentTo : toDefault || '';
+  if ($('settleFrom').value === $('settleTo').value && members.length > 1) {
+    $('settleTo').value = members.find(member => member.user_id !== $('settleFrom').value)?.user_id || '';
+  }
+  $('settleSubmit').disabled = members.length < 2;
+  $('nextTrip').classList.toggle('hidden', !isOwner());
+}
+
+function renderSettlements() {
+  const list = $('settlementList'); list.replaceChildren();
+  if (!state.settlements.length) {
+    empty(list, 'Nessun rimborso registrato per questo viaggio.');
+    return;
+  }
+  for (const item of state.settlements) {
+    const card = make('article', 'activity-item');
+    card.append(make('div', 'item-title', `${memberName(item.from_user)} → ${memberName(item.to_user)}: ${euro(item.amount_cents)}`));
+    card.append(make('p', 'meta', `${dateLabel(item.paid_on)} · Registrato da ${memberName(item.created_by)} il ${timeLabel(item.created_at)}${item.voided_at ? ' · ANNULLATO' : ''}${item.note ? ' · ' + item.note : ''}`));
+    if (!item.voided_at && (item.created_by === state.user?.id || isOwner())) {
+      card.append(actionButton('Annulla rimborso', 'quiet danger', async () => {
+        if (!confirm(`Annullare il rimborso di ${euro(item.amount_cents)} da ${memberName(item.from_user)} a ${memberName(item.to_user)}?`)) return;
+        await rpc('void_expense_settlement', { p_id: item.id });
+        await refreshCurrent(); notice('Rimborso annullato: i saldi sono stati ricalcolati.');
+      }));
+    }
+    list.append(card);
   }
 }
 function renderHistory() {
@@ -440,6 +485,34 @@ function bind() {
     else await rpc('add_shared_expense_v2', { p_group: state.group.id, ...args });
     clearForm(); await refreshCurrent(); notice('Spesa salvata e condivisa con il gruppo.');
   }); });
+  $('settlementForm').addEventListener('submit', event => { event.preventDefault(); const form = event.currentTarget; run(event.submitter, async () => {
+    const data = new FormData(form);
+    const amount = Number(data.get('settleAmount'));
+    const cents = Math.round(amount * 100);
+    const from = String(data.get('settleFrom'));
+    const to = String(data.get('settleTo'));
+    if (!Number.isFinite(cents) || cents < 1 || cents > 100000000) throw Error('Inserisci un importo valido.');
+    if (!from || !to || from === to) throw Error('Seleziona due partecipanti diversi.');
+    if (!confirm(`Confermi che ${memberName(from)} ha già rimborsato ${euro(cents)} a ${memberName(to)}?`)) return;
+    await rpc('record_expense_settlement', { p_group: state.group.id, p_from_user: from,
+      p_to_user: to, p_amount_cents: cents, p_paid_on: data.get('settleDate'),
+      p_note: String(data.get('settleNote') || '').trim() });
+    form.elements.settleAmount.value = '';
+    form.elements.settleNote.value = '';
+    await refreshCurrent(); notice('Rimborso registrato. I saldi sono aggiornati, le spese restano invariate.');
+  }); });
+  $('nextTrip').addEventListener('click', event => run(event.currentTarget, async () => {
+    if (!state.group || !isOwner()) return;
+    const previous = state.group;
+    const name = prompt('Come vuoi chiamare il nuovo viaggio? Il viaggio attuale rimarrà consultabile e modificabile.', 'Nuovo viaggio');
+    if (name === null) return;
+    if (!name.trim() || name.trim().length > 80) throw Error('Inserisci un nome tra 1 e 80 caratteri.');
+    if (!confirm(`Aprire «${name.trim()}» con gli stessi partecipanti? «${previous.name}» conserverà tutte le sue spese e i suoi rimborsi.`)) return;
+    const id = await rpc('create_followup_expense_group', { p_group: previous.id, p_name: name.trim() });
+    clearForm(); state.group = null;
+    sessionStorage.setItem('selectedExpenseGroup', id);
+    await refreshGroups(); notice(`Nuovo viaggio «${name.trim()}» creato con saldo iniziale zero.`);
+  }));
   $('cancelEdit').addEventListener('click', clearForm);
   $('expenseForm').elements.category.addEventListener('change', updateOtherCategoryField);
   for (const tab of document.querySelectorAll('[data-tab]')) tab.addEventListener('click', () => {
@@ -463,7 +536,7 @@ function bind() {
     if (typed !== group.name) throw Error('Nome diverso: il gruppo non è stato eliminato.');
     await rpc('delete_expense_group', { p_group: group.id, p_confirmation: typed });
     if (state.channel) { await state.client.removeChannel(state.channel); state.channel = null; }
-    state.group = null; state.members = []; state.expenses = []; state.events = [];
+    state.group = null; state.members = []; state.expenses = []; state.events = []; state.settlements = [];
     $('groupContent').classList.add('hidden'); sessionStorage.removeItem('selectedExpenseGroup');
     await refreshGroups(); notice(`Il gruppo «${group.name}» è stato eliminato.`);
   }));
@@ -479,6 +552,7 @@ async function start() {
   }
   CATEGORIES.forEach(category => $('expenseForm').elements.category.add(new Option(category, category)));
   $('expenseForm').elements.spentOn.value = today();
+  $('settlementForm').elements.settleDate.value = today();
   bind();
   if (!config.supabaseUrl || !config.publishableKey || !window.supabase?.createClient) {
     $('setup').classList.remove('hidden'); return;
