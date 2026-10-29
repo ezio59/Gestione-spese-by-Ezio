@@ -24,7 +24,7 @@ export function totalsByCategory(expenses) {
     .sort((a, b) => b.cents - a.cents) };
 }
 
-export function balancesFor(members, expenses) {
+export function balancesFor(members, expenses, settlements = []) {
   const balances = Object.fromEntries(members.map(member => [member.user_id, 0]));
   for (const expense of expenses) {
     if (expense.deleted_at || !expense.split_between.length) continue;
@@ -33,6 +33,11 @@ export function balancesFor(members, expenses) {
     const remainder = expense.amount_cents % people.length;
     people.forEach((id, index) => { if (id in balances) balances[id] -= base + (index < remainder ? 1 : 0); });
     if (expense.paid_by in balances) balances[expense.paid_by] += expense.amount_cents;
+  }
+  for (const settlement of settlements) {
+    if (settlement.voided_at) continue;
+    if (settlement.from_user in balances) balances[settlement.from_user] += settlement.amount_cents;
+    if (settlement.to_user in balances) balances[settlement.to_user] -= settlement.amount_cents;
   }
   return balances;
 }
