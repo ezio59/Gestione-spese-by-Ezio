@@ -1,4 +1,4 @@
-import { CATEGORIES, balancesFor, categoryLabel, euro, expensesInPeriod, totalsByCategory } from './finance.mjs?v=5';
+import { CATEGORIES, balancesFor, categoryLabel, euro, expensesInPeriod, totalsByCategory } from './finance.mjs?v=6';
 
 const $ = id => document.getElementById(id);
 const palette = ['#6251c8', '#15a7a1', '#f3a94e', '#e76e91', '#688bc9', '#a9a3b8'];
@@ -326,6 +326,9 @@ function renderSettlementControls() {
   $('settleTo').value = members.some(member => member.user_id === currentTo) ? currentTo : toDefault || '';
   if ($('settleFrom').value === $('settleTo').value && members.length > 1) {
     $('settleTo').value = members.find(member => member.user_id !== $('settleFrom').value)?.user_id || '';
+  }
+  if (!$('settlementForm').elements.settleAmount.value && fromDefault && (balances[fromDefault] || 0) < 0) {
+    $('settlementForm').elements.settleAmount.value = (-(balances[fromDefault] || 0) / 100).toFixed(2);
   }
   $('settleSubmit').disabled = members.length < 2;
   $('nextTrip').classList.toggle('hidden', !isOwner());
