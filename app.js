@@ -130,20 +130,23 @@ async function refreshGroups() {
     .select('group_id,user_id,display_name,email,role,status').eq('user_id', state.user.id));
   const ids = state.memberships.map(item => item.group_id);
   state.groups = ids.length ? await response(state.client.from('expense_groups')
-    .select('id,name,created_by,created_at').in('id', ids)) : [];
+    .select('id,name,created_by,created_at,closed_at').in('id', ids)) : [];
+  state.groups.sort((a, b) => Number(Boolean(a.closed_at)) - Number(Boolean(b.closed_at)) || b.created_at.localeCompare(a.created_at));
+  if (state.group) state.group = state.groups.find(group => group.id === state.group.id) || state.group;
   if (state.group && !state.groups.some(group => group.id === state.group.id &&
       state.memberships.some(member => member.group_id === group.id && member.status === 'active'))) {
     if (state.channel) { await state.client.removeChannel(state.channel); state.channel = null; }
     state.group = null; $('groupContent').classList.add('hidden');
   }
   if (!state.group) { $('syncStatus').textContent = 'Pronto'; $('syncStatus').classList.remove('offline'); }
+  else $('nextTrip').classList.toggle('hidden', !isOwner() || !!state.group.closed_at);
   renderGoogleAccess();
   const list = $('groupsList'); list.replaceChildren();
   if (!state.groups.length) empty(list, 'Crea un gruppo o chiedi di entrare con un invito.');
   for (const group of state.groups) {
     const membership = state.memberships.find(item => item.group_id === group.id);
     const button = make('button', `group-choice ${membership.status === 'pending' ? 'pending' : ''} ${state.group?.id === group.id ? 'selected' : ''}`,
-      `${group.name}${membership.status === 'pending' ? ' · in attesa' : ''}`);
+      `${group.name}${group.closed_at ? ' · archiviato' : ''}${membership.status === 'pending' ? ' · in attesa' : ''}`);
     button.type = 'button'; button.dataset.groupId = group.id;
     button.addEventListener('click', () => {
       if (membership.status === 'pending') return notice('La tua richiesta aspetta l’approvazione di chi amministra il gruppo.');
@@ -163,7 +166,7 @@ async function loadGroup(group) {
   if (state.channel) { await state.client.removeChannel(state.channel); state.channel = null; }
   state.group = group; sessionStorage.setItem('selectedExpenseGroup', group.id);
   $('groupContent').classList.remove('hidden');
-  $('groupTitle').textContent = group.name;
+  $('groupTitle').textContent = `${group.name}${group.closed_at ? ' · archiviato' : ''}`;
   $('reportGroup').textContent = group.name;
   $('syncStatus').textContent = 'Sincronizzazione attiva'; $('syncStatus').classList.remove('offline');
   await refreshCurrent();
@@ -331,7 +334,7 @@ function renderSettlementControls() {
     $('settlementForm').elements.settleAmount.value = (-(balances[fromDefault] || 0) / 100).toFixed(2);
   }
   $('settleSubmit').disabled = members.length < 2;
-  $('nextTrip').classList.toggle('hidden', !isOwner());
+  $('nextTrip').classList.toggle('hidden', !isOwner() || !!state.group.closed_at);
 }
 
 function renderSettlements() {
@@ -505,12 +508,12 @@ function bind() {
     await refreshCurrent(); notice('Rimborso registrato. I saldi sono aggiornati, le spese restano invariate.');
   }); });
   $('nextTrip').addEventListener('click', event => run(event.currentTarget, async () => {
-    if (!state.group || !isOwner()) return;
+    if (!state.group || !isOwner() || state.group.closed_at) return;
     const previous = state.group;
     const name = prompt('Come vuoi chiamare il nuovo viaggio? Il viaggio attuale rimarrà consultabile e modificabile.', 'Nuovo viaggio');
     if (name === null) return;
     if (!name.trim() || name.trim().length > 80) throw Error('Inserisci un nome tra 1 e 80 caratteri.');
-    if (!confirm(`Aprire «${name.trim()}» con gli stessi partecipanti? «${previous.name}» conserverà tutte le sue spese e i suoi rimborsi.`)) return;
+    if (!confirm(`Archiviare «${previous.name}» e aprire «${name.trim()}» con gli stessi partecipanti? Le spese e i rimborsi del vecchio viaggio resteranno consultabili e modificabili.`)) return;
     const id = await rpc('create_followup_expense_group', { p_group: previous.id, p_name: name.trim() });
     clearForm(); state.group = null;
     sessionStorage.setItem('selectedExpenseGroup', id);
