@@ -8,3 +8,9 @@
 button.quiet.danger { background:#ffedf0; color:#a13f51 }
 .group-heading h2 { overflow-wrap:anywhere }
 .group-heading #deleteGroup { margin-top:4px }
+
+.trip-panel .section-head {align-items:center;flex-wrap:wrap}
+.trip-panel .section-head>div {flex:1;min-width:220px}
+.trip-panel h3 {margin-bottom:6px}
+.settlement-panel h4 {margin-top:26px}
+@media print {.trip-panel,.settlement-panel {display:none!important}}
