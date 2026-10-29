@@ -163,6 +163,14 @@ async function refreshGroups() {
 }
 
 async function loadGroup(group) {
+  if (state.group?.id !== group.id) {
+    clearForm();
+    $('filterFrom').value = '';
+    $('filterTo').value = '';
+    $('filterPayer').value = '';
+    $('settlementForm').reset();
+    $('settlementForm').elements.settleDate.value = today();
+  }
   if (state.channel) { await state.client.removeChannel(state.channel); state.channel = null; }
   state.group = group; sessionStorage.setItem('selectedExpenseGroup', group.id);
   $('groupContent').classList.remove('hidden');
