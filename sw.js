@@ -1,7 +1,7 @@
 // The app shell can open offline. Shared expenses still require a connection.
-const CACHE_NAME = 'gruppospese-shared-v9';
+const CACHE_NAME = 'gruppospese-shared-v10';
 const APP_FILES = [
-  './', './index.html', './style.css?v=8', './app.js?v=9', './finance.mjs?v=5', './config.js?v=5',
+  './', './index.html', './style.css?v=9', './app.js?v=10', './finance.mjs?v=6', './config.js?v=5',
   './manifest.json', './icons/icon-192x192.png', './icons/icon-512x512.png'
 ];
 self.addEventListener('install', event => {
